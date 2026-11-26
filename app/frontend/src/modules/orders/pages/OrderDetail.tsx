@@ -1,14 +1,30 @@
 import { errorMessage, toast } from '../../../shared/utils/feedback';
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import {
+  ArrowLeft,
+  CalendarClock,
+  CheckCircle2,
+  CreditCard,
+  KeyRound,
+  MapPin,
+  MapPinned,
+  Package,
+  Pencil,
+  ShieldCheck,
+  StickyNote,
+  Truck,
+  UserPlus,
+} from 'lucide-react';
 import { api } from '../../../shared/api/client';
 import { useAuth } from '../../../shared/context/AuthContext';
 import { useSocketSubscription } from '../../../shared/hooks/useSocketSubscription';
 import { useNotifications } from '../../../shared/context/NotificationContext';
 import { Order } from '../../../shared/types';
-import { ORDER_STATUS, SUPPLIER_FLOW, formatMoney, formatDate } from '../../../shared/utils/constants';
+import { SUPPLIER_FLOW, formatMoney, formatDate } from '../../../shared/utils/constants';
 import Modal from '../../../shared/ui/Modal';
-import { IconTruck, IconKey, IconCheck, IconEdit } from '../../../shared/ui/Icons';
+import { orderStatusBadgeClass, orderStatusLabel } from '../presentation';
+import '../Orders.css';
 
 export default function OrderDetail() {
   const { id } = useParams();
@@ -117,69 +133,78 @@ export default function OrderDetail() {
     }
   };
 
-  if (!order) return <div className="py-10 text-center text-gray-500">Cargando pedido...</div>;
+  if (!order) return <div className="x-empty">Cargando pedido...</div>;
 
-  const st = ORDER_STATUS[order.status] ?? { label: order.status, color: 'bg-gray-100 text-gray-700' };
   const done = ['entregado', 'cancelado'].includes(order.status);
   const latestDelivery = order.deliveries && order.deliveries.length > 0 ? order.deliveries[0] : null;
 
   return (
-    <div className="grid gap-6 lg:grid-cols-3">
-      <div className="lg:col-span-2">
-        <Link to="/pedidos" className="mb-3 inline-block text-sm text-brand hover:underline font-medium">← Volver a pedidos</Link>
-        <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm transition-colors duration-200">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h2 className="text-xl font-black text-slate-800 dark:text-white tracking-tight">{order.order_code}</h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                {isSupplier ? order.restaurant_name : order.supplier_name} · {formatDate(order.created_at)}
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className={`rounded-full px-3 py-1 text-sm font-bold ${st.color}`}>{st.label}</span>
-              {order.payment_status === 'pagado' && (
-                <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">
-                  Pagado
-                </span>
-              )}
-              {order.payment_status === 'pendiente' && (
-                <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800 dark:bg-amber-950/50 dark:text-amber-300">
-                  Pago pendiente
-                </span>
-              )}
-            </div>
-          </div>
+    <div className="ord-detail x-page">
+      <Link to="/pedidos" className="ord-detail__back">
+        <ArrowLeft aria-hidden="true" />
+        Volver a pedidos
+      </Link>
 
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800 text-left text-slate-500 dark:text-slate-400">
-                <th className="py-2">Producto</th>
-                <th className="py-2 text-right">Cantidad</th>
-                <th className="py-2 text-right">Precio</th>
-                <th className="py-2 text-right">Subtotal</th>
-              </tr>
-            </thead>
-            <tbody>
-              {order.items.map((i) => (
-                <tr key={i.id} className="border-b border-slate-100 dark:border-slate-800 text-slate-800 dark:text-slate-200">
-                  <td className="py-2">{i.name}</td>
-                  <td className="py-2 text-right">{i.quantity} {i.unit}</td>
-                  <td className="py-2 text-right">{formatMoney(i.unit_price)}</td>
-                  <td className="py-2 text-right">{formatMoney(i.subtotal)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <div className="mt-4 flex justify-end text-lg font-bold text-slate-900 dark:text-white">Total: {formatMoney(order.total)}</div>
+      <div className="ord-detail__layout">
+        <div className="ord-detail__main">
+          <section className="ord-detail__hero">
+            <div className="ord-detail__heading">
+              <div>
+                <h2 className="ord-detail__code">{order.order_code}</h2>
+                <p className="ord-detail__meta-line">
+                  {isSupplier ? order.restaurant_name : order.supplier_name} · {formatDate(order.created_at)}
+                </p>
+              </div>
+              <div className="ord-detail__badges">
+                <span className={`x-badge ${orderStatusBadgeClass(order.status)}`}>
+                  {orderStatusLabel(order.status)}
+                </span>
+                {order.payment_status === 'pagado' && (
+                  <span className="x-badge x-badge--success">Pagado</span>
+                )}
+                {order.payment_status === 'pendiente' && (
+                  <span className="x-badge x-badge--warn">Pago pendiente</span>
+                )}
+              </div>
+            </div>
 
-          {order.payment_status === 'pendiente' && (isGerente || user?.role === 'admin') && (
-            <div className="mt-4 rounded-xl border-2 border-amber-300 bg-amber-50 p-4 shadow-sm dark:border-amber-700 dark:bg-amber-950/30">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p className="text-sm font-bold text-amber-900 dark:text-amber-200">
-                    Este pedido requiere pago antes de confirmarse
-                  </p>
-                  <p className="mt-0.5 text-xs text-amber-800 dark:text-amber-300">
+            <div className="ord-detail__items-block">
+              <div className="ord-detail__items">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Producto</th>
+                      <th className="ord-detail__num">Cantidad</th>
+                      <th className="ord-detail__num">Precio</th>
+                      <th className="ord-detail__num">Subtotal</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {order.items.map((i) => (
+                      <tr key={i.id}>
+                        <td data-label="Producto">{i.name}</td>
+                        <td data-label="Cantidad" className="ord-detail__num">{i.quantity} {i.unit}</td>
+                        <td data-label="Precio" className="ord-detail__num">{formatMoney(i.unit_price)}</td>
+                        <td data-label="Subtotal" className="ord-detail__num">{formatMoney(i.subtotal)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="ord-detail__total">
+                <span>Total</span>
+                <strong>{formatMoney(order.total)}</strong>
+              </div>
+            </div>
+
+            {order.payment_status === 'pendiente' && (isGerente || user?.role === 'admin') && (
+              <div className="ord-detail__pay">
+                <span className="ord-detail__pay-icon" aria-hidden="true">
+                  <CreditCard />
+                </span>
+                <div className="ord-detail__pay-copy">
+                  <p className="ord-detail__pay-title">Este pedido requiere pago antes de confirmarse</p>
+                  <p className="ord-detail__pay-text">
                     Pago seguro con Wompi: tarjeta, PSE o Nequi. Al aprobarse, el proveedor podrá confirmar el pedido.
                   </p>
                 </div>
@@ -187,235 +212,243 @@ export default function OrderDetail() {
                   type="button"
                   onClick={payOrder}
                   disabled={paying}
-                  className="rounded-xl bg-amber-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-amber-700 active:scale-95 disabled:opacity-50"
+                  className="x-btn x-btn--primary"
                 >
                   {paying ? 'Abriendo Wompi…' : `Pagar ${formatMoney(order.total)}`}
                 </button>
               </div>
-            </div>
-          )}
-          {order.notes && <p className="mt-3 rounded-lg bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/60 p-2.5 text-sm text-slate-600 dark:text-slate-300">Notas: {order.notes}</p>}
-          {order.delivery_address && (
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
-              <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              <span><b>Dirección de entrega:</b> {order.delivery_address}</span>
-            </p>
-          )}
-          {order.requested_delivery_date && (
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
-              <svg className="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              <span><b>Entrega solicitada:</b> {formatDate(order.requested_delivery_date)}</span>
-            </p>
-          )}
-        </div>
+            )}
 
-        {/* Tarjeta de seguimiento de entrega y domiciliario */}
-        {latestDelivery && (
-          <div className="mt-4 rounded-xl border border-sky-200 bg-sky-50/60 p-5 shadow-sm dark:bg-slate-800 dark:border-slate-700">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-sky-100 dark:border-slate-700 pb-3">
-              <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-lg bg-sky-600 text-white flex items-center justify-center font-bold">
-                  <IconTruck className="w-5 h-5 text-white" />
+            <div className="ord-detail__facts">
+              {order.notes && (
+                <p className="ord-detail__fact">
+                  <span className="ord-detail__fact-icon" aria-hidden="true"><StickyNote /></span>
+                  <span><b>Notas: </b>{order.notes}</span>
+                </p>
+              )}
+              {order.delivery_address && (
+                <p className="ord-detail__fact">
+                  <span className="ord-detail__fact-icon" aria-hidden="true"><MapPin /></span>
+                  <span><b>Dirección de entrega: </b>{order.delivery_address}</span>
+                </p>
+              )}
+              {order.requested_delivery_date && (
+                <p className="ord-detail__fact">
+                  <span className="ord-detail__fact-icon" aria-hidden="true"><CalendarClock /></span>
+                  <span><b>Entrega solicitada: </b>{formatDate(order.requested_delivery_date)}</span>
+                </p>
+              )}
+            </div>
+          </section>
+
+          {/* Tarjeta de seguimiento de entrega y domiciliario */}
+          {latestDelivery && (
+            <section className="ord-detail__delivery">
+              <div className="ord-detail__delivery-head">
+                <div className="ord-detail__delivery-id">
+                  <span className="ord-detail__delivery-icon" aria-hidden="true"><Truck /></span>
+                  <div>
+                    <h3 className="ord-detail__delivery-title">Información y Estado de Entrega</h3>
+                    <p className="ord-detail__guide">Guía: {latestDelivery.delivery_code}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-bold text-slate-900 dark:text-white text-sm">Información y Estado de Entrega</h3>
-                  <p className="text-xs text-slate-500 font-mono dark:text-slate-400">Guía: {latestDelivery.delivery_code}</p>
-                </div>
+                <span className="ord-detail__delivery-status">{latestDelivery.status}</span>
               </div>
-              <span className="rounded-full bg-sky-600 px-3 py-1 text-xs font-bold text-white capitalize shadow-xs">
-                {latestDelivery.status}
-              </span>
-            </div>
 
-            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-slate-700 dark:text-slate-300">
-              <p>
-                <b className="text-slate-900 dark:text-white">Ubicación de entrega:</b>{' '}
-                <span className="text-slate-600 dark:text-slate-300">
+              <div className="ord-detail__delivery-grid">
+                <p className="ord-detail__data">
+                  <b>Ubicación de entrega</b>
                   {latestDelivery.delivery_address || order.delivery_address || 'Bucaramanga, Santander'}
-                </span>
-              </p>
-              <p>
-                <b className="text-slate-900 dark:text-white">Quién lo lleva (Domiciliario):</b>{' '}
-                {latestDelivery.driver_name ? (
-                  <span className="font-semibold text-sky-700 dark:text-sky-400">{latestDelivery.driver_name}</span>
-                ) : (
-                  <span className="text-amber-600 font-medium">Sin conductor asignado aún</span>
+                </p>
+                <p className="ord-detail__data">
+                  <b>Quién lo lleva (Domiciliario)</b>
+                  {latestDelivery.driver_name ? (
+                    <span className="ord-detail__data-highlight">{latestDelivery.driver_name}</span>
+                  ) : (
+                    <span className="ord-detail__data-wait">Sin conductor asignado aún</span>
+                  )}
+                </p>
+                {latestDelivery.driver_phone && (
+                  <p className="ord-detail__data">
+                    <b>Teléfono de contacto</b>
+                    {latestDelivery.driver_phone}
+                  </p>
                 )}
-              </p>
-              {latestDelivery.driver_phone && (
-                <p><b className="text-slate-900 dark:text-white">Teléfono de contacto:</b> {latestDelivery.driver_phone}</p>
-              )}
-              {latestDelivery.vehicle_name && (
-                <p><b className="text-slate-900 dark:text-white">Vehículo de despacho:</b> {latestDelivery.vehicle_name} ({latestDelivery.plate})</p>
-              )}
-            </div>
+                {latestDelivery.vehicle_name && (
+                  <p className="ord-detail__data">
+                    <b>Vehículo de despacho</b>
+                    {latestDelivery.vehicle_name} ({latestDelivery.plate})
+                  </p>
+                )}
+              </div>
 
-            {/* Domiciliario: Vista destacada de la llave de entrega */}
-            {isDriver && (
-              <div className="mt-4 rounded-xl border border-amber-300 bg-amber-50 p-3.5 text-amber-900 shadow-xs dark:bg-amber-950/40 dark:border-amber-700 dark:text-amber-200">
-                <p className="font-bold text-xs sm:text-sm flex items-center gap-2">
-                  <IconKey className="w-4 h-4 text-amber-700 dark:text-amber-300" />
-                  <span>
-                    Tu Llave de Entrega:{' '}
-                    <span className="font-mono text-base sm:text-lg font-black bg-white dark:bg-slate-900 border border-amber-300 dark:border-amber-700 px-2.5 py-0.5 rounded-lg shadow-sm">
+              {/* Domiciliario: Vista destacada de la llave de entrega */}
+              {isDriver && (
+                <div className="ord-detail__key">
+                  <span className="ord-detail__key-icon" aria-hidden="true"><KeyRound /></span>
+                  <span className="ord-detail__key-label">
+                    Tu Llave de Entrega:
+                    <span className="ord-detail__key-value">
                       {latestDelivery.confirmation_code || '----'}
                     </span>
                   </span>
-                </p>
-                <p className="text-[11px] mt-1.5 text-amber-800 dark:text-amber-300 leading-relaxed">
-                  Entrega este código al gerente del restaurante al llegar para que complete la entrega en su sistema.
-                </p>
-              </div>
-            )}
-
-            {/* Gerente de Restaurante: Sección para validar con la llave recibida del domiciliario */}
-            {(isGerente || (user?.restaurant_id && !isSupplier && !isDriver)) && (
-              latestDelivery.status === 'entregado' ? (
-                <div className="mt-4 rounded-xl border border-emerald-300 bg-emerald-50 p-3 text-xs font-bold text-emerald-800 flex items-center gap-2 dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-300">
-                  <IconCheck className="w-4 h-4 text-emerald-600" />
-                  <span>Envío completado exitosamente a satisfacción con la llave de seguridad.</span>
+                  <p className="ord-detail__key-text">
+                    Entrega este código al gerente del restaurante al llegar para que complete la entrega en su sistema.
+                  </p>
                 </div>
-              ) : (
-                <div className="mt-4 rounded-xl border-2 border-indigo-200 bg-indigo-50/80 p-4 shadow-sm dark:bg-indigo-950/40 dark:border-indigo-800">
-                  <div className="flex items-start gap-2 mb-2">
-                    <IconKey className="w-6 h-6 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
-                    <div>
-                      <h4 className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">
-                        Completar Envío con Llave de Seguridad
-                      </h4>
-                      <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
-                        El domiciliario te entregará un código de 4 dígitos al momento de recibir el pedido. Ingrésalo a continuación para confirmar la recepción a satisfacción:
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-2.5 mt-3">
-                    <input
-                      type="text"
-                      maxLength={6}
-                      value={securityKeyInput}
-                      onChange={(e) => setSecurityKeyInput(e.target.value.trim())}
-                      placeholder="Código (Ej: 7421)"
-                      className="w-36 rounded-xl border border-indigo-300 bg-white px-3 py-2 text-center text-sm font-black font-mono tracking-widest text-indigo-900 shadow-xs focus:ring-2 focus:ring-indigo-500 dark:bg-slate-900 dark:text-white dark:border-indigo-700"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => completeWithKey(latestDelivery.id)}
-                      disabled={verifyingKey || !securityKeyInput.trim()}
-                      className="rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold px-4 py-2 text-xs transition cursor-pointer disabled:opacity-40 shadow-sm"
-                    >
-                      {verifyingKey ? 'Validando...' : 'Completar Envío con esta Llave'}
-                    </button>
-                  </div>
-                  {keyError && <p className="mt-2 text-xs text-rose-600 dark:text-rose-400 font-semibold">{keyError}</p>}
-                </div>
-              )
-            )}
-
-            {/* Acciones de entrega (El gerente NO ve mapa GPS; solo domiciliario o proveedor) */}
-            <div className="mt-4 flex flex-wrap gap-2 pt-3 border-t border-sky-100 dark:border-slate-700">
-              {!isGerente && (isDriver || isSupplier || user?.role === 'admin') && (
-                <Link
-                  to="/logistica"
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-sky-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm hover:bg-sky-700 transition"
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                  </svg>
-                  <span>Ver en Mapa GPS en Tiempo Real</span>
-                </Link>
               )}
 
-              {canManageDelivery && (
-                <button
-                  onClick={() => {
-                    setDeliveryForm({
-                      driver_id: latestDelivery.driver_id ? String(latestDelivery.driver_id) : '',
-                      vehicle_id: latestDelivery.vehicle_id ? String(latestDelivery.vehicle_id) : '',
-                      scheduled_time: latestDelivery.scheduled_time || '',
-                    });
-                    setDeliveryModal(true);
-                  }}
-                  className="rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-xs dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200 inline-flex items-center gap-1.5"
-                >
-                  <IconEdit className="w-3.5 h-3.5" />
-                  <span>Cambiar Domiciliario / Vehículo</span>
-                </button>
+              {/* Gerente de Restaurante: Sección para validar con la llave recibida del domiciliario */}
+              {(isGerente || (user?.restaurant_id && !isSupplier && !isDriver)) && (
+                latestDelivery.status === 'entregado' ? (
+                  <div className="ord-detail__success">
+                    <CheckCircle2 aria-hidden="true" />
+                    <span>Envío completado exitosamente a satisfacción con la llave de seguridad.</span>
+                  </div>
+                ) : (
+                  <div className="ord-detail__confirm">
+                    <div className="ord-detail__confirm-head">
+                      <ShieldCheck aria-hidden="true" />
+                      <div>
+                        <h4 className="ord-detail__confirm-title">Completar Envío con Llave de Seguridad</h4>
+                        <p className="ord-detail__confirm-text">
+                          El domiciliario te entregará un código de 4 dígitos al momento de recibir el pedido. Ingrésalo a continuación para confirmar la recepción a satisfacción:
+                        </p>
+                      </div>
+                    </div>
+                    <div className="ord-detail__confirm-row">
+                      <input
+                        type="text"
+                        maxLength={6}
+                        value={securityKeyInput}
+                        onChange={(e) => setSecurityKeyInput(e.target.value.trim())}
+                        placeholder="Código (Ej: 7421)"
+                        className="x-input ord-detail__code-input"
+                        aria-label="Código de confirmación de entrega"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => completeWithKey(latestDelivery.id)}
+                        disabled={verifyingKey || !securityKeyInput.trim()}
+                        className="x-btn x-btn--primary"
+                      >
+                        {verifyingKey ? 'Validando...' : 'Completar Envío con esta Llave'}
+                      </button>
+                    </div>
+                    {keyError && <p className="ord-detail__error">{keyError}</p>}
+                  </div>
+                )
+              )}
+
+              {/* Acciones de entrega (El gerente NO ve mapa GPS; solo domiciliario o proveedor) */}
+              <div className="ord-detail__actions">
+                {!isGerente && (isDriver || isSupplier || user?.role === 'admin') && (
+                  <Link to="/logistica" className="x-btn x-btn--primary">
+                    <MapPinned aria-hidden="true" />
+                    Ver en Mapa GPS en Tiempo Real
+                  </Link>
+                )}
+                {canManageDelivery && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDeliveryForm({
+                        driver_id: latestDelivery.driver_id ? String(latestDelivery.driver_id) : '',
+                        vehicle_id: latestDelivery.vehicle_id ? String(latestDelivery.vehicle_id) : '',
+                        scheduled_time: latestDelivery.scheduled_time || '',
+                      });
+                      setDeliveryModal(true);
+                    }}
+                    className="x-btn"
+                  >
+                    <Pencil aria-hidden="true" />
+                    Cambiar Domiciliario / Vehículo
+                  </button>
+                )}
+              </div>
+            </section>
+          )}
+
+          <section className="x-card">
+            <div className="x-card__head">
+              <h3 className="x-card__title">Historial de Eventos</h3>
+            </div>
+            <div className="x-card__body">
+              {history.length === 0 ? (
+                <p className="ord-detail__empty">Sin eventos registrados.</p>
+              ) : (
+                <ul className="ord-detail__history-list">
+                  {history.map((h, i) => (
+                    <li key={i}>
+                      <span>{h.action === 'create' ? 'Pedido creado' : `Cambio de estado: ${h.action}`}</span>
+                      <time>{formatDate(h.created_at)}</time>
+                    </li>
+                  ))}
+                </ul>
               )}
             </div>
-          </div>
-        )}
-
-        <div className="mt-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm transition-colors duration-200">
-          <h3 className="mb-2 font-bold text-slate-800 dark:text-white text-sm">Historial de Eventos</h3>
-          {history.length === 0 && <p className="text-sm text-gray-400 dark:text-slate-500">Sin eventos registrados.</p>}
-          <ul className="space-y-1 text-sm">
-            {history.map((h, i) => (
-              <li key={i} className="flex justify-between border-b border-slate-100 dark:border-slate-800 py-1.5 text-slate-700 dark:text-slate-300">
-                <span>{h.action === 'create' ? 'Pedido creado' : `Cambio de estado: ${h.action}`}</span>
-                <span className="text-gray-400 dark:text-slate-500 text-xs">{formatDate(h.created_at)}</span>
-              </li>
-            ))}
-          </ul>
+          </section>
         </div>
-      </div>
 
-      <div className="h-fit rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm space-y-4 transition-colors duration-200">
-        <h3 className="font-bold text-slate-800 dark:text-white text-sm">Gestión del Pedido</h3>
+        <aside className="ord-detail__side">
+          <section className="ord-detail__side-card">
+            <h3 className="ord-detail__side-title">
+              <Package aria-hidden="true" />
+              Gestión del Pedido
+            </h3>
 
-        {/* Botón directo para asignar domiciliario si aún no tiene */}
-        {canManageDelivery && (!latestDelivery || !latestDelivery.driver_id) && !done && (
-          <button
-            onClick={() => setDeliveryModal(true)}
-            className="w-full rounded-xl bg-indigo-600 py-3 text-sm font-bold text-white hover:bg-indigo-700 shadow-md flex items-center justify-center gap-2 transition"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
-            <span>Asignar Domiciliario al Pedido</span>
-          </button>
-        )}
-
-        {isSupplier ? (
-          <div className="space-y-2">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Flujo de Estados:</p>
-            {SUPPLIER_FLOW.map((s) => (
+            {/* Botón directo para asignar domiciliario si aún no tiene */}
+            {canManageDelivery && (!latestDelivery || !latestDelivery.driver_id) && !done && (
               <button
-                key={s}
-                onClick={() => changeStatus(s)}
-                disabled={done || order.status === s || SUPPLIER_FLOW.indexOf(s) < SUPPLIER_FLOW.indexOf(order.status)}
-                className="w-full rounded-xl border border-brand py-2 text-sm font-bold text-brand hover:bg-brand hover:text-white disabled:opacity-40 transition"
+                type="button"
+                onClick={() => setDeliveryModal(true)}
+                className="x-btn x-btn--primary x-btn--block"
               >
-                Marcar como {ORDER_STATUS[s].label}
+                <UserPlus aria-hidden="true" />
+                Asignar Domiciliario al Pedido
               </button>
-            ))}
-          </div>
-        ) : (
-          <button
-            onClick={() => changeStatus('cancelado')}
-            disabled={done}
-            className="w-full rounded-xl border border-red-500 py-2 text-sm font-medium text-red-500 hover:bg-red-500 hover:text-white disabled:opacity-40 transition"
-          >
-            Cancelar pedido
-          </button>
-        )}
-        <p className="text-xs text-gray-400">Los cambios se sincronizan en tiempo real.</p>
+            )}
+
+            {isSupplier ? (
+              <div className="ord-detail__flow">
+                <p className="ord-detail__flow-label">Flujo de Estados</p>
+                {SUPPLIER_FLOW.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => changeStatus(s)}
+                    disabled={done || order.status === s || SUPPLIER_FLOW.indexOf(s) < SUPPLIER_FLOW.indexOf(order.status)}
+                    className={`x-btn ord-detail__flow-btn ${order.status === s ? 'ord-detail__flow-btn--active' : ''}`}
+                  >
+                    Marcar como {orderStatusLabel(s)}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => changeStatus('cancelado')}
+                disabled={done}
+                className="x-btn x-btn--danger x-btn--block"
+              >
+                Cancelar pedido
+              </button>
+            )}
+            <p className="ord-detail__sync">Los cambios se sincronizan en tiempo real.</p>
+          </section>
+        </aside>
       </div>
 
       {deliveryModal && (
         <Modal title="Asignar Domiciliario y Programar Entrega" onClose={() => setDeliveryModal(false)}>
-          <div className="space-y-3">
+          <div className="ord-detail__modal-grid">
             <div>
-              <label className="mb-1 block text-sm font-bold text-slate-700">Seleccionar Domiciliario / Conductor:</label>
+              <label className="x-label" htmlFor="delivery-driver">Seleccionar Domiciliario / Conductor:</label>
               <select
+                id="delivery-driver"
                 value={deliveryForm.driver_id}
                 onChange={(e) => setDeliveryForm({ ...deliveryForm, driver_id: e.target.value })}
-                className="w-full rounded-xl border px-3 py-2 text-sm bg-white font-medium"
+                className="x-select"
                 required
               >
                 <option value="">-- Elige un usuario del sistema --</option>
@@ -426,15 +459,16 @@ export default function OrderDetail() {
                 ))}
               </select>
               {drivers.length === 0 && (
-                <p className="mt-1 text-xs text-amber-600">No se encontraron usuarios registrados.</p>
+                <span className="x-hint">No se encontraron usuarios registrados.</span>
               )}
             </div>
             <div>
-              <label className="mb-1 block text-sm font-bold text-slate-700">Vehículo de Entrega (opcional):</label>
+              <label className="x-label" htmlFor="delivery-vehicle">Vehículo de Entrega (opcional):</label>
               <select
+                id="delivery-vehicle"
                 value={deliveryForm.vehicle_id}
                 onChange={(e) => setDeliveryForm({ ...deliveryForm, vehicle_id: e.target.value })}
-                className="w-full rounded-xl border px-3 py-2 text-sm bg-white"
+                className="x-select"
               >
                 <option value="">-- Sin vehículo específico asignado --</option>
                 {vehicles.map((v) => (
@@ -445,18 +479,20 @@ export default function OrderDetail() {
               </select>
             </div>
             <div>
-              <label className="mb-1 block text-sm font-bold text-slate-700">Fecha y hora estimada (opcional):</label>
+              <label className="x-label" htmlFor="delivery-schedule">Fecha y hora estimada (opcional):</label>
               <input
+                id="delivery-schedule"
                 type="datetime-local"
                 value={deliveryForm.scheduled_time}
                 onChange={(e) => setDeliveryForm({ ...deliveryForm, scheduled_time: e.target.value })}
-                className="w-full rounded-xl border px-3 py-2 text-sm"
+                className="x-input"
               />
             </div>
             <button
+              type="button"
               onClick={createDelivery}
               disabled={!deliveryForm.driver_id}
-              className="w-full rounded-xl bg-brand py-2.5 text-white font-bold hover:bg-brand-dark disabled:opacity-50 shadow transition"
+              className="x-btn x-btn--primary x-btn--block ord-detail__modal-actions"
             >
               Asignar Domiciliario y Guardar
             </button>

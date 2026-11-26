@@ -1,11 +1,34 @@
 import { toast } from '../../../../shared/utils/feedback';
 import { useEffect, useState, FormEvent } from 'react';
+import {
+  Apple,
+  ArrowDownWideNarrow,
+  Beef,
+  Coffee,
+  Droplets,
+  Fish,
+  ImagePlus,
+  Milk,
+  Minus,
+  Package,
+  Pencil,
+  Plus,
+  Search,
+  Settings2,
+  ShoppingBasket,
+  SlidersHorizontal,
+  Tag,
+  Trash2,
+  Wheat,
+  type LucideIcon,
+} from 'lucide-react';
 import { api } from '../../../../shared/api/client';
 import { useAuth } from '../../../../shared/context/AuthContext';
 import { useCart } from '../../../../shared/context/CartContext';
 import { useNotifications } from '../../../../shared/context/NotificationContext';
 import { Product, Category, Supplier } from '../../../../shared/types';
 import Modal from '../../../../shared/ui/Modal';
+import '../../Catalog.css';
 
 interface ProductForm {
   name: string;
@@ -32,6 +55,21 @@ const emptyForm: ProductForm = {
 };
 
 import { getProductImage, CATEGORY_FALLBACK_IMAGES } from '../../utils/productImage';
+
+/** Iconos del catálogo: siempre SVG de lucide, nunca emoji del dato. */
+const CATEGORY_ICONS: [RegExp, LucideIcon][] = [
+  [/bebida|jugo|agua|gaseosa/i, Droplets],
+  [/lácteo|lacteo|queso|leche|yogurt/i, Milk],
+  [/fruta|verdura|hortaliza/i, Apple],
+  [/grano|cereal|harina|arroz|condimento|especia/i, Wheat],
+  [/carne|pollo|cerdo|parrilla/i, Beef],
+  [/pescado|marisco/i, Fish],
+  [/café|cafe|té/i, Coffee],
+];
+
+function categoryIcon(name: string): LucideIcon {
+  return CATEGORY_ICONS.find(([pattern]) => pattern.test(name))?.[1] ?? Tag;
+}
 
 interface CustomizationConfig {
   typeLabel: string;
@@ -358,175 +396,204 @@ export default function Catalog() {
   const set = (k: keyof ProductForm) => (e: { target: { value: string } }) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
 
-  const input = 'w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-white focus:border-brand focus:outline-none';
-  const label = 'mb-1 block text-sm font-semibold text-slate-300';
+  const input = 'x-input';
+  const label = 'x-label';
 
   return (
-    <div>
-      <div className="mb-4 flex flex-wrap items-center gap-3">
-        {isSupplier && (
-          <button onClick={openCreate} className="rounded bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-dark">
-            + Nuevo producto
-          </button>
-        )}
-        <select value={supplierFilter} onChange={(e) => setSupplierFilter(e.target.value ? Number(e.target.value) : '')} className="rounded border px-3 py-2">
-          <option value="">Todos los proveedores</option>
-          {suppliers.map((s) => (
-            <option key={s.id} value={s.id}>{s.name}</option>
-          ))}
-        </select>
-        <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value ? Number(e.target.value) : '')} className="rounded border px-3 py-2">
-          <option value="">Todas las categorías</option>
-          {categories.map((c) => (
-            <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
-          ))}
-        </select>
-        <select value={priceSort} onChange={(e) => setPriceSort(e.target.value as any)} className="rounded border px-3 py-2">
-          <option value="">Ordenar por precio</option>
-          <option value="desc">Mayor a menor</option>
-          <option value="asc">Menor a mayor</option>
-        </select>
-        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar producto..." className="flex-1 rounded border px-3 py-2" />
+    <div className="cat x-page">
+      <header className="cat__hero">
+        <div>
+          <p className="cat__eyebrow">Comercio · Catálogo</p>
+          <h1 className="cat__title">Catálogo mayorista</h1>
+          <p className="cat__subtitle">
+            {isSupplier
+              ? 'Gestiona tu oferta y mantén los insumos al día para tus clientes.'
+              : 'Explora insumos de tus proveedores vinculados y construye tu pedido.'}
+          </p>
+        </div>
+        <div className="cat__hero-actions">
+          {isSupplier && (
+            <button type="button" onClick={openCreate} className="x-btn x-btn--primary">
+              <Plus aria-hidden="true" className="w-4 h-4" />
+              Nuevo producto
+            </button>
+          )}
+          <span className="x-badge x-badge--primary">
+            <Package aria-hidden="true" className="w-3 h-3" />
+            {displayedProducts.length} producto(s)
+          </span>
+        </div>
+      </header>
+
+      <div className="cat__toolbar x-card">
+        <div className="cat__search">
+          <Search aria-hidden="true" />
+          <label className="sr-only" htmlFor="catalog-search">Buscar producto</label>
+          <input
+            id="catalog-search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Buscar producto..."
+            className="x-input"
+          />
+        </div>
+        <div className="cat__filter">
+          <SlidersHorizontal aria-hidden="true" />
+          <label className="sr-only" htmlFor="catalog-supplier">Filtrar por proveedor</label>
+          <select id="catalog-supplier" value={supplierFilter} onChange={(e) => setSupplierFilter(e.target.value ? Number(e.target.value) : '')} className="x-select">
+            <option value="">Todos los proveedores</option>
+            {suppliers.map((s) => (
+              <option key={s.id} value={s.id}>{s.name}</option>
+            ))}
+          </select>
+        </div>
+        <div className="cat__filter">
+          <Tag aria-hidden="true" />
+          <label className="sr-only" htmlFor="catalog-category">Filtrar por categoría</label>
+          <select id="catalog-category" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value ? Number(e.target.value) : '')} className="x-select">
+            <option value="">Todas las categorías</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        </div>
+        <div className="cat__filter">
+          <ArrowDownWideNarrow aria-hidden="true" />
+          <label className="sr-only" htmlFor="catalog-sort">Ordenar por precio</label>
+          <select id="catalog-sort" value={priceSort} onChange={(e) => setPriceSort(e.target.value as any)} className="x-select">
+            <option value="">Ordenar por precio</option>
+            <option value="desc">Mayor a menor</option>
+            <option value="asc">Menor a mayor</option>
+          </select>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="cat__grid">
         {displayedProducts.map((p) => (
-          <div
-            key={p.id}
-            className="group flex flex-col rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0f172a] shadow-sm hover:shadow-xl dark:shadow-none hover:border-brand/50 transition-all duration-300 overflow-hidden"
-          >
+          <div key={p.id} className="cat-card x-card--hover">
             {/* Product Image Banner */}
-            <div className="relative h-44 w-full overflow-hidden bg-slate-100 dark:bg-slate-900">
+            <div className="cat-card__media">
               <img
                 src={getProductImage(p)}
                 alt={p.name}
-                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                className="cat-card__img"
                 loading="lazy"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = CATEGORY_FALLBACK_IMAGES.Carnes;
                 }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
-              
-              {/* Category Badge */}
-              <span className="absolute top-3 left-3 rounded-full bg-slate-900/80 backdrop-blur-md px-2.5 py-1 text-[11px] font-bold text-orange-400 border border-orange-500/30 shadow-sm">
-                {p.category || 'General'}
-              </span>
-
-              {/* Stock Badge */}
-              <span className="absolute top-3 right-3 rounded-full bg-slate-900/80 backdrop-blur-md px-2.5 py-1 text-[11px] font-bold text-emerald-400 border border-emerald-500/30 shadow-sm">
-                Disp: {p.stock_available} {p.unit}
-              </span>
+              <span className="cat-card__media-shade" aria-hidden="true" />
+              <span className="cat-card__cat">{p.category || 'General'}</span>
+              <span className="cat-card__stock">Disp: {p.stock_available} {p.unit}</span>
             </div>
 
             {/* Product Card Content */}
-            <div className="p-4 flex flex-col flex-1">
-              <div className="mb-1 flex items-start justify-between gap-2">
-                <h3 className="font-bold text-slate-900 dark:text-white text-base leading-snug line-clamp-1">{p.name}</h3>
-              </div>
-              <p className="mb-2 text-xs font-medium text-slate-500 dark:text-slate-400">{p.supplier_name}</p>
-              {p.description && (
-                <p className="mb-3 text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
-                  {p.description}
-                </p>
-              )}
+            <div className="cat-card__body">
+              <h3 className="cat-card__name">{p.name}</h3>
+              <p className="cat-card__supplier">{p.supplier_name}</p>
+              {p.description && <p className="cat-card__desc">{p.description}</p>}
 
-              <div className="mt-auto mb-3.5 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-baseline justify-between">
+              <div className="cat-card__pricing">
                 <div>
-                  <span className="text-[11px] text-slate-400 font-medium block">Precio mayorista</span>
-                  <span className="text-lg font-black text-brand tracking-tight">
+                  <span className="cat-card__price-label">Precio mayorista</span>
+                  <span className="cat-card__price">
                     ${p.price_per_unit.toLocaleString('es-CO')}{' '}
-                    <span className="text-xs font-normal text-slate-400">/ {p.unit}</span>
+                    <small>/ {p.unit}</small>
                   </span>
                 </div>
-                <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
-                  Mín: {p.min_order_qty} {p.unit}
-                </span>
+                <span className="cat-card__min">Mín: {p.min_order_qty} {p.unit}</span>
               </div>
 
               {isSupplier ? (
-                <div className="flex gap-2">
-                  <button onClick={() => openEdit(p)} className="flex-1 rounded-xl border border-brand py-2 text-sm font-semibold text-brand hover:bg-brand hover:text-white transition">
+                <div className="cat-card__actions">
+                  <button type="button" onClick={() => openEdit(p)} className="x-btn">
+                    <Pencil aria-hidden="true" className="w-3.5 h-3.5" />
                     Editar
                   </button>
-                  <button onClick={() => removeProduct(p.id)} className="flex-1 rounded-xl border border-red-500 py-2 text-sm font-semibold text-red-500 hover:bg-red-500 hover:text-white transition">
+                  <button type="button" onClick={() => removeProduct(p.id)} className="x-btn x-btn--danger">
+                    <Trash2 aria-hidden="true" className="w-3.5 h-3.5" />
                     Desactivar
                   </button>
                 </div>
               ) : user?.role === 'gerente' ? (
-                <div className="space-y-2">
+                <div className="cat-card__buy">
                   {/* Selector rápido de cantidad */}
-                  <div className="flex items-center justify-between gap-2 bg-slate-50 dark:bg-slate-800/80 rounded-xl p-1.5 border border-slate-200 dark:border-slate-700/60">
-                    <span className="text-xs text-slate-600 dark:text-slate-300 font-medium pl-1.5">Cantidad ({p.unit}):</span>
-                    <div className="flex items-center gap-1.5">
+                  <div className="cat-card__stepper">
+                    <span>Cantidad ({p.unit})</span>
+                    <div className="cat-card__stepper-controls">
                       <button
                         type="button"
+                        aria-label="Disminuir cantidad"
                         onClick={() =>
                           setQuantities((prev) => ({
                             ...prev,
                             [p.id]: Math.max(p.min_order_qty || 1, (prev[p.id] || p.min_order_qty || 1) - 1),
                           }))
                         }
-                        className="w-7 h-7 flex items-center justify-center rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white font-bold hover:bg-slate-300 dark:hover:bg-slate-600 transition"
+                        className="cat-card__step-btn"
                       >
-                        -
+                        <Minus aria-hidden="true" />
                       </button>
                       <input
                         type="number"
+                        aria-label={`Cantidad de ${p.name}`}
                         min={p.min_order_qty || 1}
                         value={quantities[p.id] ?? (p.min_order_qty || 1)}
                         onChange={(e) =>
                           setQuantities((prev) => ({ ...prev, [p.id]: Math.max(1, Number(e.target.value)) }))
                         }
-                        className="w-12 text-center text-xs font-bold text-slate-900 dark:text-white bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded py-1"
+                        className="cat-card__qty"
                       />
                       <button
                         type="button"
+                        aria-label="Aumentar cantidad"
                         onClick={() =>
                           setQuantities((prev) => ({
                             ...prev,
                             [p.id]: (prev[p.id] || p.min_order_qty || 1) + 1,
                           }))
                         }
-                        className="w-7 h-7 flex items-center justify-center rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white font-bold hover:bg-slate-300 dark:hover:bg-slate-600 transition"
+                        className="cat-card__step-btn"
                       >
-                        +
+                        <Plus aria-hidden="true" />
                       </button>
                     </div>
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="cat-card__actions">
                     <button
                       type="button"
                       onClick={() => openCustomization(p)}
-                      className="px-3 rounded-xl border border-sky-500/40 bg-sky-50 dark:bg-sky-500/10 py-2 text-xs font-bold text-sky-600 dark:text-sky-400 hover:bg-sky-100 dark:hover:bg-sky-500/20 transition flex items-center justify-center gap-1 shrink-0"
+                      className="x-btn cat-card__custom"
                       title="Personalizar especificaciones de corte o empaque"
                     >
-                      <span>⚙ Personalizar</span>
+                      <Settings2 aria-hidden="true" className="w-3.5 h-3.5" />
+                      Personalizar
                     </button>
                     <button
                       type="button"
                       onClick={() => add(p, quantities[p.id] || Math.max(p.min_order_qty || 1, 1))}
-                      className="flex-1 rounded-xl bg-brand py-2 text-xs sm:text-sm font-bold text-white hover:bg-brand-dark transition shadow-md shadow-brand/20"
+                      className="x-btn x-btn--primary cat-card__add"
                     >
-                      Agregar al carrito
+                      <ShoppingBasket aria-hidden="true" className="w-3.5 h-3.5" />
+                      Agregar
                     </button>
                   </div>
                 </div>
               ) : (
-                <div className="py-2 text-center text-xs text-slate-500 font-bold bg-slate-100 dark:bg-slate-800 rounded-xl">
-                  Solo los gerentes pueden comprar
-                </div>
+                <p className="cat-card__locked">Solo los gerentes pueden comprar</p>
               )}
             </div>
           </div>
         ))}
         {displayedProducts.length === 0 && (
-          <div className="col-span-full py-16 text-center">
-            <p className="text-slate-500 font-medium mb-4">No hay productos disponibles.</p>
+          <div className="cat__empty x-empty">
+            <div className="x-empty__icon"><Package aria-hidden="true" className="w-6 h-6" /></div>
+            <p className="x-empty__title">No hay productos disponibles</p>
             {!isSupplier && linkedSupplierIds.length === 0 && (
-              <p className="text-sm text-slate-400 max-w-md mx-auto">
-                Aún no has vinculado a ningún proveedor. Ve a la pestaña <a href="/proveedores" className="text-brand font-bold hover:underline">Directorio (Proveedores)</a> para empezar a construir tu mercado.
+              <p className="x-empty__text">
+                Aún no has vinculado a ningún proveedor. Ve a la pestaña{' '}
+                <a href="/proveedores" className="cat__link">Directorio (Proveedores)</a> para empezar a construir tu mercado.
               </p>
             )}
           </div>
@@ -539,17 +606,17 @@ export default function Catalog() {
           title={`Personalizar: ${customizingProduct.name}`}
           onClose={() => setCustomizingProduct(null)}
         >
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700/60">
+          <div className="cat__modal">
+            <div className="cat__summary">
               <img
                 src={getProductImage(customizingProduct)}
                 alt={customizingProduct.name}
-                className="w-16 h-16 rounded-lg object-cover"
+                className="cat__summary-img"
               />
-              <div>
-                <h4 className="font-bold text-slate-900 dark:text-white">{customizingProduct.name}</h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400">{customizingProduct.supplier_name}</p>
-                <p className="text-sm font-bold text-brand mt-0.5">
+              <div className="min-w-0">
+                <h4 className="cat__summary-name">{customizingProduct.name}</h4>
+                <p className="cat__summary-supplier">{customizingProduct.supplier_name}</p>
+                <p className="cat__summary-price">
                   ${customizingProduct.price_per_unit.toLocaleString('es-CO')} COP / {customizingProduct.unit}
                 </p>
               </div>
@@ -557,32 +624,35 @@ export default function Catalog() {
 
             {/* Cantidad a pedir */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                Cantidad a ordenar ({customizingProduct.unit}):
+              <label className="x-label" htmlFor="custom-qty">
+                Cantidad a ordenar ({customizingProduct.unit})
               </label>
-              <div className="flex items-center gap-2">
+              <div className="cat__modal-qty">
                 <button
                   type="button"
+                  aria-label="Disminuir cantidad"
                   onClick={() => setCustomQty((q) => Math.max(customizingProduct.min_order_qty || 1, q - 1))}
-                  className="w-9 h-9 rounded-lg bg-slate-200 dark:bg-slate-700 text-lg font-bold text-slate-800 dark:text-white"
+                  className="cat__step-btn"
                 >
-                  -
+                  <Minus aria-hidden="true" />
                 </button>
                 <input
+                  id="custom-qty"
                   type="number"
                   min={customizingProduct.min_order_qty || 1}
                   value={customQty}
                   onChange={(e) => setCustomQty(Math.max(1, Number(e.target.value)))}
-                  className="w-24 text-center font-bold rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 py-1.5 text-slate-900 dark:text-white"
+                  className="cat__modal-qty-input"
                 />
                 <button
                   type="button"
+                  aria-label="Aumentar cantidad"
                   onClick={() => setCustomQty((q) => q + 1)}
-                  className="w-9 h-9 rounded-lg bg-slate-200 dark:bg-slate-700 text-lg font-bold text-slate-800 dark:text-white"
+                  className="cat__step-btn"
                 >
-                  +
+                  <Plus aria-hidden="true" />
                 </button>
-                <span className="text-xs text-slate-500 pl-2">
+                <span className="cat__subtotal">
                   Subtotal: <b>${(customQty * customizingProduct.price_per_unit).toLocaleString('es-CO')} COP</b>
                 </span>
               </div>
@@ -594,20 +664,14 @@ export default function Catalog() {
               return (
                 <>
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                      {cfg.typeLabel}
-                    </label>
-                    <div className="flex flex-wrap gap-1.5">
+                    <p className="x-label">{cfg.typeLabel}</p>
+                    <div className="cat__chips">
                       {cfg.typeOptions.map((op) => (
                         <button
                           key={op}
                           type="button"
                           onClick={() => setCustomCorte(customCorte === op ? '' : op)}
-                          className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition ${
-                            customCorte === op
-                              ? 'bg-brand text-white border-brand'
-                              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-400'
-                          }`}
+                          className={`cat__chip ${customCorte === op ? 'cat__chip--active' : ''}`}
                         >
                           {op}
                         </button>
@@ -616,20 +680,14 @@ export default function Catalog() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                      {cfg.packLabel}
-                    </label>
-                    <div className="flex flex-wrap gap-1.5">
+                    <p className="x-label">{cfg.packLabel}</p>
+                    <div className="cat__chips">
                       {cfg.packOptions.map((op) => (
                         <button
                           key={op}
                           type="button"
                           onClick={() => setCustomEmpaque(op)}
-                          className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition ${
-                            customEmpaque === op
-                              ? 'bg-emerald-600 text-white border-emerald-600'
-                              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-400'
-                          }`}
+                          className={`cat__chip cat__chip--pack ${customEmpaque === op ? 'cat__chip--active' : ''}`}
                         >
                           {op}
                         </button>
@@ -639,34 +697,36 @@ export default function Catalog() {
 
                   {/* Notas especiales adicionales */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                      Instrucciones adicionales para el proveedor (opcional):
+                    <label className="x-label" htmlFor="custom-notes">
+                      Instrucciones adicionales para el proveedor (opcional)
                     </label>
                     <textarea
+                      id="custom-notes"
                       value={customNotes}
                       onChange={(e) => setCustomNotes(e.target.value)}
                       placeholder={cfg.notesPlaceholder}
                       rows={2}
-                      className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-brand"
+                      className="x-textarea"
                     />
                   </div>
                 </>
               );
             })()}
 
-            <div className="pt-2 flex gap-2">
+            <div className="cat__modal-actions">
               <button
                 type="button"
                 onClick={() => setCustomizingProduct(null)}
-                className="flex-1 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                className="x-btn"
               >
                 Cancelar
               </button>
               <button
                 type="button"
                 onClick={handleAddCustomized}
-                className="flex-[2] py-2.5 rounded-xl bg-brand text-white text-xs font-bold hover:bg-brand-dark transition shadow-md shadow-brand/20"
+                className="x-btn x-btn--primary"
               >
+                <ShoppingBasket aria-hidden="true" className="w-4 h-4" />
                 Agregar al Carrito con Personalización
               </button>
             </div>
@@ -677,7 +737,7 @@ export default function Catalog() {
       {/* Modal Proveedor: Crear / Editar producto */}
       {modal && (
         <Modal title={editing ? `Editar ${editing.name}` : 'Nuevo producto'} onClose={() => setModal(false)}>
-          <form onSubmit={submit} className="space-y-3">
+          <form onSubmit={submit} className="cat__form">
             <div>
               <label className={label}>Nombre</label>
               <input value={form.name} onChange={set('name')} className={input} required />
@@ -716,7 +776,7 @@ export default function Catalog() {
               <label className={label}>Descripción</label>
               <textarea value={form.description} onChange={set('description')} className={input} rows={2} />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="cat__form-grid">
               <div>
                 <label className={label}>Precio por unidad</label>
                 <input type="number" step="0.01" min="0" value={form.price_per_unit} onChange={set('price_per_unit')} className={input} required />
@@ -739,7 +799,7 @@ export default function Catalog() {
                 <input type="number" step="0.01" min="0" value={form.stock_available} onChange={set('stock_available')} className={input} />
               </div>
             </div>
-            <button className="w-full rounded-xl bg-brand py-2.5 font-bold text-white hover:bg-brand-dark transition shadow-md shadow-brand/20">
+            <button type="submit" className="x-btn x-btn--primary x-btn--block cat__submit">
               {editing ? 'Guardar cambios' : 'Crear producto'}
             </button>
           </form>

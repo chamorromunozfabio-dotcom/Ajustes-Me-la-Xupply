@@ -307,17 +307,13 @@ export default function DeliveryMap({
   return (
     <section
       aria-label="Mapa de seguimiento de la entrega"
-      className={
-        fullscreen
-          ? 'fixed inset-0 z-[1300] bg-slate-200 dark:bg-slate-950'
-          : 'relative h-[clamp(380px,62vh,560px)] w-full overflow-hidden rounded-2xl border border-slate-200 shadow-sm dark:border-slate-800'
-      }
+      className={`dlv-map ${fullscreen ? 'dlv-map--full' : ''}`}
     >
       <MapContainer
         center={[mapCenter.lat, mapCenter.lng]}
         zoom={target?.status === 'en_camino' ? 16 : 13}
         zoomControl={false}
-        className="h-full w-full bg-slate-200 dark:bg-slate-900"
+        className="dlv-map__canvas"
       >
         <TileLayer
           className="xupply-tiles"
@@ -338,7 +334,10 @@ export default function DeliveryMap({
         {route ? (
           <>
             <Polyline positions={route.points} pathOptions={{ color: '#0f172a', weight: 9, opacity: 0.18 }} />
-            <Polyline positions={route.points} pathOptions={{ color: '#0284c7', weight: 5, opacity: 0.95 }} />
+            <Polyline
+              positions={route.points}
+              pathOptions={{ color: '#0284c7', weight: 5, opacity: 0.95, className: 'dlv-route' }}
+            />
           </>
         ) : (
           origin &&
@@ -348,7 +347,13 @@ export default function DeliveryMap({
                 [origin.lat, origin.lng],
                 [destination.lat, destination.lng],
               ]}
-              pathOptions={{ color: '#0284c7', weight: 4, opacity: 0.7, dashArray: '10, 8' }}
+              pathOptions={{
+                color: '#0284c7',
+                weight: 4,
+                opacity: 0.7,
+                dashArray: '10, 8',
+                className: 'dlv-route',
+              }}
             />
           )
         )}
@@ -365,12 +370,19 @@ export default function DeliveryMap({
                 fillColor: '#38bdf8',
                 fillOpacity: 0.16,
                 dashArray: '3, 3',
+                className: 'dlv-radius',
               }}
             />
             <CircleMarker
               center={[myCoords.lat, myCoords.lng]}
               radius={6}
-              pathOptions={{ color: '#ffffff', weight: 2.5, fillColor: '#0ea5e9', fillOpacity: 1 }}
+              pathOptions={{
+                color: '#ffffff',
+                weight: 2.5,
+                fillColor: '#0284c7',
+                fillOpacity: 1,
+                className: 'dlv-driver',
+              }}
             />
           </>
         )}
@@ -417,22 +429,14 @@ export default function DeliveryMap({
       </MapContainer>
 
       {/* ----------------------------- HUD superior ----------------------------- */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-[1000] space-y-2 p-2.5 pt-[max(0.625rem,env(safe-area-inset-top))] sm:p-3">
+      <div className="dlv-map__hud">
         {/* Barra de estado */}
-        <div className="pointer-events-auto flex items-center gap-2">
-          <div className="flex min-w-0 flex-1 items-center gap-2 rounded-full bg-slate-900/95 px-3 py-2 text-white shadow-lg backdrop-blur">
-            <span className={`h-2 w-2 shrink-0 rounded-full ${isDriver ? 'bg-emerald-400 animate-pulse' : 'bg-sky-400'}`} />
-            <span className="truncate text-xs font-bold">{target?.order_code ?? 'Sin entrega seleccionada'}</span>
-            {status && (
-              <span className="shrink-0 rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide">
-                {status.label}
-              </span>
-            )}
-            {gpsAccuracy != null && (
-              <span className="ml-auto hidden shrink-0 text-[10px] font-semibold text-emerald-300 sm:inline">
-                GPS ±{gpsAccuracy} m
-              </span>
-            )}
+        <div className="dlv-map__status-row">
+          <div className="dlv-map__status">
+            <span className={`dlv-map__status-dot ${isDriver ? 'dlv-map__status-dot--live' : ''}`} aria-hidden="true" />
+            <span className="dlv-map__code">{target?.order_code ?? 'Sin entrega seleccionada'}</span>
+            {status && <span className="dlv-map__status-badge">{status.label}</span>}
+            {gpsAccuracy != null && <span className="dlv-map__accuracy">GPS ±{gpsAccuracy} m</span>}
           </div>
 
           <button
@@ -440,99 +444,84 @@ export default function DeliveryMap({
             onClick={() => setFullscreen((v) => !v)}
             aria-label={fullscreen ? 'Salir de pantalla completa' : 'Ver mapa en pantalla completa'}
             title={fullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-900/95 text-white shadow-lg backdrop-blur transition hover:bg-slate-800 active:scale-95"
+            className="dlv-map__icon-btn"
           >
-            {fullscreen ? <Minimize2 className="h-5 w-5" /> : <Expand className="h-5 w-5" />}
+            {fullscreen ? <Minimize2 aria-hidden="true" /> : <Expand aria-hidden="true" />}
           </button>
         </div>
 
         {/* Destino: "para dónde es" */}
         {target && (
-          <div className="pointer-events-auto rounded-2xl bg-white/95 p-3 shadow-xl ring-1 ring-slate-900/5 backdrop-blur dark:bg-slate-900/95 dark:ring-white/10">
-            <div className="flex items-start gap-2.5">
-              <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
-                <Navigation className="h-4 w-4" />
+          <div className="dlv-map__target">
+            <div className="dlv-map__target-head">
+              <div className="dlv-map__target-icon">
+                <Navigation aria-hidden="true" />
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                  Para dónde es
-                </p>
-                <p className="truncate text-sm font-bold text-slate-900 dark:text-white">
-                  {target.delivery_address || 'Dirección sin registrar'}
-                </p>
-                <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+              <div className="dlv-map__target-copy">
+                <p className="dlv-map__label">Para dónde es</p>
+                <p className="dlv-map__address">{target.delivery_address || 'Dirección sin registrar'}</p>
+                <div className="dlv-map__meta">
                   <span className="inline-flex items-center gap-1">
-                    <RouteIcon className="h-3 w-3" />
+                    <RouteIcon aria-hidden="true" className="w-3 h-3" />
                     {distance != null ? formatDistance(distance) : 'Sin ruta'}
                   </span>
                   <span aria-hidden>·</span>
-                  <span className="text-sky-700 dark:text-sky-400">
+                  <span className="dlv-map__eta">
                     {eta != null ? `~${eta} min` : routeLoading ? 'Calculando…' : '—'}
                   </span>
                   {!destination && (
-                    <span className="inline-flex items-center gap-1 text-amber-600">
-                      <AlertTriangle className="h-3 w-3" /> Sin coordenadas
+                    <span className="dlv-map__warning">
+                      <AlertTriangle aria-hidden="true" className="w-3 h-3" /> Sin coordenadas
                     </span>
                   )}
                 </div>
 
                 {/* Propietario y valor del pedido, visibles sin abrir la hoja */}
-                <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 border-t border-slate-100 pt-1.5 text-[11px] dark:border-slate-800">
-                  <span className="inline-flex min-w-0 items-center gap-1 font-bold text-slate-700 dark:text-slate-200">
-                    <Store className="h-3 w-3 shrink-0 text-slate-400" />
+                <div className="dlv-map__owner">
+                  <span className="dlv-map__owner-name">
+                    <Store aria-hidden="true" />
                     <span className="truncate">{ownerName}</span>
                   </span>
-                  {total != null && total !== '' && (
-                    <span className="shrink-0 rounded-full bg-slate-100 px-1.5 py-0.5 font-extrabold text-slate-700 dark:bg-slate-800 dark:text-slate-200">
-                      {parseMoney(total)}
-                    </span>
-                  )}
-                  {items.length > 0 && (
-                    <span className="shrink-0 text-slate-500 dark:text-slate-400">
-                      · {items.length} producto(s)
-                    </span>
-                  )}
+                  {total != null && total !== '' && <span className="dlv-map__price">{parseMoney(total)}</span>}
+                  {items.length > 0 && <span>· {items.length} producto(s)</span>}
                 </div>
               </div>
               <button
                 type="button"
                 onClick={copyAddress}
                 aria-label="Copiar dirección"
-                className="shrink-0 rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800"
+                className="dlv-map__copy"
               >
-                {copied ? <Check className="h-4 w-4 text-emerald-600" /> : <Copy className="h-4 w-4" />}
+                {copied ? <Check aria-hidden="true" className="text-emerald-600" /> : <Copy aria-hidden="true" />}
               </button>
             </div>
 
-            <div className="mt-2.5 grid grid-cols-2 gap-2">
-              <a
-                href={destination ? navigationUrl(destination) : undefined}
-                target="_blank"
-                rel="noreferrer"
-                aria-disabled={!destination}
-                className={`flex items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold shadow-sm transition active:scale-95 ${
-                  destination
-                    ? 'bg-brand text-white hover:bg-brand-dark'
-                    : 'pointer-events-none bg-slate-200 text-slate-400 dark:bg-slate-800'
-                }`}
-              >
-                <Navigation className="h-3.5 w-3.5" />
-                Ir ahora
-              </a>
+            <div className="dlv-map__nav">
+              {destination ? (
+                <a
+                  href={navigationUrl(destination)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="dlv-map__nav-link"
+                >
+                  <Navigation aria-hidden="true" />
+                  Ir ahora
+                </a>
+              ) : (
+                <span className="dlv-map__nav-disabled" aria-disabled="true">Sin ruta</span>
+              )}
               {destination ? (
                 <a
                   href={wazeUrl(destination)}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-95 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                  className="dlv-map__nav-alt"
                 >
-                  <RouteIcon className="h-3.5 w-3.5" />
+                  <RouteIcon aria-hidden="true" />
                   Waze
                 </a>
               ) : (
-                <span className="flex items-center justify-center rounded-xl border border-dashed border-slate-300 px-3 py-2 text-[11px] font-semibold text-slate-400 dark:border-slate-700">
-                  Falta geolocalizar
-                </span>
+                <span className="dlv-map__nav-disabled">Falta geolocalizar</span>
               )}
             </div>
           </div>
@@ -540,7 +529,7 @@ export default function DeliveryMap({
       </div>
 
       {/* --------------------------- Controles laterales --------------------------- */}
-      <div className="absolute right-3 top-1/2 z-[1000] flex -translate-y-1/2 flex-col gap-2">
+      <div className="dlv-map__controls">
         <button
           type="button"
           onClick={() => {
@@ -548,42 +537,42 @@ export default function DeliveryMap({
           }}
           aria-label="Centrar en mi ubicación"
           title="Mi ubicación"
-          className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/95 text-slate-700 shadow-lg ring-1 ring-slate-900/5 backdrop-blur transition hover:bg-white active:scale-95 dark:bg-slate-900/90 dark:text-white dark:ring-white/10"
+          className={`dlv-map__ctrl ${myCoords ? '' : 'dlv-map__ctrl--muted'}`}
         >
-          <Crosshair className={`h-5 w-5 ${myCoords ? '' : 'opacity-40'}`} />
+          <Crosshair aria-hidden="true" />
         </button>
         <button
           type="button"
           onClick={() => setSheetOpen((v) => !v)}
           aria-label={sheetOpen ? 'Ocultar resumen del pedido' : 'Ver resumen del pedido'}
           title="Resumen del pedido"
-          className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/95 text-slate-700 shadow-lg ring-1 ring-slate-900/5 backdrop-blur transition hover:bg-white active:scale-95 dark:bg-slate-900/90 dark:text-white dark:ring-white/10"
+          className="dlv-map__ctrl"
         >
-          <Package className="h-5 w-5" />
+          <Package aria-hidden="true" />
         </button>
       </div>
 
       {/* --------------------- Estado vacío / de carga --------------------- */}
       {!target && (
-        <div className="pointer-events-none absolute inset-0 z-[900] flex items-center justify-center p-6">
-          <div className="max-w-xs rounded-2xl bg-white/95 p-4 text-center shadow-xl ring-1 ring-slate-900/5 backdrop-blur dark:bg-slate-900/95 dark:ring-white/10">
+        <div className="dlv-map__empty">
+          <div className="dlv-map__empty-card">
             {loadError ? (
               <>
-                <AlertTriangle className="mx-auto mb-2 h-6 w-6 text-rose-500" />
-                <p className="text-sm font-bold text-slate-900 dark:text-white">No se pudieron cargar las entregas</p>
-                <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">{loadError}</p>
+                <AlertTriangle aria-hidden="true" />
+                <p className="dlv-map__empty-title">No se pudieron cargar las entregas</p>
+                <p className="dlv-map__empty-text">{loadError}</p>
               </>
             ) : isLoading ? (
               <>
-                <Loader2 className="mx-auto mb-2 h-6 w-6 animate-spin text-brand" />
-                <p className="text-sm font-bold text-slate-900 dark:text-white">Cargando entregas…</p>
-                <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">Sincronizando con el servidor.</p>
+                <Loader2 aria-hidden="true" className="dlv-map__spinner" />
+                <p className="dlv-map__empty-title">Cargando entregas…</p>
+                <p className="dlv-map__empty-text">Sincronizando con el servidor.</p>
               </>
             ) : (
               <>
-                <Package className="mx-auto mb-2 h-6 w-6 text-slate-400" />
-                <p className="text-sm font-bold text-slate-900 dark:text-white">Sin entregas activas</p>
-                <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+                <Package aria-hidden="true" />
+                <p className="dlv-map__empty-title">Sin entregas activas</p>
+                <p className="dlv-map__empty-text">
                   {isDriver
                     ? 'Cuando te asignen un pedido aparecerá aquí automáticamente.'
                     : 'Selecciona una entrega de la lista para ver su recorrido.'}
@@ -596,136 +585,117 @@ export default function DeliveryMap({
 
       {/* ------------------------------ Hoja inferior ------------------------------ */}
       {target && (
-        <div className="absolute inset-x-0 bottom-0 z-[1000]">
-          <div className="relative rounded-t-3xl border-t border-slate-200 bg-white/95 shadow-[0_-12px_40px_-12px_rgba(15,23,42,0.35)] backdrop-blur dark:border-slate-800 dark:bg-slate-900/95">
-            <button
-              type="button"
-              onClick={() => setSheetOpen((v) => !v)}
-              aria-expanded={sheetOpen}
-              className="flex w-full items-center gap-3 px-4 pb-2 pt-2.5 text-left"
-            >
-              <span className="absolute left-1/2 top-1.5 h-1 w-10 -translate-x-1/2 rounded-full bg-slate-300 dark:bg-slate-700" />
-              <div className="mt-2 flex min-w-0 flex-1 items-center gap-2.5">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand">
-                  <Package className="h-5 w-5" />
-                </div>
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-bold text-slate-900 dark:text-white">
-                    {items.length ? `${items.length} producto(s) · ${unitCount} unidad(es)` : 'Resumen del pedido'}
-                  </p>
-                  <p className="truncate text-[11px] font-semibold text-slate-500 dark:text-slate-400">
-                    {ownerName}
-                    {total != null && total !== '' ? ` · ${parseMoney(total)}` : ''}
-                  </p>
-                </div>
-              </div>
-              <span className="shrink-0 rounded-full bg-slate-100 p-1.5 text-slate-500 dark:bg-slate-800 dark:text-slate-300">
-                {sheetOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+        <div className="dlv-sheet">
+          <span className="dlv-sheet__grip" aria-hidden="true" />
+          <button
+            type="button"
+            onClick={() => setSheetOpen((v) => !v)}
+            aria-expanded={sheetOpen}
+            className="dlv-sheet__head"
+          >
+            <span className="dlv-sheet__icon">
+              <Package aria-hidden="true" />
+            </span>
+            <span className="dlv-sheet__copy">
+              <span className="dlv-sheet__title">
+                {items.length ? `${items.length} producto(s) · ${unitCount} unidad(es)` : 'Resumen del pedido'}
               </span>
-            </button>
+              <span className="dlv-sheet__meta">
+                {ownerName}
+                {total != null && total !== '' ? ` · ${parseMoney(total)}` : ''}
+              </span>
+            </span>
+            <span className="dlv-sheet__chevron">
+              {sheetOpen ? <ChevronDown aria-hidden="true" /> : <ChevronUp aria-hidden="true" />}
+            </span>
+          </button>
 
-            {sheetOpen && (
-              <div className="max-h-[46vh] overflow-y-auto overscroll-contain px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-                {/* Propietario */}
-                <div className="mt-1 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-2.5 dark:border-slate-700 dark:bg-slate-800/60">
-                    <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      <Store className="h-3 w-3" /> Propietario del pedido
-                    </p>
-                    <p className="mt-0.5 truncate text-sm font-bold text-slate-900 dark:text-white">{ownerName}</p>
-                    {supplier && (
-                      <p className="truncate text-[11px] text-slate-500 dark:text-slate-400">Proveedor: {supplier}</p>
-                    )}
-                    {ownerPhone && (
-                      <a
-                        href={`tel:${ownerPhone}`}
-                        className="mt-1.5 inline-flex items-center gap-1 rounded-lg bg-white px-2 py-1 text-[11px] font-bold text-sky-700 ring-1 ring-slate-200 transition hover:bg-sky-50 dark:bg-slate-900 dark:text-sky-300 dark:ring-slate-700"
-                      >
-                        <Phone className="h-3 w-3" /> {ownerPhone}
-                      </a>
-                    )}
-                  </div>
-
-                  <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-2.5 dark:border-slate-700 dark:bg-slate-800/60">
-                    <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      <User className="h-3 w-3" /> Quién recibe
-                    </p>
-                    <p className="mt-0.5 truncate text-sm font-bold text-slate-900 dark:text-white">
-                      {requester || ownerName}
-                    </p>
-                    <p className="truncate text-[11px] text-slate-500 dark:text-slate-400">
-                      {target.driver_name ? `Domiciliario: ${target.driver_name}` : 'Sin domiciliario asignado'}
-                      {target.plate ? ` · ${target.plate}` : ''}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Resumen del pedido */}
-                <div className="mt-2 rounded-xl border border-slate-200 dark:border-slate-700">
-                  <div className="flex items-center justify-between border-b border-slate-100 px-3 py-2 dark:border-slate-700">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                      Resumen del pedido
-                    </p>
-                    <span className="text-sm font-extrabold text-slate-900 dark:text-white">{parseMoney(total)}</span>
-                  </div>
-
-                  {detailsLoading ? (
-                    <div className="space-y-2 p-3">
-                      <div className="h-3 w-3/4 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
-                      <div className="h-3 w-1/2 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
-                      <div className="h-3 w-2/3 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
-                    </div>
-                  ) : items.length ? (
-                    <ul className="divide-y divide-slate-100 dark:divide-slate-800">
-                      {items.slice(0, 6).map((item) => (
-                        <li key={item.id} className="flex items-center gap-2 px-3 py-2 text-xs">
-                          <span className="flex h-5 min-w-5 items-center justify-center rounded-md bg-slate-100 px-1 text-[10px] font-extrabold text-slate-700 dark:bg-slate-800 dark:text-slate-200">
-                            {item.quantity}
-                          </span>
-                          <span className="min-w-0 flex-1 truncate font-semibold text-slate-800 dark:text-slate-100">
-                            {item.name}
-                            {item.unit ? <span className="font-normal text-slate-400"> · {item.unit}</span> : null}
-                          </span>
-                          <span className="shrink-0 font-bold text-slate-600 dark:text-slate-300">
-                            {parseMoney(item.subtotal)}
-                          </span>
-                        </li>
-                      ))}
-                      {items.length > 6 && (
-                        <li className="px-3 py-2 text-[11px] font-semibold text-slate-500 dark:text-slate-400">
-                          +{items.length - 6} producto(s) más en el pedido
-                        </li>
-                      )}
-                    </ul>
-                  ) : (
-                    <p className="px-3 py-3 text-xs text-slate-500 dark:text-slate-400">
-                      Este pedido no tiene detalle de productos registrado.
-                    </p>
-                  )}
-
-                  {notes && (
-                    <p className="border-t border-slate-100 px-3 py-2 text-[11px] text-slate-600 dark:border-slate-700 dark:text-slate-300">
-                      <span className="font-bold">Notas: </span>
-                      {notes}
-                    </p>
+          {sheetOpen && (
+            <div className="dlv-sheet__body">
+              {/* Propietario */}
+              <div className="dlv-info-grid">
+                <div className="dlv-info">
+                  <p className="dlv-info__label">
+                    <Store aria-hidden="true" /> Propietario del pedido
+                  </p>
+                  <p className="dlv-info__value">{ownerName}</p>
+                  {supplier && <p className="dlv-info__sub">Proveedor: {supplier}</p>}
+                  {ownerPhone && (
+                    <a href={`tel:${ownerPhone}`} className="dlv-info__phone">
+                      <Phone aria-hidden="true" /> {ownerPhone}
+                    </a>
                   )}
                 </div>
 
-                {/* Acciones del pedido */}
-                {actions ? (
-                  <div className="mt-2 space-y-2">{actions}</div>
-                ) : onOpenOrder ? (
-                  <button
-                    type="button"
-                    onClick={() => onOpenOrder(target)}
-                    className="mt-2 w-full rounded-xl border border-slate-200 bg-white py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
-                  >
-                    Ver pedido completo
-                  </button>
-                ) : null}
+                <div className="dlv-info">
+                  <p className="dlv-info__label">
+                    <User aria-hidden="true" /> Quién recibe
+                  </p>
+                  <p className="dlv-info__value">{requester || ownerName}</p>
+                  <p className="dlv-info__sub">
+                    {target.driver_name ? `Domiciliario: ${target.driver_name}` : 'Sin domiciliario asignado'}
+                    {target.plate ? ` · ${target.plate}` : ''}
+                  </p>
+                </div>
               </div>
-            )}
-          </div>
+
+              {/* Resumen del pedido */}
+              <div className="dlv-order">
+                <div className="dlv-order__head">
+                  <p className="dlv-order__label">Resumen del pedido</p>
+                  <span className="dlv-order__total">{parseMoney(total)}</span>
+                </div>
+
+                {detailsLoading ? (
+                  <div className="dlv-sheet__skeleton" aria-hidden>
+                    <span />
+                    <span />
+                    <span />
+                  </div>
+                ) : items.length ? (
+                  <ul className="dlv-order__list">
+                    {items.slice(0, 6).map((item) => (
+                      <li key={item.id} className="dlv-order__item">
+                        <span className="dlv-order__qty">{item.quantity}</span>
+                        <span className="dlv-order__name">
+                          {item.name}
+                          {item.unit ? <span className="dlv-order__unit"> · {item.unit}</span> : null}
+                        </span>
+                        <span className="dlv-order__subtotal">{parseMoney(item.subtotal)}</span>
+                      </li>
+                    ))}
+                    {items.length > 6 && (
+                      <li className="dlv-order__item dlv-order__unit">
+                        +{items.length - 6} producto(s) más en el pedido
+                      </li>
+                    )}
+                  </ul>
+                ) : (
+                  <p className="dlv-order__empty">Este pedido no tiene detalle de productos registrado.</p>
+                )}
+
+                {notes && (
+                  <p className="dlv-order__notes">
+                    <b>Notas: </b>
+                    {notes}
+                  </p>
+                )}
+              </div>
+
+              {/* Acciones del pedido */}
+              {actions ? (
+                <div className="dlv-sheet__actions">{actions}</div>
+              ) : onOpenOrder ? (
+                <button
+                  type="button"
+                  onClick={() => onOpenOrder(target)}
+                  className="dlv-sheet__link"
+                >
+                  Ver pedido completo
+                </button>
+              ) : null}
+            </div>
+          )}
         </div>
       )}
     </section>

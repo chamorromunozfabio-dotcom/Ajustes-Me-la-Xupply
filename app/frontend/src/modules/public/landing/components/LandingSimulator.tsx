@@ -1,118 +1,112 @@
 import type { LandingInteractions } from '../hooks';
 
-type Props = Pick<LandingInteractions, 'selectedType' | 'currentProducts' | 'quantities' | 'cufeCode' | 'orderTransmittedMsg' | 'handleTypeChange' | 'handleQuantity' | 'rawSubtotal' | 'fefoSavings' | 'tax' | 'totalPayable' | 'handleEmitOrder'>;
+type Props = Pick<LandingInteractions, 'content' | 'selectedType' | 'currentProducts' | 'quantities' | 'cufeCode' | 'orderTransmittedMsg' | 'handleTypeChange' | 'handleQuantity' | 'rawSubtotal' | 'fefoSavings' | 'tax' | 'totalPayable' | 'handleEmitOrder'>;
 
-export function LandingSimulator({ selectedType, currentProducts, quantities, cufeCode, orderTransmittedMsg, handleTypeChange, handleQuantity, rawSubtotal, fefoSavings, tax, totalPayable, handleEmitOrder }: Props) {
+export function LandingSimulator({ content, selectedType, currentProducts, quantities, cufeCode, orderTransmittedMsg, handleTypeChange, handleQuantity, rawSubtotal, fefoSavings, tax, totalPayable, handleEmitOrder }: Props) {
+  const { simulator } = content;
+  const receipt = simulator.receipt;
+
   return (
     <>
-        {/* Live Interactive Simulator */}
-        <section id="simulador">
-          <div className="sec-head">
-            <h2>Simula un Pedido con Descuento FEFO y Facturación DIAN</h2>
-            <p className="sub">
-              Calcula en tiempo real el ahorro por rotación FEFO y comprueba la emisión de la factura electrónica.
-            </p>
-          </div>
+      {/* Live Interactive Simulator */}
+      <section id="simulador">
+        <div className="sec-head">
+          <h2>{simulator.title}</h2>
+          <p className="sub">{simulator.subtitle}</p>
+        </div>
 
-          <div className="simulator-box">
-            {/* Left: Order Builder Controls */}
-            <div className="sim-controls">
-              <h3>1. Tipo de establecimiento:</h3>
-              <div className="type-buttons">
-                {[
-                  { key: 'burger', label: 'Hamburguesería' },
-                  { key: 'pizza', label: 'Pizzería' },
-                  { key: 'cafe', label: 'Café y Panadería' },
-                  { key: 'grill', label: 'Parrilla y Carnes' },
-                ].map(t => (
-                  <button
-                    key={t.key}
-                    className={`type-btn ${selectedType === t.key ? 'active' : ''}`}
-                    onClick={() => handleTypeChange(t.key)}
-                  >
-                    {t.label}
-                  </button>
-                ))}
-              </div>
+        <div className="simulator-box">
+          {/* Left: Order Builder Controls */}
+          <div className="sim-controls">
+            <h3>{simulator.typeLabel}</h3>
+            <div className="type-buttons">
+              {(simulator.types || []).map(t => (
+                <button
+                  key={t.key}
+                  className={`type-btn ${selectedType === t.key ? 'active' : ''}`}
+                  onClick={() => handleTypeChange(t.key)}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
 
-              <h3>2. Configurar insumos requeridos:</h3>
-              <div className="sim-items">
-                {currentProducts.map(prod => (
-                  <div key={prod.id} className="sim-item">
-                    <div className="sim-item-info">
-                      <span className="sim-item-name">{prod.name}</span>
-                      <span className="sim-item-meta">
-                        ${prod.price.toLocaleString('es-CO')} COP / {prod.unit} •{' '}
-                        <span className="sim-item-fefo">
-                          Lote FEFO (-{Math.round(prod.fefoDiscount * 100)}%)
-                        </span>
+            <h3>{simulator.ingredientsLabel}</h3>
+            <div className="sim-items">
+              {currentProducts.map(prod => (
+                <div key={prod.id} className="sim-item">
+                  <div className="sim-item-info">
+                    <span className="sim-item-name">{prod.name}</span>
+                    <span className="sim-item-meta">
+                      ${prod.price.toLocaleString('es-CO')} COP / {prod.unit} •{' '}
+                      <span className="sim-item-fefo">
+                        Lote FEFO (-{Math.round((prod.fefoDiscount || 0) * 100)}%)
                       </span>
-                    </div>
-                    <div className="sim-qty-control">
-                      <button className="qty-btn" onClick={() => handleQuantity(prod.id, -1)} aria-label="Disminuir">-</button>
-                      <span className="qty-val">{quantities[prod.id] || 0}</span>
-                      <button className="qty-btn" onClick={() => handleQuantity(prod.id, 1)} aria-label="Aumentar">+</button>
-                    </div>
+                    </span>
                   </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Right: Simulated DIAN Electronic Receipt */}
-            <div className="sim-receipt">
-              <div className="receipt-header">
-                <div className="receipt-title">
-                  <span>Factura Electrónica de Venta</span>
-                  <span className="dian-stamp">Vigente DIAN</span>
+                  <div className="sim-qty-control">
+                    <button className="qty-btn" onClick={() => handleQuantity(prod.id, -1)} aria-label={receipt.decreaseLabel}>-</button>
+                    <span className="qty-val">{quantities[prod.id] || 0}</span>
+                    <button className="qty-btn" onClick={() => handleQuantity(prod.id, 1)} aria-label={receipt.increaseLabel}>+</button>
+                  </div>
                 </div>
-                <div className="receipt-meta">
-                  <div>Emisor: Xupply Mayorista B2B (NIT 901.482.193-4)</div>
-                  <div>Adquirente: Restaurante Asociado Bucaramanga</div>
-                  <div>Fecha: Hoy • Régimen Común</div>
-                </div>
-              </div>
-
-              <div className="receipt-breakdown">
-                <div className="receipt-row">
-                  <span>Subtotal Bruto</span>
-                  <span>${Math.round(rawSubtotal).toLocaleString('es-CO')} COP</span>
-                </div>
-                <div className="receipt-row discount">
-                  <span>Ahorro Inteligente FEFO</span>
-                  <span>-${Math.round(fefoSavings).toLocaleString('es-CO')} COP</span>
-                </div>
-                <div className="receipt-row">
-                  <span>Impoconsumo (8%) / IVA</span>
-                  <span>${tax.toLocaleString('es-CO')} COP</span>
-                </div>
-                <div className="receipt-total">
-                  <span>Total a Pagar</span>
-                  <b>${Math.round(totalPayable).toLocaleString('es-CO')} COP</b>
-                </div>
-              </div>
-
-              <div className="cufe-box">
-                <b>CUFE (Código Único de Factura Electrónica):</b>
-                <span>{cufeCode}</span>
-              </div>
-
-              <button
-                className="btn"
-                style={{
-                  width: '100%',
-                  background: orderTransmittedMsg ? '#10b981' : undefined,
-                }}
-                onClick={handleEmitOrder}
-              >
-                <span>
-                  {orderTransmittedMsg
-                    ? '¡Orden PO Transmitida con CUFE!'
-                    : 'Emitir Pedido y Factura Demo'}
-                </span>
-              </button>
+              ))}
             </div>
           </div>
-        </section>
+
+          {/* Right: Simulated DIAN Electronic Receipt */}
+          <div className="sim-receipt">
+            <div className="receipt-header">
+              <div className="receipt-title">
+                <span>{receipt.title}</span>
+                <span className="dian-stamp">{receipt.stamp}</span>
+              </div>
+              <div className="receipt-meta">
+                <div>{receipt.issuer}</div>
+                <div>{receipt.buyer}</div>
+                <div>{receipt.date}</div>
+              </div>
+            </div>
+
+            <div className="receipt-breakdown">
+              <div className="receipt-row">
+                <span>{receipt.subtotal}</span>
+                <span>${Math.round(rawSubtotal).toLocaleString('es-CO')} COP</span>
+              </div>
+              <div className="receipt-row discount">
+                <span>{receipt.savings}</span>
+                <span>-${Math.round(fefoSavings).toLocaleString('es-CO')} COP</span>
+              </div>
+              <div className="receipt-row">
+                <span>{receipt.taxes}</span>
+                <span>${tax.toLocaleString('es-CO')} COP</span>
+              </div>
+              <div className="receipt-total">
+                <span>{receipt.total}</span>
+                <b>${Math.round(totalPayable).toLocaleString('es-CO')} COP</b>
+              </div>
+            </div>
+
+            <div className="cufe-box">
+              <b>{receipt.cufeLabel}</b>
+              <span>{cufeCode}</span>
+            </div>
+
+            <button
+              className="btn"
+              style={{
+                width: '100%',
+                background: orderTransmittedMsg ? '#10b981' : undefined,
+              }}
+              onClick={handleEmitOrder}
+            >
+              <span>
+                {orderTransmittedMsg ? receipt.success : receipt.submit}
+              </span>
+            </button>
+          </div>
+        </div>
+      </section>
     </>
   );
 }

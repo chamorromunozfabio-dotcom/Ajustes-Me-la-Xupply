@@ -1,30 +1,31 @@
 import { Link } from 'react-router-dom';
-import { statuses } from '../landingData';
 import type { LandingInteractions } from '../hooks';
 
-type Props = Pick<LandingInteractions, 'typewriterText' | 'currentStep' | 'simulatedDeliverySuccess' | 'handleManualStep' | 'handleSimulateFastForward' | 'handleCardMouseMove' | 'handleCardMouseLeave'>;
+type Props = Pick<LandingInteractions, 'content' | 'typewriterText' | 'currentStep' | 'simulatedDeliverySuccess' | 'handleManualStep' | 'handleSimulateFastForward' | 'handleCardMouseMove' | 'handleCardMouseLeave'>;
 
-export function LandingHero({ typewriterText, currentStep, simulatedDeliverySuccess, handleManualStep, handleSimulateFastForward, handleCardMouseMove, handleCardMouseLeave }: Props) {
+export function LandingHero({ content, typewriterText, currentStep, simulatedDeliverySuccess, handleManualStep, handleSimulateFastForward, handleCardMouseMove, handleCardMouseLeave }: Props) {
+  const { hero, statuses } = content;
+  const appearance = content.appearance;
+  const status = statuses[currentStep] ?? statuses[0];
+  const labels = hero.mapLabels ?? { warehouse: '', restaurant: '', viaduct: '' };
+
   return (
     <>
       {/* Hero Section */}
       <header className="wrap hero">
         <div>
           <h1>
-            Pide, rastrea y factura
+            {hero.title}
             <br />
             <span className="gt">{typewriterText}</span>
             <span className="caret" />
           </h1>
 
-          <p>
-            La plataforma B2B que sincroniza restaurantes y proveedores de alimentos: pedidos en segundos,
-            control de inventario FEFO sin mermas, facturación electrónica DIAN y rastreo satelital GPS.
-          </p>
+          <p>{hero.subtitle}</p>
 
           <div className="hero-actions">
             <Link className="btn" to="/register">
-              <span>Abrir Aplicación</span>
+              <span>{hero.primaryCta}</span>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M5 12h14" />
                 <path d="m12 5 7 7-7 7" />
@@ -32,14 +33,14 @@ export function LandingHero({ typewriterText, currentStep, simulatedDeliverySucc
             </Link>
 
             <a className="btn ghost" href="#simulador">
-              <span>Probar Simulador</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <span>{hero.secondaryCta}</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polygon points="5 3 19 12 5 21 5 3" />
               </svg>
             </a>
           </div>
 
-          <p className="hero-subtext">Más de 50 restaurantes y distribuidores operando en Bucaramanga y Santander</p>
+          <p className="hero-subtext">{hero.subtext}</p>
         </div>
 
         {/* Hero Visual: Live Telemetry HUD */}
@@ -47,30 +48,30 @@ export function LandingHero({ typewriterText, currentStep, simulatedDeliverySucc
           <div className="glass tilt map-card" onMouseMove={handleCardMouseMove} onMouseLeave={handleCardMouseLeave}>
             <div className="map-header">
               <div className="map-title">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--brand-light)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z" />
                   <circle cx="12" cy="10" r="3" />
                 </svg>
-                <span>Telemetría GPS en Vivo</span>
+                <span>{hero.mapTitle}</span>
               </div>
               <div className="telemetry-row">
                 <span>
-                  Vel: <b>{statuses[currentStep].speed}</b>
+                  {hero.velLabel} <b>{status?.speed}</b>
                 </span>
                 <span>
-                  ETA: <b>{statuses[currentStep].eta}</b>
+                  {hero.etaLabel} <b>{status?.eta}</b>
                 </span>
               </div>
             </div>
 
             {/* SVG Simulated Delivery Map */}
             <div className="map-wrap">
-              <svg className="map-svg" viewBox="0 0 420 260" role="img" aria-label="Mapa interactivo con ruta de entrega en Bucaramanga">
+              <svg className="map-svg" viewBox="0 0 420 260" role="img" aria-label={hero.mapAriaLabel}>
                 <defs>
                   <linearGradient id="routeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#0284c7" />
-                    <stop offset="60%" stopColor="#38bdf8" />
-                    <stop offset="100%" stopColor="#10b981" />
+                    <stop offset="0%" stopColor={appearance?.brandDarkColor ?? '#0369a1'} />
+                    <stop offset="60%" stopColor={appearance?.brandLightColor ?? '#38bdf8'} />
+                    <stop offset="100%" stopColor={appearance?.accentColor ?? '#10b981'} />
                   </linearGradient>
                   <filter id="routeGlow" x="-20%" y="-20%" width="140%" height="140%">
                     <feGaussianBlur stdDeviation="4" result="glow" />
@@ -93,9 +94,9 @@ export function LandingHero({ typewriterText, currentStep, simulatedDeliverySucc
                 <path d="M 60 240 Q 180 200 240 140 T 360 40" fill="none" stroke="#172554" strokeWidth="2" />
 
                 {/* Landmarks labels */}
-                <text x="35" y="235" fill="#64748b" fontSize="10" fontFamily="monospace">Bodega Central (Girón)</text>
-                <text x="260" y="32" fill="#64748b" fontSize="10" fontFamily="monospace">Restaurante (Cabecera)</text>
-                <text x="180" y="115" fill="#38bdf8" fontSize="9" opacity="0.6" fontFamily="monospace">Viaducto García Cadena</text>
+                <text x="35" y="235" fill="#64748b" fontSize="10" fontFamily="monospace">{labels.warehouse}</text>
+                <text x="260" y="32" fill="#64748b" fontSize="10" fontFamily="monospace">{labels.restaurant}</text>
+                <text x="180" y="115" fill="var(--brand-light)" fontSize="9" opacity="0.6" fontFamily="monospace">{labels.viaduct}</text>
 
                 {/* Delivery Path Glow & Main */}
                 <path
@@ -119,11 +120,11 @@ export function LandingHero({ typewriterText, currentStep, simulatedDeliverySucc
                 </path>
 
                 {/* Origin beacon */}
-                <circle cx="50" cy="210" r="8" fill="#0284c7" />
+                <circle cx="50" cy="210" r="8" fill="var(--brand)" />
                 <circle cx="50" cy="210" r="3" fill="#ffffff" />
 
                 {/* Destination beacon in Emerald */}
-                <circle cx="370" cy="50" r="8" fill="#10b981">
+                <circle cx="370" cy="50" r="8" fill="var(--emerald)">
                   <animate attributeName="r" values="8;16;8" dur="2s" repeatCount="indefinite" />
                   <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite" />
                 </circle>
@@ -134,7 +135,7 @@ export function LandingHero({ typewriterText, currentStep, simulatedDeliverySucc
                   <animateMotion dur="8s" repeatCount="indefinite" rotate="auto">
                     <mpath href="#deliveryPath" />
                   </animateMotion>
-                  <circle cx="0" cy="0" r="10" fill="#0284c7" stroke="#38bdf8" strokeWidth="2" />
+                  <circle cx="0" cy="0" r="10" fill="var(--brand)" stroke="var(--brand-light)" strokeWidth="2" />
                   <path d="M-3 -4 L4 0 L-3 4 Z" fill="#ffffff" />
                 </g>
               </svg>
@@ -157,19 +158,19 @@ export function LandingHero({ typewriterText, currentStep, simulatedDeliverySucc
 
               {/* Progress Bar */}
               <div className="bar">
-                <i style={{ width: `${((currentStep + 1) / statuses.length) * 100}%` }} />
+                <i style={{ width: `${statuses.length ? ((currentStep + 1) / statuses.length) * 100 : 0}%` }} />
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px' }}>
                 <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                  {statuses[currentStep].desc}
+                  {status?.desc}
                 </span>
                 <button
                   onClick={handleSimulateFastForward}
                   className="btn ghost sm"
                   style={{ fontSize: '0.76rem', padding: '3px 10px' }}
                 >
-                  {simulatedDeliverySuccess ? '¡Entrega Completada!' : 'Simular Entrega'}
+                  {simulatedDeliverySuccess ? hero.completeCta : hero.simulateCta}
                 </button>
               </div>
             </div>

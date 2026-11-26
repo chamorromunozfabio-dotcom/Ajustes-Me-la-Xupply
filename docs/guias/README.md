@@ -9,8 +9,9 @@ Plataforma B2B para la digitalizacion de restaurantes y empresas distribuidoras 
 - **Inventario y contabilidad**: control de stock, reportes de flujo de caja y facturacion electronica.
 - **Asistente Xupply IA**: copiloto sobre food cost, compras mayoristas y logistica de entrega (disponible segun el plan).
 - **Planes de suscripción**: basico, medio y premium (Xupply Lite, Pro y Max).
-- **Roles**: admin, gerente, empleado, proveedor (`proveedor_admin`) y domiciliario.
+- **Roles**: admin, gerente, empleado, proveedor (`proveedor_admin`), domiciliario, verificador y técnico.
 - **Verificación de cuentas (KYC/KYB)**: registro con RUT, Cámara de Comercio y cédula, con back office de aprobación por rol `verificador`.
+- **Contenido editable**: el rol `tecnico` publica desde `/admin/contenido`, sin tocar código, dos superficies: la landing y la interfaz global de la app (marca, colores, fondo, etiquetas del menú, visibilidad y avisos). El editor tiene pestañas y vista previa en vivo; solo acepta texto, colores y URLs públicas http(s), nunca HTML ni scripts.
 - **Multiplataforma**: PWA instalable, app Android (Capacitor) y aplicacion de escritorio (Electron).
 
 ## Estructura

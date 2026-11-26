@@ -4,7 +4,8 @@
  * Cada rol vive en un ámbito distinto:
  *  - "restaurant": gerente y empleado pertenecen a un restaurante (restaurant_id).
  *  - "supplier":  proveedor_admin y domiciliario pertenecen a un proveedor (supplier_id).
- *  - "platform":  admin es de plataforma y no debe tener restaurante ni proveedor.
+ *  - "platform":  admin, verificador y tecnico son de plataforma y no deben
+ *                 tener restaurante ni proveedor.
  *
  * Validar esto evita usuarios "sin inquilino" que rompen el aislamiento multi-tenant
  * (listados vacíos, 403 confusos y potencial acceso cruzado).
@@ -22,6 +23,7 @@ export function tenantScopeForRole(roleName: string | undefined | null): TenantS
       return 'supplier';
     case 'admin':
     case 'verificador':
+    case 'tecnico':
       return 'platform';
     default:
       return 'unknown';

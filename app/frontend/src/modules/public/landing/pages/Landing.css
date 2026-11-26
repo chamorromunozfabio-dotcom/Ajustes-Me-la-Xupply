@@ -66,6 +66,11 @@
   opacity: 0.6;
 }
 
+.landing-page #fx.fx--off,
+.landing-page .aur.aur--off {
+  display: none;
+}
+
 .landing-page .aur {
   position: fixed;
   inset: 0;
@@ -80,28 +85,28 @@
   height: 48vw;
   border-radius: 50%;
   filter: blur(140px);
-  opacity: 0.18;
-  animation: landing-drift 22s ease-in-out infinite alternate;
+  opacity: var(--aurora-opacity, 0.18);
+  animation: landing-drift var(--aurora-speed, 22s) ease-in-out infinite alternate;
 }
 
 .landing-page .aur i:nth-child(1) {
-  background: var(--brand);
+  background: var(--aurora-1, var(--brand));
   top: -10%;
   left: -5%;
 }
 .landing-page .aur i:nth-child(2) {
-  background: var(--emerald);
+  background: var(--aurora-2, var(--emerald));
   right: -5%;
   top: 30%;
   animation-delay: -8s;
-  opacity: 0.14;
+  opacity: var(--aurora-opacity-2, 0.14);
 }
 .landing-page .aur i:nth-child(3) {
-  background: var(--brand-dark);
+  background: var(--aurora-3, var(--brand-dark));
   bottom: -15%;
   left: 25%;
   animation-delay: -16s;
-  opacity: 0.12;
+  opacity: var(--aurora-opacity-3, 0.12);
 }
 
 @keyframes landing-drift {
@@ -274,7 +279,7 @@
 }
 
 .landing-page .gt {
-  background: linear-gradient(90deg, #38bdf8, #0284c7, #10b981);
+  background: linear-gradient(90deg, var(--brand-light), var(--brand), var(--emerald));
   background-size: 200% 100%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;

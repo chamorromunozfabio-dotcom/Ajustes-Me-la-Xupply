@@ -451,6 +451,52 @@ export async function dropLegacyPlatformViews(): Promise<void> {
   }
 }
 
+/**
+ * Contenido editable del sitio (CMS mínimo) y rol Técnico.
+ * El contenido se consume desde la landing pública sin autenticación;
+ * solo el rol con `content:write` puede modificarlo.
+ */
+export async function ensureContentSchema(): Promise<void> {
+  try {
+    await query(`
+      CREATE TABLE IF NOT EXISTS site_content (
+        id SERIAL PRIMARY KEY,
+        slug VARCHAR(120) NOT NULL UNIQUE,
+        section VARCHAR(40) NOT NULL DEFAULT 'landing',
+        kind VARCHAR(20) NOT NULL DEFAULT 'text',
+        title VARCHAR(200),
+        body TEXT,
+        image_url VARCHAR(500),
+        link_url VARCHAR(500),
+        label VARCHAR(100),
+        sort_order INT NOT NULL DEFAULT 0,
+        is_active BOOLEAN NOT NULL DEFAULT TRUE,
+        published_at TIMESTAMP NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      CREATE INDEX IF NOT EXISTS idx_site_content_public
+        ON site_content(section, kind, is_active, sort_order);
+
+      INSERT INTO roles (name, display_name, description) VALUES
+        ('tecnico', 'Técnico', 'Gestiona el contenido visible de la página sin tocar código')
+      ON CONFLICT (name) DO NOTHING;
+
+      INSERT INTO permissions (name, description) VALUES
+        ('content:write', 'Crear, editar y publicar contenido del sitio')
+      ON CONFLICT (name) DO NOTHING;
+
+      INSERT INTO role_permissions (role_id, permission_id)
+      SELECT r.id, p.id FROM roles r CROSS JOIN permissions p
+       WHERE r.name IN ('tecnico', 'admin') AND p.name = 'content:write'
+      ON CONFLICT DO NOTHING;
+    `);
+    console.log('[DB] Esquema de contenido del sitio y rol técnico listos.');
+  } catch (err) {
+    console.error('[DB] Error aplicando esquema de contenido:', err);
+  }
+}
+
 let initPromise: Promise<void> | null = null;
 export async function ensureServerInitialized(): Promise<void> {
   if (!initPromise) {
@@ -461,6 +507,7 @@ export async function ensureServerInitialized(): Promise<void> {
         await ensureRadarAndGpsSchema();
         await ensureVerificationSchema();
         await ensurePaymentsSchema();
+        await ensureContentSchema();
         await neutralizeDemoCredentials();
         await dropLegacyPlatformViews();
         await expireRadarItems();

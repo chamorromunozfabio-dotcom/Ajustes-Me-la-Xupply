@@ -12,7 +12,7 @@ function IconShield({ className }: { className?: string }) {
   );
 }
 
-import { hasAdminAccess, canVerifyAccounts } from '../../../shared/utils/permissions';
+import { hasAdminAccess, canVerifyAccounts, canManageContent } from '../../../shared/utils/permissions';
 
 export default function AdminLayout() {
   const { user } = useAuth();
@@ -23,6 +23,7 @@ export default function AdminLayout() {
 
   const canConfig = user?.role === 'admin' || !!user?.permissions?.includes('config');
   const canVerify = canVerifyAccounts(user);
+  const canContent = canManageContent(user);
 
   const navItems = [
     ...(canConfig
@@ -37,30 +38,34 @@ export default function AdminLayout() {
     ...(canVerify
       ? [{ to: '/admin/verificaciones', label: 'Verificaciones', icon: IconShield }]
       : []),
+    ...(canContent
+      ? [{ to: '/admin/contenido', label: 'Contenido', icon: IconDocument }]
+      : []),
   ];
 
   return (
     <div className="flex flex-col md:flex-row gap-4 h-full">
       {/* Navegación Lateral (Desktop) / Superior (Mobile) */}
       <aside className="w-full md:w-64 shrink-0">
-        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-4 sticky top-20">
-          <div className="mb-4 hidden md:block">
+        <div className="x-shell-rail sticky top-20">
+          <div className="x-shell-rail__head hidden md:block">
+            <span className="x-shell-rail__glyph" />
             <h2 className="text-sm font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">
-              {canConfig ? 'Administración' : 'Back office'}
+              {canConfig ? 'Administración' : canVerify ? 'Back office' : 'Contenido'}
             </h2>
             <p className="text-xs text-slate-400 mt-1">
-              {canConfig ? 'Super Admin Panel' : 'Verificación de cuentas'}
+              {canConfig ? 'Super Admin Panel' : canVerify ? 'Verificación de cuentas' : 'Edición de contenido'}
             </p>
           </div>
           
-          <nav className="flex flex-row md:flex-col gap-1.5 overflow-x-auto md:overflow-visible pb-2 md:pb-0 no-scrollbar">
+          <nav className="x-shell-rail__nav flex flex-row md:flex-col gap-1.5 overflow-x-auto md:overflow-visible pb-2 md:pb-0 no-scrollbar">
             {navItems.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 end={item.end}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-xs sm:text-sm transition whitespace-nowrap ${
+                  `x-shell-rail-link flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-xs sm:text-sm transition whitespace-nowrap ${
                     isActive
                       ? 'bg-brand text-white shadow-sm'
                       : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'

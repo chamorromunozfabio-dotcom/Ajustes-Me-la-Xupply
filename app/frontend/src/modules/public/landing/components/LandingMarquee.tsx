@@ -1,6 +1,7 @@
-import { chips } from '../landingData';
+import type { LandingContent } from '../../../../shared/lib/landingContent';
 
-export function LandingMarquee() {
+export function LandingMarquee({ content }: { content: LandingContent }) {
+  const chips = content.marquee.chips || [];
   return (
     <>
       {/* Infinite Marquee Ticker */}

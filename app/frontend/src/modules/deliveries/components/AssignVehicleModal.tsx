@@ -1,3 +1,4 @@
+import { Truck } from 'lucide-react';
 import { Vehicle } from '../../../shared/types';
 import Modal from '../../../shared/ui/Modal';
 import { VehicleGlyph, vehicleLabel } from '../../../shared/ui/VehicleBadge';
@@ -19,29 +20,27 @@ export default function AssignVehicleModal({
   onClose: () => void;
 }) {
   return (
-    <Modal
-      title={`Asignar Usuario a: ${vehicle.name} (${vehicle.plate})`}
-      onClose={onClose}
-    >
-      <div className="space-y-4">
-        <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
-          <div className="h-10 w-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center">
+    <Modal title={`Asignar usuario a ${vehicle.name} (${vehicle.plate})`} onClose={onClose}>
+      <div className="dlv-modal">
+        <div className="dlv-modal__summary">
+          <span className="dlv-modal__summary-icon">
             <VehicleGlyph type={vehicle.type} />
-          </div>
-          <div>
-            <p className="font-bold text-slate-900 text-sm">{vehicle.name}</p>
-            <p className="text-xs text-slate-500">
+          </span>
+          <div className="min-w-0">
+            <p className="dlv-modal__summary-name">{vehicle.name}</p>
+            <p className="dlv-modal__summary-meta">
               {vehicleLabel(vehicle.type)} · Placa: <b>{vehicle.plate}</b>
             </p>
           </div>
         </div>
 
         <div>
-          <label className="mb-1 block text-xs font-bold text-slate-700">Seleccionar Usuario / Domiciliario:</label>
+          <label className="x-label" htmlFor="assign-vehicle-driver">Seleccionar usuario / domiciliario</label>
           <select
+            id="assign-vehicle-driver"
             value={driverId}
             onChange={(e) => onDriverChange(e.target.value)}
-            className="w-full rounded-xl border px-3 py-2 text-sm bg-white font-medium"
+            className="x-select"
           >
             <option value="">-- Sin conductor asignado --</option>
             {drivers.map((d) => (
@@ -52,11 +51,9 @@ export default function AssignVehicleModal({
           </select>
         </div>
 
-        <button
-          onClick={onConfirm}
-          className="w-full rounded-xl bg-brand py-2.5 text-sm font-bold text-white hover:bg-brand-dark shadow transition active:scale-95"
-        >
-          Confirmar Asignación Vehicular
+        <button type="button" onClick={onConfirm} className="x-btn x-btn--primary x-btn--block">
+          <Truck aria-hidden="true" className="w-3.5 h-3.5" />
+          Confirmar asignación vehicular
         </button>
       </div>
     </Modal>

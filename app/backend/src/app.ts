@@ -22,6 +22,8 @@ import purchaseOrdersRouter from './modules/orders/purchaseOrders/purchaseOrders
 import agentRouter from './modules/ai/agent/agent.routes';
 import xupaiRouter from './modules/ai/xupai/xupai.routes';
 import adminRouter from './modules/admin/admin.routes';
+import contentRouter from './modules/content/content.routes';
+import contentAdminRouter from './modules/content/contentAdmin.routes';
 import verificationRouter from './modules/identity/verification/verification.routes';
 import { paymentsRouter, paymentsWebhookRouter, paymentsCronRouter } from './modules/payments/payments.routes';
 import { ensureServerInitialized } from './shared/lib/migrations';
@@ -159,6 +161,8 @@ export function createApp() {
   app.use('/api/agent', agentRouter);
   app.use('/api/xupai', xupaiRouter);
   app.use('/api/admin', adminRouter);
+  app.use('/api/admin/content', contentAdminRouter);
+  app.use('/api/content', contentRouter);
   app.use('/api/payments', paymentsRouter);
   app.use('/api/internal', paymentsCronRouter);
 

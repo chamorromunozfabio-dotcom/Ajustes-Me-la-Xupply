@@ -1,14 +1,22 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { simulatorProductsByType, statuses, words } from './landingData';
+import {
+  DEFAULT_LANDING_APPEARANCE,
+  type LandingContent,
+} from '../../../shared/lib/landingContent';
 
-export function useLandingInteractions() {
+export function useLandingInteractions(content: LandingContent) {
+  const words = content.words;
+  const statuses = content.statuses;
+  const simulatorProductsByType = content.simulator.productsByType;
+  const appearance = { ...DEFAULT_LANDING_APPEARANCE, ...(content.appearance ?? {}) };
+
   const [typewriterText, setTypewriterText] = useState('');
   const [wordIdx, setWordIdx] = useState(0);
   const [charIdx, setCharIdx] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    const currentWord = words[wordIdx];
+    const currentWord = words[wordIdx] ?? '';
     let timeout: NodeJS.Timeout;
 
     if (!isDeleting && charIdx < currentWord.length) {
@@ -27,7 +35,7 @@ export function useLandingInteractions() {
       }, 35);
     } else if (isDeleting && charIdx === 0) {
       setIsDeleting(false);
-      setWordIdx(w => (w + 1) % words.length);
+      setWordIdx(w => (words.length ? (w + 1) % words.length : 0));
     }
 
     return () => clearTimeout(timeout);
@@ -68,11 +76,15 @@ export function useLandingInteractions() {
     };
   }, []);
 
-  // 3. Particle network canvas
+  // 3. Particle network canvas (color, opacidad y cantidad editables)
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const particleColor = appearance.particleColor;
+  const particleOpacity = Math.min(1, Math.max(0, appearance.particleOpacity / 100));
+  const particleCount = Math.max(0, appearance.particleCount);
+
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas || !appearance.particlesEnabled || particleCount === 0) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
@@ -96,7 +108,10 @@ export function useLandingInteractions() {
     window.addEventListener('resize', handleResize);
     window.addEventListener('mousemove', handleMouseMove);
 
-    const particles = Array.from({ length: window.innerWidth < 700 ? 30 : 65 }, () => ({
+    const count = window.innerWidth < 700
+      ? Math.round(particleCount * 0.45)
+      : particleCount;
+    const particles = Array.from({ length: count }, () => ({
       x: Math.random() * width,
       y: Math.random() * height,
       vx: (Math.random() - 0.5) * 0.4,
@@ -120,8 +135,8 @@ export function useLandingInteractions() {
           p.y += (p.y - mouse.y) * 0.006;
         }
 
-        ctx.fillStyle = '#38bdf8';
-        ctx.globalAlpha = 0.5;
+        ctx.fillStyle = particleColor;
+        ctx.globalAlpha = particleOpacity;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
         ctx.fill();
@@ -130,8 +145,8 @@ export function useLandingInteractions() {
           const p2 = particles[j];
           const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
           if (dist < 120) {
-            ctx.globalAlpha = (1 - dist / 120) * 0.18;
-            ctx.strokeStyle = '#38bdf8';
+            ctx.globalAlpha = (1 - dist / 120) * 0.36 * particleOpacity;
+            ctx.strokeStyle = particleColor;
             ctx.lineWidth = 0.7;
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
@@ -158,7 +173,7 @@ export function useLandingInteractions() {
       document.removeEventListener('visibilitychange', handleVisibility);
       cancelAnimationFrame(animId);
     };
-  }, []);
+  }, [appearance.particlesEnabled, particleColor, particleOpacity, particleCount]);
 
   // 4. Stepper & Telemetry
   const [currentStep, setCurrentStep] = useState(0);
@@ -166,12 +181,17 @@ export function useLandingInteractions() {
   const [simulatedDeliverySuccess, setSimulatedDeliverySuccess] = useState(false);
 
   useEffect(() => {
+    if (!statuses.length) {
+      setCurrentStep(0);
+      return;
+    }
+    if (currentStep >= statuses.length) setCurrentStep(0);
     if (!autoStep) return;
     const interval = setInterval(() => {
       setCurrentStep(prev => (prev + 1) % statuses.length);
     }, 3500);
     return () => clearInterval(interval);
-  }, [autoStep]);
+  }, [autoStep, currentStep, statuses.length]);
 
   const handleManualStep = (idx: number) => {
     setAutoStep(false);
@@ -180,7 +200,7 @@ export function useLandingInteractions() {
 
   const handleSimulateFastForward = () => {
     setAutoStep(false);
-    setCurrentStep(4);
+    setCurrentStep(Math.max(0, statuses.length - 1));
     setSimulatedDeliverySuccess(true);
     setTimeout(() => {
       setSimulatedDeliverySuccess(false);
@@ -189,7 +209,7 @@ export function useLandingInteractions() {
 
   // 5. Simulator State
   const [selectedType, setSelectedType] = useState('burger');
-  const currentProducts = simulatorProductsByType[selectedType] || simulatorProductsByType.burger;
+  const currentProducts = simulatorProductsByType[selectedType] || Object.values(simulatorProductsByType)[0] || [];
 
   const [quantities, setQuantities] = useState<Record<number, number>>({});
   const [cufeCode, setCufeCode] = useState('8f3b92c47a1098e21054de74b39a...01cb');
@@ -197,7 +217,7 @@ export function useLandingInteractions() {
 
   const handleTypeChange = (type: string) => {
     setSelectedType(type);
-    const prods = simulatorProductsByType[type] || simulatorProductsByType.burger;
+    const prods = simulatorProductsByType[type] || Object.values(simulatorProductsByType)[0] || [];
     const initialQty: Record<number, number> = {};
     prods.forEach(p => {
       initialQty[p.id] = 0;
@@ -250,6 +270,7 @@ export function useLandingInteractions() {
   };
 
   return {
+    content,
     typewriterText,
     progressRef,
     canvasRef,

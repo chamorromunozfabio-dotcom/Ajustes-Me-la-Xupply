@@ -11,6 +11,7 @@ function RootRoute() {
   if (user) {
     if (user.role === 'admin') return <Navigate to="/admin" replace />;
     if (user.role === 'verificador') return <Navigate to="/admin/verificaciones" replace />;
+    if (user.role === 'tecnico') return <Navigate to="/admin/contenido" replace />;
     if (user.role === 'domiciliario') return <Navigate to="/repartidor" replace />;
     return <DashboardPage />;
   }

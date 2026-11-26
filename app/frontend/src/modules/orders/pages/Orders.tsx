@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ArrowDownWideNarrow, Compass, Filter, Package, RefreshCw } from 'lucide-react';
 import { api } from '../../../shared/api/client';
 import { useAuth } from '../../../shared/context/AuthContext';
 import { useSocketSubscription } from '../../../shared/hooks/useSocketSubscription';
 import { Order } from '../../../shared/types';
 import { ORDER_STATUS } from '../../../shared/utils/constants';
 import OrderCard from '../components/OrderCard';
+import '../Orders.css';
 
 export default function Orders() {
   const { user } = useAuth();
@@ -57,11 +59,12 @@ export default function Orders() {
   const statuses = ['', 'nuevo', 'confirmado', 'preparando', 'despachado', 'en_camino', 'entregado', 'cancelado'];
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-end justify-between gap-3">
+    <div className="ord x-page">
+      <header className="ord__hero">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">Pedidos</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <p className="ord__eyebrow">Operaciones · Pedidos</p>
+          <h1 className="ord__title">Pedidos</h1>
+          <p className="ord__subtitle">
             {isSupplier
               ? 'Pedidos que tus clientes te enviaron, en orden de llegada.'
               : isDriver
@@ -70,73 +73,90 @@ export default function Orders() {
           </p>
         </div>
 
-        <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
-          <label className="sr-only" htmlFor="orders-status">
-            Filtrar por estado
-          </label>
-          <select
-            id="orders-status"
-            value={status}
-            onChange={(event) => setStatus(event.target.value)}
-            className="flex-1 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand/30 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 sm:flex-none"
-          >
-            {statuses.map((value) => (
-              <option key={value} value={value}>
-                {value === '' ? 'Todos los estados' : ORDER_STATUS[value]?.label ?? value}
-              </option>
-            ))}
-          </select>
-          <label className="sr-only" htmlFor="orders-sort">
-            Ordenar por precio
-          </label>
-          <select
-            id="orders-sort"
-            value={priceSort}
-            onChange={(event) => setPriceSort(event.target.value as 'asc' | 'desc' | '')}
-            className="flex-1 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand/30 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 sm:flex-none"
-          >
-            <option value="">Ordenar por precio</option>
-            <option value="desc">Mayor a menor</option>
-            <option value="asc">Menor a mayor</option>
-          </select>
-        </div>
-      </div>
-
-      {error && (
-        <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-rose-200 bg-rose-50 p-3 text-xs font-semibold text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300">
-          <span>{error}</span>
+        <div className="ord__filters">
+          <div className="ord__filter">
+            <Filter aria-hidden="true" />
+            <label className="sr-only" htmlFor="orders-status">
+              Filtrar por estado
+            </label>
+            <select
+              id="orders-status"
+              value={status}
+              onChange={(event) => setStatus(event.target.value)}
+              className="x-select"
+            >
+              {statuses.map((value) => (
+                <option key={value} value={value}>
+                  {value === '' ? 'Todos los estados' : ORDER_STATUS[value]?.label ?? value}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="ord__filter">
+            <ArrowDownWideNarrow aria-hidden="true" />
+            <label className="sr-only" htmlFor="orders-sort">
+              Ordenar por precio
+            </label>
+            <select
+              id="orders-sort"
+              value={priceSort}
+              onChange={(event) => setPriceSort(event.target.value as 'asc' | 'desc' | '')}
+              className="x-select"
+            >
+              <option value="">Ordenar por precio</option>
+              <option value="desc">Mayor a menor</option>
+              <option value="asc">Menor a mayor</option>
+            </select>
+          </div>
           <button
             type="button"
-            onClick={load}
-            className="rounded-lg bg-white/70 px-2.5 py-1 font-bold text-rose-700 transition hover:bg-white dark:bg-rose-500/20 dark:text-rose-200"
+            onClick={refresh}
+            className="x-btn ord__refresh"
+            title="Actualizar pedidos"
           >
+            <RefreshCw aria-hidden="true" className="w-3.5 h-3.5" />
+            Actualizar
+          </button>
+        </div>
+      </header>
+
+      {!loading && visibleOrders.length > 0 && (
+        <div className="ord__toolbar">
+          <span className="ord__count">
+            {visibleOrders.length} pedido(s) {status ? 'con el filtro activo' : 'en total'}
+          </span>
+          <span className="ord__live">
+            <span className="ord__live-dot" aria-hidden="true" />
+            Sincronización automática · 30 s
+          </span>
+        </div>
+      )}
+
+      {error && (
+        <div className="ord__error" role="alert">
+          <span>{error}</span>
+          <button type="button" onClick={load} className="x-btn x-btn--sm">
+            <RefreshCw aria-hidden="true" className="w-3 h-3" />
             Reintentar
           </button>
         </div>
       )}
 
       {loading ? (
-        <div className="space-y-3" aria-hidden>
+        <div className="ord__skeletons" aria-hidden>
           {[0, 1, 2].map((index) => (
-            <div key={index} className="h-24 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800" />
+            <div key={index} className="x-skeleton ord__skeleton" />
           ))}
         </div>
       ) : visibleOrders.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center dark:border-slate-700 dark:bg-slate-900">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-brand/10 text-brand">
-            <svg className="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.8}
-                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-              />
-            </svg>
+        <div className="x-empty">
+          <div className="x-empty__icon">
+            <Package className="w-6 h-6" aria-hidden="true" />
           </div>
-          <h2 className="mt-3 text-lg font-bold text-slate-900 dark:text-white">
+          <h2 className="x-empty__title">
             {status ? 'No hay pedidos con ese estado' : 'Todavía no hay pedidos'}
           </h2>
-          <p className="mx-auto mt-1 max-w-sm text-sm text-slate-500 dark:text-slate-400">
+          <p className="x-empty__text">
             {status
               ? 'Prueba con otro estado o limpia el filtro.'
               : isSupplier
@@ -145,41 +165,29 @@ export default function Orders() {
               ? 'Cuando te asignen una entrega, la verás en tu ruta.'
               : 'Explora el catálogo mayorista y crea tu primer pedido.'}
           </p>
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+          <div className="x-cluster" style={{ marginTop: 10 }}>
             {status ? (
-              <button
-                type="button"
-                onClick={() => setStatus('')}
-                className="rounded-xl bg-brand px-4 py-2 text-xs font-bold text-white transition hover:bg-brand-dark"
-              >
+              <button type="button" onClick={() => setStatus('')} className="x-btn x-btn--primary">
                 Ver todos
               </button>
             ) : isDriver ? (
-              <Link
-                to="/repartidor"
-                className="rounded-xl bg-brand px-4 py-2 text-xs font-bold text-white transition hover:bg-brand-dark"
-              >
+              <Link to="/repartidor" className="x-btn x-btn--primary">
+                <Compass aria-hidden="true" className="w-3.5 h-3.5" />
                 Ir a mi ruta
               </Link>
             ) : isSupplier ? (
-              <Link
-                to="/"
-                className="rounded-xl bg-brand px-4 py-2 text-xs font-bold text-white transition hover:bg-brand-dark"
-              >
+              <Link to="/" className="x-btn x-btn--primary">
                 Volver al panel
               </Link>
             ) : (
-              <Link
-                to="/catalogo"
-                className="rounded-xl bg-brand px-4 py-2 text-xs font-bold text-white transition hover:bg-brand-dark"
-              >
+              <Link to="/catalogo" className="x-btn x-btn--primary">
                 Explorar catálogo
               </Link>
             )}
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4">
+        <div className="ord__list">
           {visibleOrders.map((order) => (
             <OrderCard key={order.id} order={order} isSupplier={isSupplier} />
           ))}
@@ -187,9 +195,7 @@ export default function Orders() {
       )}
 
       {!loading && visibleOrders.length > 0 && (
-        <p className="text-center text-[11px] text-slate-400">
-          {visibleOrders.length} pedido(s) · se actualiza automáticamente cada 30 s
-        </p>
+        <p className="ord__hint">Los estados se actualizan solos mientras la pestaña esté abierta.</p>
       )}
     </div>
   );

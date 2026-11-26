@@ -1,4 +1,4 @@
-# Acceso al entorno real (admin y verificador)
+# Acceso al entorno real (admin, verificador y técnico)
 
 Xupply no guarda contraseñas en el repositorio. El administrador real se crea
 desde las variables `ADMIN_USERNAME` / `ADMIN_PASSWORD` de Vercel, y el resto de
@@ -14,7 +14,7 @@ restablece sin exponerla en el código.
 
 Es un secreto: no la pegues en issues, chats ni commits.
 
-## 2. Listar administradores y verificadores
+## 2. Listar administradores, verificadores y técnicos
 
 Desde `app/backend`:
 
@@ -51,7 +51,24 @@ npm run admin:credentials -- --username=revisor --role=verificador --generate --
 Entra en `https://xupply-d.vercel.app/login` y el sistema abrirá directamente
 `/admin/verificaciones`.
 
-## 5. Crear cuentas de restaurante o proveedor
+## 5. Crear el técnico del CMS
+
+```powershell
+npm run admin:credentials -- --username=tecnico --role=tecnico --generate --yes
+```
+
+Entra en `https://xupply-d.vercel.app/login`: el sistema abrirá directamente
+`/admin/contenido`. Ahí hay dos superficies:
+
+- **Landing pública**: textos, colores, fondo, aurora, partículas, banners y noticias.
+- **Interfaz de la app**: nombre y logo, paleta, fondo de todas las vistas,
+  etiquetas del menú, elementos visibles y aviso global.
+
+Ambas se editan con vista previa en vivo. Las imágenes se enlazan con URL
+pública http(s): el CMS no recibe archivos y no acepta HTML ni JavaScript.
+Este rol no tiene acceso a configuración ni a verificación, solo `content:write`.
+
+## 6. Crear cuentas de restaurante o proveedor
 
 El script solo gestiona cuentas de plataforma. Para restaurantes/proveedores:
 
@@ -67,5 +84,6 @@ El script solo gestiona cuentas de plataforma. Para restaurantes/proveedores:
 - Rota la contraseña después de usarla en una sesión compartida.
 - El script requiere `--yes` para escribir y muestra el host de la base antes de
   hacer cambios.
-- Si el rol `verificador` no existe, arranca el servidor una vez para que corra
-  la migración (o aplica `ensureVerificationSchema`).
+- Si los roles `verificador` o `tecnico` no existen, arranca el servidor una vez
+  para que corran las migraciones (o aplica `ensureVerificationSchema` y
+  `ensureContentSchema`).

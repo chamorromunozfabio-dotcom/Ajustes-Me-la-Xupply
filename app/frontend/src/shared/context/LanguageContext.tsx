@@ -67,6 +67,8 @@ const DICTIONARY: Record<Language, Record<string, string>> = {
     'role.domiciliario': 'Domiciliario / Conductor',
     'role.empleado': 'Empleado Operativo',
     'role.admin': 'Administrador',
+    'role.verificador': 'Verificador',
+    'role.tecnico': 'Técnico',
 
     // Dashboard Hub
     'hub.title': 'Centro de Módulos & Panel',
@@ -158,6 +160,8 @@ const DICTIONARY: Record<Language, Record<string, string>> = {
     'role.domiciliario': 'Courier / Driver',
     'role.empleado': 'Staff Member',
     'role.admin': 'Administrator',
+    'role.verificador': 'Verifier',
+    'role.tecnico': 'Technician',
 
     // Dashboard Hub
     'hub.title': 'Modules & Control Center',

@@ -1,3 +1,4 @@
+import { UserRoundPlus } from 'lucide-react';
 import { Vehicle } from '../../../shared/types';
 import Modal from '../../../shared/ui/Modal';
 import { DriverOption } from '../types';
@@ -26,14 +27,15 @@ export default function AssignDriverModal({
   onClose: () => void;
 }) {
   return (
-    <Modal title={`Asignar Domiciliario a ${orderCode}`} onClose={onClose}>
-      <div className="space-y-4">
+    <Modal title={`Asignar domiciliario a ${orderCode}`} onClose={onClose}>
+      <div className="dlv-modal">
         <div>
-          <label className="mb-1 block text-sm font-bold text-slate-700">Seleccionar domiciliario:</label>
+          <label className="x-label" htmlFor="assign-driver">Seleccionar domiciliario</label>
           <select
+            id="assign-driver"
             value={selectedDriverId}
             onChange={(e) => onDriverChange(e.target.value)}
-            className="w-full rounded-xl border px-3 py-2 text-sm bg-white font-medium"
+            className="x-select"
           >
             <option value="">-- Elige un domiciliario --</option>
             {drivers.map((d) => (
@@ -43,16 +45,18 @@ export default function AssignDriverModal({
             ))}
           </select>
           {drivers.length === 0 && (
-            <p className="mt-1 text-xs text-amber-600">No hay domiciliarios activos registrados para este proveedor.</p>
+            <p className="dlv-modal__notice">No hay domiciliarios activos registrados para este proveedor.</p>
           )}
         </div>
+
         <div>
-          <label className="mb-1 block text-sm font-bold text-slate-700">Vehículo para la entrega:</label>
+          <label className="x-label" htmlFor="assign-vehicle">Vehículo para la entrega</label>
           <select
+            id="assign-vehicle"
             value={selectedVehicleId}
             onChange={(e) => onVehicleChange(e.target.value)}
             disabled={!selectedDriverId}
-            className="w-full rounded-xl border px-3 py-2 text-sm bg-white font-medium disabled:bg-slate-100 disabled:text-slate-400"
+            className="x-select"
           >
             <option value="">-- Elige un vehículo --</option>
             {vehicles.map((vehicle) => (
@@ -63,17 +67,20 @@ export default function AssignDriverModal({
             ))}
           </select>
           {assignmentLoadError ? (
-            <p className="mt-1 text-xs text-red-600">{assignmentLoadError}</p>
+            <p className="dlv-modal__error">{assignmentLoadError}</p>
           ) : vehicles.length === 0 ? (
-            <p className="mt-1 text-xs text-amber-600">No hay vehículos activos en la flota. Registra un vehículo antes de asignar la entrega.</p>
+            <p className="dlv-modal__notice">No hay vehículos activos en la flota. Registra uno antes de asignar la entrega.</p>
           ) : null}
         </div>
+
         <button
+          type="button"
           onClick={onAssign}
           disabled={!selectedDriverId || !selectedVehicleId || Boolean(assignmentLoadError)}
-          className="w-full rounded-xl bg-brand py-2.5 text-sm font-bold text-white hover:bg-brand-dark disabled:opacity-50 shadow transition"
+          className="x-btn x-btn--primary x-btn--block"
         >
-          Asignar y Notificar al Domiciliario
+          <UserRoundPlus aria-hidden="true" className="w-3.5 h-3.5" />
+          Asignar y notificar al domiciliario
         </button>
       </div>
     </Modal>

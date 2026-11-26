@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom';
 import Logo from '../../../../shared/ui/Logo';
+import type { LandingContent } from '../../../../shared/lib/landingContent';
 
-export function LandingNav() {
+export function LandingNav({ content }: { content: LandingContent }) {
+  const { nav } = content;
   return (
     <>
       {/* Top Navigation */}
@@ -14,19 +16,19 @@ export function LandingNav() {
           </div>
 
           <div className="nav-links">
-            <a href="#features">Características</a>
-            <a href="#simulador">Simulador</a>
-            <a href="#roles">Roles</a>
-            <a href="#como">Cómo Funciona</a>
-            <a href="#comparativa">Beneficios</a>
+            <a href="#features">{nav.features}</a>
+            <a href="#simulador">{nav.simulator}</a>
+            <a href="#roles">{nav.roles}</a>
+            <a href="#como">{nav.howItWorks}</a>
+            <a href="#comparativa">{nav.benefits}</a>
           </div>
 
           <div className="nav-actions">
             <Link className="btn ghost sm" to="/login">
-              Iniciar Sesión
+              {nav.login}
             </Link>
             <Link className="btn sm" to="/register">
-              Registrarse
+              {nav.register}
             </Link>
           </div>
         </div>

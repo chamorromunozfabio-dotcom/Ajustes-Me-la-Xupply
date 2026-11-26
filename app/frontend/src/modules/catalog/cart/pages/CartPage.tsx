@@ -1,12 +1,14 @@
 import { toast } from '../../../../shared/utils/feedback';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, MapPin, Minus, Plus, Settings2, ShoppingBasket, Store, Trash2 } from 'lucide-react';
 import { useCart } from '../../../../shared/context/CartContext';
 import { useNotifications } from '../../../../shared/context/NotificationContext';
 import { api } from '../../../../shared/api/client';
 import { Order } from '../../../../shared/types';
 import { formatMoney } from '../../../../shared/utils/constants';
 import { getProductImage } from '../../utils/productImage';
+import '../../Catalog.css';
 
 export default function CartPage() {
   const { items, setQuantity, remove, total, clear } = useCart();
@@ -61,64 +63,153 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <div className="py-16 text-center text-gray-500">
-        <p className="mb-2 text-lg">Tu carrito está vacío</p>
-        <button onClick={() => navigate('/catalogo')} className="rounded bg-brand px-4 py-2 text-white">Ir al catálogo</button>
+      <div className="cart x-page">
+        <div className="x-empty">
+          <div className="x-empty__icon"><ShoppingBasket aria-hidden="true" className="w-6 h-6" /></div>
+          <p className="x-empty__title">Tu carrito está vacío</p>
+          <p className="x-empty__text">Agrega insumos desde el catálogo para comenzar tu pedido.</p>
+          <button type="button" onClick={() => navigate('/catalogo')} className="x-btn x-btn--primary">
+            Ir al catálogo
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-3">
-      <div className="lg:col-span-2">
-        {groupBySupplier().map(([supplierId, list]) => (
-          <div key={supplierId} className="mb-4 rounded-lg border bg-white p-4 shadow-sm">
-            <h3 className="mb-3 font-semibold text-gray-800 border-b pb-2">{list[0].product.supplier_name}</h3>
-            {list.map((i) => (
-              <div key={i.product.id} className="mb-3 flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 border-b pb-3 last:border-b-0 last:pb-0">
-                <div className="flex items-center gap-3 min-w-0">
-                  <img
-                    src={getProductImage(i.product)}
-                    alt={i.product.name}
-                    className="h-14 w-14 rounded-lg object-cover flex-shrink-0 border border-gray-100 shadow-xs"
-                  />
-                  <div className="min-w-0">
-                    <p className="truncate font-medium text-gray-900">{i.product.name}</p>
-                    <p className="text-xs text-gray-500">{formatMoney(i.product.price_per_unit)} / {i.product.unit}</p>
-                    {i.customization && (
-                      <p className="mt-1 inline-flex items-center gap-1 rounded bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-800 border border-amber-200">
-                        <span>⚙️</span> {i.customization}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 ml-auto sm:ml-0">
-                  <input
-                    type="number"
-                    min={1}
-                    value={i.quantity}
-                    onChange={(e) => setQuantity(i.product.id, Math.max(1, Number(e.target.value)))}
-                    className="w-16 rounded border px-2 py-1 text-center font-medium"
-                  />
-                  <span className="w-24 text-right font-semibold text-brand-dark">{formatMoney(i.product.price_per_unit * i.quantity)}</span>
-                  <button onClick={() => remove(i.product.id)} className="text-sm text-red-500 hover:text-red-700">Eliminar</button>
-                </div>
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
-      <div className="h-fit rounded-lg border bg-white p-4">
-        <h3 className="mb-3 text-lg font-semibold">Resumen</h3>
-        <div className="mb-4 flex justify-between text-lg font-bold">
-          <span>Total</span>
-          <span>{formatMoney(total)}</span>
+    <div className="cart x-page">
+      <header className="cat__hero">
+        <div>
+          <p className="cat__eyebrow">Comercio · Carrito</p>
+          <h1 className="cat__title">Tu carrito</h1>
+          <p className="cat__subtitle">
+            {items.length} insumo(s) de {groupBySupplier().length} proveedor(es), listos para confirmar.
+          </p>
         </div>
-        <textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notas para el pedido" className="mb-2 w-full rounded border px-3 py-2 text-sm" rows={2} />
-        <input value={deliveryAddress} onChange={(e) => setDeliveryAddress(e.target.value)} placeholder="Dirección de entrega" className="mb-4 w-full rounded border px-3 py-2 text-sm" />
-        <button onClick={submit} disabled={submitting} className="w-full rounded bg-brand py-2 font-medium text-white hover:bg-brand-dark disabled:opacity-50">
-          {submitting ? 'Creando pedido...' : 'Crear pedido'}
+        <button type="button" onClick={() => navigate('/catalogo')} className="x-btn">
+          <ArrowLeft aria-hidden="true" className="w-3.5 h-3.5" />
+          Seguir comprando
         </button>
+      </header>
+
+      <div className="cart__layout">
+        <div className="cart__groups">
+          {groupBySupplier().map(([supplierId, list]) => (
+            <section key={supplierId} className="cart__group x-card">
+              <div className="x-card__head">
+                <h3 className="x-card__title">
+                  <Store aria-hidden="true" className="cart__group-icon" />
+                  {list[0].product.supplier_name || 'Proveedor oficial'}
+                </h3>
+                <span className="x-badge">{list.length} ítem(s)</span>
+              </div>
+              <div className="cart__items">
+                {list.map((i) => (
+                  <div key={i.product.id} className="cart__item">
+                    <img
+                      src={getProductImage(i.product)}
+                      alt={i.product.name}
+                      className="cart__item-img"
+                    />
+                    <div className="cart__item-info">
+                      <p className="cart__item-name">{i.product.name}</p>
+                      <p className="cart__item-price">{formatMoney(i.product.price_per_unit)} / {i.product.unit}</p>
+                      {i.customization && (
+                        <span className="cart__custom">
+                          <Settings2 aria-hidden="true" className="w-3 h-3" />
+                          {i.customization}
+                        </span>
+                      )}
+                    </div>
+                    <div className="cart__item-actions">
+                      <div className="cart__stepper">
+                        <button
+                          type="button"
+                          aria-label="Disminuir cantidad"
+                          onClick={() => setQuantity(i.product.id, i.quantity - 1)}
+                          className="cat__step-btn"
+                        >
+                          <Minus aria-hidden="true" />
+                        </button>
+                        <input
+                          type="number"
+                          aria-label={`Cantidad de ${i.product.name}`}
+                          min={1}
+                          value={i.quantity}
+                          onChange={(e) => setQuantity(i.product.id, Math.max(1, Number(e.target.value)))}
+                          className="cart__qty"
+                        />
+                        <button
+                          type="button"
+                          aria-label="Aumentar cantidad"
+                          onClick={() => setQuantity(i.product.id, i.quantity + 1)}
+                          className="cat__step-btn"
+                        >
+                          <Plus aria-hidden="true" />
+                        </button>
+                      </div>
+                      <span className="cart__subtotal">{formatMoney(i.product.price_per_unit * i.quantity)}</span>
+                      <button
+                        type="button"
+                        onClick={() => remove(i.product.id)}
+                        className="cart__remove"
+                        title="Eliminar producto"
+                      >
+                        <Trash2 aria-hidden="true" className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ))}
+        </div>
+
+        <aside className="cart__summary x-card">
+          <div className="x-card__head">
+            <h2 className="x-card__title">Resumen del pedido</h2>
+          </div>
+          <div className="cart__summary-body">
+            <div className="cart__total">
+              <span>Total estimado</span>
+              <strong>{formatMoney(total)}</strong>
+            </div>
+            <p className="cart__hint">El flete se coordina con el proveedor al confirmar.</p>
+
+            <div>
+              <label className="x-label" htmlFor="cart-address">
+                <MapPin aria-hidden="true" className="cart__label-icon" />
+                Dirección de entrega
+              </label>
+              <input
+                id="cart-address"
+                value={deliveryAddress}
+                onChange={(e) => setDeliveryAddress(e.target.value)}
+                placeholder="Carrera 27 # 45-12, Bucaramanga"
+                className="x-input"
+              />
+            </div>
+            <div>
+              <label className="x-label" htmlFor="cart-notes">Notas para el pedido</label>
+              <textarea
+                id="cart-notes"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Instrucciones especiales de entrega"
+                className="x-textarea"
+                rows={2}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={submit}
+              disabled={submitting}
+              className="x-btn x-btn--primary x-btn--block cat__submit"
+            >
+              {submitting ? 'Creando pedido...' : 'Crear pedido'}
+            </button>
+          </div>
+        </aside>
       </div>
     </div>
   );

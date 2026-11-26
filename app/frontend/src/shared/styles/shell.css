@@ -1,0 +1,491 @@
+/* Capa visual publicada desde /admin/contenido (bloque ui.shell).
+   Los colores viven en variables --shell-*; aquí solo se compone la
+   experiencia: atmósfera, profundidad, superficies y microinteracciones. */
+
+.x-shell-app {
+  --x-surface: #ffffff;
+  --x-surface-soft: #f8fafc;
+  --x-border: rgba(15, 23, 42, 0.09);
+  --x-grid: rgba(15, 23, 42, 0.032);
+
+  background-color: var(--shell-page-light) !important;
+  background-image:
+    radial-gradient(1100px 520px at 8% -10%, rgba(var(--shell-primary-rgb), 0.13), transparent 62%),
+    radial-gradient(900px 460px at 96% 2%, rgba(var(--shell-accent-rgb), 0.1), transparent 64%),
+    linear-gradient(var(--x-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--x-grid) 1px, transparent 1px);
+  background-size: auto, auto, 38px 38px, 38px 38px;
+  background-attachment: fixed;
+  color: var(--shell-page-text) !important;
+}
+
+.dark .x-shell-app {
+  --x-surface: #0f172a;
+  --x-surface-soft: #111c31;
+  --x-border: rgba(148, 163, 184, 0.16);
+  --x-grid: rgba(148, 163, 184, 0.05);
+
+  background-color: var(--shell-page-dark) !important;
+  background-image:
+    radial-gradient(1000px 520px at 6% -8%, rgba(var(--shell-primary-rgb), 0.22), transparent 62%),
+    radial-gradient(860px 460px at 98% 4%, rgba(var(--shell-accent-rgb), 0.14), transparent 64%),
+    linear-gradient(var(--x-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--x-grid) 1px, transparent 1px);
+  color: #e2e8f0 !important;
+}
+
+/* Detalles finos de la superficie global. */
+.x-shell-app ::selection {
+  background: rgba(var(--shell-primary-rgb), 0.22);
+}
+
+.x-shell-app * {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(var(--shell-primary-rgb), 0.35) transparent;
+}
+
+.x-shell-app ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.x-shell-app ::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(var(--shell-primary-rgb), 0.32);
+}
+
+.x-shell-app :focus-visible {
+  outline: 2px solid var(--shell-primary);
+  outline-offset: 2px;
+}
+
+/* ---------- Barra superior ---------- */
+
+.x-shell-header {
+  background: linear-gradient(
+    100deg,
+    var(--shell-header-from),
+    var(--shell-header-via) 48%,
+    var(--shell-header-to)
+  ) !important;
+  color: var(--shell-header-text) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18) !important;
+  box-shadow:
+    0 14px 34px -16px rgba(var(--shell-primary-rgb), 0.85),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+  backdrop-filter: blur(18px) saturate(140%);
+}
+
+.x-shell-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(420px 180px at 18% -40%, rgba(255, 255, 255, 0.24), transparent 70%),
+    radial-gradient(380px 170px at 78% 150%, rgba(var(--shell-accent-rgb), 0.3), transparent 72%);
+  opacity: 0.8;
+}
+
+.x-shell-header::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 2px;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--shell-accent),
+    var(--shell-primary-light),
+    transparent
+  );
+  opacity: 0.7;
+}
+
+.x-shell-header__inner {
+  position: relative;
+  z-index: 1;
+  min-height: 62px !important;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+}
+
+.x-shell-brand {
+  gap: 11px !important;
+}
+
+.x-shell-brand-mark {
+  display: grid !important;
+  place-items: center !important;
+  width: 42px !important;
+  height: 42px !important;
+  flex: 0 0 auto !important;
+  border-radius: 13px !important;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.06)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.32) !important;
+  box-shadow:
+    0 10px 22px -10px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.38) !important;
+}
+
+.x-shell-brand-mark img,
+.x-shell-brand-mark svg {
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.28));
+}
+
+.x-shell-header .x-shell-brand-text {
+  font-size: 1rem !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.035em !important;
+  line-height: 1.05 !important;
+}
+
+.x-shell-header .x-shell-brand-tagline {
+  font-size: 0.6rem !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  opacity: 0.82;
+}
+
+/* Navegación rápida: pastillas con estado activo iluminado. */
+.x-shell-header .x-shell-nav {
+  gap: 3px !important;
+  padding: 5px !important;
+  border-radius: 15px !important;
+  background: rgba(2, 6, 23, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.25) !important;
+}
+
+.x-shell-header .x-shell-nav a,
+.x-shell-header .x-shell-action,
+.x-shell-header .x-shell-icon-btn {
+  color: var(--shell-header-text) !important;
+}
+
+.x-shell-header .x-shell-nav a {
+  border-radius: 10px !important;
+  padding: 7px 11px !important;
+  font-size: 0.76rem !important;
+  font-weight: 700 !important;
+  transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease !important;
+}
+
+.x-shell-header .x-shell-nav a:not(.x-shell-active):hover {
+  background: rgba(255, 255, 255, 0.14) !important;
+  transform: translateY(-1px);
+}
+
+.x-shell-header .x-shell-nav a.x-shell-active {
+  background: #ffffff !important;
+  color: var(--shell-primary-dark) !important;
+  font-weight: 900 !important;
+  box-shadow: 0 8px 18px -8px rgba(0, 0, 0, 0.55) !important;
+}
+
+/* Acciones: botones circulares de cristal. */
+.x-shell-header .x-shell-action,
+.x-shell-header .x-shell-icon-btn,
+.x-shell-header .x-shell-bell-slot > div > button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 11px !important;
+  background: rgba(255, 255, 255, 0.13) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: var(--shell-header-text) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
+  transition: transform 0.18s ease, background 0.18s ease !important;
+  cursor: pointer;
+}
+
+.x-shell-header .x-shell-action:hover,
+.x-shell-header .x-shell-icon-btn:hover,
+.x-shell-header .x-shell-bell-slot > div > button:hover {
+  background: rgba(255, 255, 255, 0.24) !important;
+  transform: translateY(-1px);
+}
+
+.x-shell-header .x-shell-logout {
+  background: rgba(244, 63, 94, 0.85) !important;
+  border-color: rgba(255, 255, 255, 0.28) !important;
+}
+
+.x-shell-header .x-shell-user-chip {
+  background: rgba(2, 6, 23, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  border-radius: 13px !important;
+  padding: 5px 11px !important;
+  backdrop-filter: blur(10px);
+}
+
+.x-shell-header .x-shell-user-chip p {
+  color: var(--shell-header-text) !important;
+}
+
+.x-shell-header .x-shell-menu-btn {
+  background: linear-gradient(135deg, #ffffff, rgba(255, 255, 255, 0.86)) !important;
+  color: var(--shell-primary-dark) !important;
+  border: 1px solid rgba(255, 255, 255, 0.75) !important;
+  border-radius: 13px !important;
+  padding: 9px 14px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.01em;
+  box-shadow:
+    0 10px 22px -10px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 #ffffff !important;
+  transition: transform 0.18s ease !important;
+}
+
+.x-shell-header .x-shell-menu-btn:hover {
+  transform: translateY(-1px);
+}
+
+.x-shell-header .x-shell-menu-btn svg {
+  color: var(--shell-primary) !important;
+}
+
+/* ---------- Aviso global ---------- */
+
+.x-shell-notice {
+  position: relative;
+  z-index: 35;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 9px;
+  padding: 7px 16px !important;
+  background: linear-gradient(
+    90deg,
+    var(--shell-primary-dark),
+    var(--shell-primary),
+    var(--shell-primary-dark)
+  ) !important;
+  color: #ffffff !important;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-align: center;
+  box-shadow: 0 8px 20px -10px rgba(var(--shell-primary-rgb), 0.8) !important;
+}
+
+.x-shell-notice__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+}
+
+.x-shell-notice__text {
+  max-width: 70ch;
+}
+
+.x-shell-notice__link {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--shell-primary-dark) !important;
+  font-weight: 800;
+  text-decoration: none !important;
+  transition: transform 0.18s ease;
+}
+
+.x-shell-notice__link:hover {
+  transform: translateY(-1px);
+}
+
+/* ---------- Menú inferior flotante ---------- */
+
+.x-shell-bottomnav {
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+.x-shell-dock__inner {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 8px !important;
+  border-radius: 22px !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.85) !important;
+  box-shadow:
+    0 20px 45px -14px rgba(15, 23, 42, 0.5),
+    inset 0 1px 0 #ffffff !important;
+  backdrop-filter: blur(18px) saturate(150%);
+}
+
+.dark .x-shell-dock__inner {
+  background: rgba(15, 23, 42, 0.92) !important;
+  border-color: rgba(148, 163, 184, 0.2) !important;
+  box-shadow:
+    0 20px 45px -14px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+}
+
+.x-shell-dock__item {
+  min-width: 56px;
+  border-radius: 14px !important;
+  padding: 6px 5px !important;
+  transition: transform 0.18s ease, background 0.18s ease !important;
+}
+
+.x-shell-dock__item:hover {
+  background: rgba(var(--shell-primary-rgb), 0.08) !important;
+}
+
+.x-shell-dock__item.x-shell-active {
+  background: rgba(var(--shell-primary-rgb), 0.12) !important;
+  transform: translateY(-2px);
+}
+
+.x-shell-bottomnav a.x-shell-active,
+.x-shell-bottomnav button.x-shell-active {
+  color: var(--shell-primary) !important;
+}
+
+/* ---------- Rail del back office ---------- */
+
+.x-shell-rail {
+  border-radius: 18px !important;
+  background: var(--x-surface) !important;
+  border: 1px solid var(--x-border) !important;
+  box-shadow: 0 18px 45px -26px rgba(15, 23, 42, 0.45) !important;
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.x-shell-rail__head {
+  position: relative;
+  padding: 16px 16px 14px !important;
+  background: linear-gradient(
+    140deg,
+    rgba(var(--shell-primary-rgb), 0.14),
+    rgba(var(--shell-accent-rgb), 0.07)
+  );
+  border-bottom: 1px solid var(--x-border);
+}
+
+.x-shell-rail__glyph {
+  display: block;
+  width: 28px;
+  height: 4px;
+  margin-bottom: 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--shell-primary), var(--shell-accent));
+  box-shadow: 0 3px 10px -3px rgba(var(--shell-primary-rgb), 0.8);
+}
+
+.x-shell-rail__nav {
+  padding: 12px !important;
+}
+
+.x-shell-rail-link {
+  position: relative;
+  transition: transform 0.18s ease, box-shadow 0.18s ease !important;
+}
+
+.x-shell-rail-link:hover:not([aria-current='page']) {
+  transform: translateX(2px);
+  background: rgba(var(--shell-primary-rgb), 0.08) !important;
+}
+
+.x-shell-rail-link[aria-current='page'] {
+  background: linear-gradient(120deg, var(--shell-primary), var(--shell-primary-dark)) !important;
+  color: #ffffff !important;
+  box-shadow: 0 10px 20px -10px rgba(var(--shell-primary-rgb), 0.9) !important;
+}
+
+/* ---------- Entrada de cada vista ---------- */
+
+.x-shell-main {
+  animation: x-shell-page-in 0.38s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes x-shell-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- Cabecera en tablet ----------
+   Entre 640 y 1279 px la barra completa no cabe: se conserva la navegación
+   como iconos (accesibles para lectores de pantalla) y se compactan acciones. */
+@media (min-width: 640px) and (max-width: 1279px) {
+  .x-shell-header__inner {
+    gap: 8px !important;
+  }
+
+  .x-shell-header .x-shell-nav a > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .x-shell-header .x-shell-nav a {
+    padding: 8px !important;
+  }
+
+  .x-shell-brand-tagline {
+    display: none !important;
+  }
+
+  .x-shell-brand-text {
+    display: block;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .x-shell-header .x-shell-cart-btn > span:first-of-type {
+    display: none !important;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .x-shell-header .x-shell-user-chip {
+    display: none !important;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .x-shell-header .x-shell-user-chip,
+  .x-shell-header .x-shell-logout {
+    display: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .x-shell-main,
+  .x-shell-header .x-shell-nav a,
+  .x-shell-header .x-shell-action,
+  .x-shell-header .x-shell-icon-btn,
+  .x-shell-dock__item {
+    animation: none !important;
+    transition: none !important;
+  }
+}

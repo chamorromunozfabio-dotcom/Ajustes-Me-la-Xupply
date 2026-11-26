@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Plus, Satellite } from 'lucide-react';
 import { api } from '../../../shared/api/client';
 import { getExactLocation, watchExactLocation, requestLocationPermissions } from '../utils/location';
 import { useAuth } from '../../../shared/context/AuthContext';
@@ -19,6 +20,7 @@ import ConfirmDeliveryModal from '../components/ConfirmDeliveryModal';
 import AssignDriverModal from '../components/AssignDriverModal';
 import NewVehicleModal from '../components/NewVehicleModal';
 import AssignVehicleModal from '../components/AssignVehicleModal';
+import '../Logistics.css';
 
 type PositionEvent = {
   delivery_id: number;
@@ -446,43 +448,37 @@ export default function Deliveries({ focusMode = false }: { focusMode?: boolean 
   ) : null;
 
   return (
-    <div className="space-y-4">
+    <div className="dlv x-page">
       {/* Cabecera */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <header className="dlv__hero">
         <div>
-          <h2 className="text-2xl font-black text-slate-800 tracking-tight">Ruta GPS y Entregas</h2>
-          <p className="text-sm text-slate-500">
+          <p className="dlv__eyebrow">Operaciones · Logística</p>
+          <h1 className="dlv__title">Ruta GPS y entregas</h1>
+          <p className="dlv__subtitle">
             {isDriver
-              ? 'Monitoreo en vivo tipo DiDi con línea de proximidad hacia tu entrega'
-              : 'Seguimiento y telemetría de entregas en tiempo real'}
+              ? 'Monitoreo en vivo con línea de proximidad hacia tu entrega.'
+              : 'Seguimiento y telemetría de entregas en tiempo real.'}
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="dlv__actions">
           {/* Botón de estado GPS y calibración de alta exactitud */}
           <button
             type="button"
             onClick={refreshGps}
-            className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold shadow-sm transition active:scale-95 ${
+            className={`dlv__gps ${
               gpsStatus === 'activo'
-                ? 'border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100'
+                ? 'dlv__gps--active'
                 : gpsStatus === 'pendiente'
-                ? 'border-amber-300 bg-amber-50 text-amber-800'
-                : 'border-rose-300 bg-rose-50 text-rose-800 hover:bg-rose-100'
+                ? 'dlv__gps--pending'
+                : 'dlv__gps--error'
             }`}
             title="Haga clic para sincronizar o recalibrar la posición GPS con alta exactitud"
           >
-            <span
-              className={`h-2.5 w-2.5 rounded-full ${
-                gpsStatus === 'activo'
-                  ? 'bg-emerald-500 animate-pulse'
-                  : gpsStatus === 'pendiente'
-                  ? 'bg-amber-400 animate-ping'
-                  : 'bg-rose-500'
-              }`}
-            />
+            <Satellite aria-hidden="true" className="w-4 h-4" />
+            <span className="dlv__gps-dot" aria-hidden="true" />
             {gpsStatus === 'activo'
-              ? `GPS Activo ${gpsAccuracy ? `(±${gpsAccuracy}m)` : ''}`
+              ? `GPS activo ${gpsAccuracy ? `(±${gpsAccuracy} m)` : ''}`
               : gpsStatus === 'pendiente'
               ? 'Conectando GPS...'
               : 'Reconectar GPS'}
@@ -490,26 +486,22 @@ export default function Deliveries({ focusMode = false }: { focusMode?: boolean 
 
           {canManage && (
             <button
+              type="button"
               onClick={() => {
                 setVehicleForm({ name: '', plate: '', type: 'camion', driver_id: '', driver_name: '', imei: '' });
                 setModalVehicle(true);
               }}
-              className="rounded-xl bg-brand px-3.5 py-2 text-xs font-bold text-white shadow-sm hover:bg-brand-dark active:scale-95 transition flex items-center gap-1.5"
+              className="x-btn x-btn--primary"
             >
-              <span>+</span> Vehículo
+              <Plus aria-hidden="true" className="w-3.5 h-3.5" />
+              Vehículo
             </button>
           )}
         </div>
-      </div>
+      </header>
 
       {/* Mapa en vivo estilo DiDi: pantalla completa, HUD de destino y hoja de resumen */}
-      <div
-        className={
-          focusMode
-            ? 'space-y-2'
-            : 'grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.65fr)_minmax(320px,1fr)]'
-        }
-      >
+      <div className={`dlv__layout ${focusMode ? 'dlv__layout--focus' : ''}`}>
         <DeliveryMap
           deliveries={deliveries}
           selected={selected}

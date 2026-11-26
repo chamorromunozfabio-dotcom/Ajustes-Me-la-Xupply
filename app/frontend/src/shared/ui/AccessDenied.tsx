@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 function homeForRole(role?: string): { to: string; label: string } {
+  if (role === 'tecnico') return { to: '/admin/contenido', label: 'Ir a la edición de contenido' };
   if (role === 'admin' || role === 'verificador') return { to: '/admin', label: 'Ir al panel de administración' };
   if (role === 'domiciliario') return { to: '/repartidor', label: 'Ir a mi ruta' };
   if (role === 'proveedor_admin') return { to: '/', label: 'Ir a mi panel' };

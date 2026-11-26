@@ -1,38 +1,46 @@
 import { Link } from 'react-router-dom';
+import { CalendarDays, ChevronRight, Navigation, Package, Store } from 'lucide-react';
 import { Order } from '../../../shared/types';
-import { ORDER_STATUS, formatMoney, formatDate } from '../../../shared/utils/constants';
+import { formatMoney, formatDate } from '../../../shared/utils/constants';
+import { orderStatusBadgeClass, orderStatusLabel } from '../presentation';
+import '../Orders.css';
 
 export default function OrderCard({ order, isSupplier }: { order: Order; isSupplier: boolean }) {
-  const st = ORDER_STATUS[order.status] ?? { label: order.status, color: 'bg-gray-100 text-gray-700' };
+  const statusClass = orderStatusBadgeClass(order.status);
+  const PartyIcon = isSupplier ? Store : Package;
+
   return (
-    <Link
-      to={`/pedidos/${order.id}`}
-      className="block rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-sm transition hover:shadow-md dark:hover:border-slate-700"
-    >
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="font-bold text-slate-800 dark:text-white">{order.order_code}</p>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            {isSupplier ? order.restaurant_name : order.supplier_name}
-          </p>
-        </div>
-        <div className="text-right">
-          <span className={`rounded-full px-3 py-1 text-xs font-medium ${st.color}`}>{st.label}</span>
-          <p className="mt-1 font-bold text-brand">{formatMoney(order.total)}</p>
-        </div>
-      </div>
-      <div className="mt-2 flex flex-wrap items-center justify-between gap-1 text-xs text-slate-400 dark:text-slate-500 border-t border-slate-100 dark:border-slate-800 pt-2">
-        <span>
+    <Link to={`/pedidos/${order.id}`} className="ord-card x-card--hover">
+      <span className="ord-card__icon" aria-hidden="true">
+        <PartyIcon />
+      </span>
+
+      <span className="ord-card__main">
+        <span className="ord-card__code">{order.order_code}</span>
+        <span className="ord-card__party">{isSupplier ? order.restaurant_name : order.supplier_name}</span>
+      </span>
+
+      <span className="ord-card__side">
+        <span className={`x-badge ${statusClass}`}>{orderStatusLabel(order.status)}</span>
+        <span className="ord-card__total">{formatMoney(order.total)}</span>
+      </span>
+
+      <ChevronRight className="ord-card__chevron" aria-hidden="true" />
+
+      <span className="ord-card__footer">
+        <span className="ord-card__detail">
+          <CalendarDays aria-hidden="true" />
           {formatDate(order.created_at)}
           {order.items?.length ? ` · ${order.items.length} producto(s)` : ''}
         </span>
         {['despachado', 'en_camino'].includes(order.status) && (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-sky-50 border border-sky-200 px-2.5 py-0.5 text-[11px] font-bold text-sky-700">
-            <span className="h-1.5 w-1.5 rounded-full bg-sky-500 animate-pulse" />
+          <span className="ord-card__route">
+            <span className="ord-card__route-dot" aria-hidden="true" />
+            <Navigation aria-hidden="true" className="w-3 h-3" />
             En ruta GPS
           </span>
         )}
-      </div>
+      </span>
     </Link>
   );
 }

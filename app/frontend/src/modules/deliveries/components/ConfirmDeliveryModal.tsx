@@ -1,3 +1,4 @@
+import { CheckCircle2 } from 'lucide-react';
 import Modal from '../../../shared/ui/Modal';
 
 export default function ConfirmDeliveryModal({
@@ -14,29 +15,32 @@ export default function ConfirmDeliveryModal({
   onClose: () => void;
 }) {
   return (
-    <Modal title={`Confirmar Entrega ${orderCode}`} onClose={onClose}>
-      <div className="space-y-3">
-        <p className="text-xs text-slate-600">
+    <Modal title={`Confirmar entrega ${orderCode}`} onClose={onClose}>
+      <div className="dlv-modal">
+        <p className="dlv-modal__hint">
           Solicita al cliente/restaurante el <b>código de confirmación de 4 dígitos</b> generado para este pedido:
         </p>
         <div>
-          <label className="mb-1 block text-sm font-medium">Código de confirmación:</label>
+          <label className="x-label" htmlFor="confirm-delivery-code">Código de confirmación</label>
           <input
+            id="confirm-delivery-code"
             type="text"
+            inputMode="numeric"
             maxLength={4}
             value={code}
             onChange={(e) => onCodeChange(e.target.value)}
             placeholder="Ej: 4821"
-            className="w-full rounded-xl border px-3 py-2 text-center text-xl font-mono tracking-widest font-bold"
+            className="x-input dlv-modal__code"
             required
           />
         </div>
         <button
+          type="button"
           onClick={onConfirm}
           disabled={code.length < 4}
-          className="w-full rounded-xl bg-emerald-600 py-2.5 text-sm font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
+          className="dlv-actions__btn dlv-actions__btn--done"
         >
-          Validar y Finalizar Entrega
+          <CheckCircle2 aria-hidden="true" /> Validar y finalizar entrega
         </button>
       </div>
     </Modal>

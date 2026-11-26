@@ -1,5 +1,7 @@
 import './Landing.css';
 import { useLandingInteractions } from '../hooks';
+import { getLandingAppearanceStyle } from '../../../../shared/lib/landingAppearance';
+import { useLandingContent } from '../../../../shared/lib/useLandingContent';
 import { LandingNav } from '../components/LandingNav';
 import { LandingHero } from '../components/LandingHero';
 import { LandingMarquee } from '../components/LandingMarquee';
@@ -12,28 +14,37 @@ import { LandingComparison } from '../components/LandingComparison';
 import { LandingTestimonials } from '../components/LandingTestimonials';
 import { LandingCta } from '../components/LandingCta';
 import { LandingFooter } from '../components/LandingFooter';
+import { LandingUpdates } from '../components/LandingUpdates';
 
 export default function Landing() {
-  const landing = useLandingInteractions();
+  const content = useLandingContent();
+  const landing = useLandingInteractions(content);
+  const appearance = content.appearance;
+  const backgroundType = appearance?.backgroundType ?? 'gradient';
 
   return (
-    <div className="landing-page">
+    <div className={`landing-page landing-page--${backgroundType}`} style={getLandingAppearanceStyle(content)}>
       {/* Top Scroll Progress Line */}
       <div id="pg" ref={landing.progressRef} />
 
       {/* Ambient Subtle Blurs */}
-      <div className="aur" aria-hidden="true">
+      <div className={`aur${appearance?.auroraEnabled === false ? ' aur--off' : ''}`} aria-hidden="true">
         <i />
         <i />
         <i />
       </div>
 
       {/* Interactive Canvas Particle Network */}
-      <canvas id="fx" ref={landing.canvasRef} aria-hidden="true" />
+      <canvas
+        id="fx"
+        className={appearance?.particlesEnabled === false ? 'fx--off' : ''}
+        ref={landing.canvasRef}
+        aria-hidden="true"
+      />
 
-      <LandingNav />
+      <LandingNav content={content} />
       <LandingHero {...landing} />
-      <LandingMarquee />
+      <LandingMarquee content={content} />
 
       {/* Main Content */}
       <main className="wrap">
@@ -42,12 +53,13 @@ export default function Landing() {
         <LandingSimulator {...landing} />
         <LandingRoles {...landing} />
         <LandingSteps {...landing} />
-        <LandingComparison />
+        <LandingComparison content={content} />
         <LandingTestimonials {...landing} />
-        <LandingCta />
+        <LandingUpdates content={content} />
+        <LandingCta content={content} />
       </main>
 
-      <LandingFooter />
+      <LandingFooter content={content} />
     </div>
   );
 }

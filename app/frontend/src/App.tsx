@@ -1,6 +1,8 @@
 import { Suspense, lazy } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { useAuth } from './shared/context/AuthContext';
+import { ShellProvider } from './shared/context/ShellContext';
+import ShellLayer from './shared/ui/ShellLayer';
 import CookieConsent from './shared/ui/CookieConsent';
 import FeedbackHost from './shared/ui/FeedbackHost';
 import AppErrorBoundary from './shared/ui/AppErrorBoundary';
@@ -57,26 +59,33 @@ const allRoutes = [
 
 export default function App() {
   const { user } = useAuth();
+  const location = useLocation();
 
   return (
-    <Suspense fallback={<div className="flex min-h-[60vh] items-center justify-center text-gray-500">Cargando…</div>}>
-    <div className="min-h-screen bg-slate-50 text-slate-800 dark:bg-[#0b1120] dark:text-slate-100 antialiased transition-colors duration-300">
-      {user && <Navbar />}
-      <main className={user ? 'mx-auto max-w-7xl px-4 py-6 pb-24 sm:pb-6' : ''}>
-        <AppErrorBoundary>
-        <Suspense fallback={<div className="flex min-h-[60vh] items-center justify-center text-gray-500">Cargando…</div>}>
-        <Routes>
-          {allRoutes}
-        </Routes>
-        </Suspense>
-        </AppErrorBoundary>
-      </main>
-      {user && <BottomNav />}
-      {user && user.role !== 'admin' && user.role !== 'verificador' && <SideCart />}
-      {user && (user.role === 'gerente' || user.role === 'proveedor_admin') && <AiFloatingWidget />}
-      <CookieConsent />
-      <FeedbackHost />
-    </div>
-    </Suspense>
+    <ShellProvider>
+      <Suspense fallback={<div className="flex min-h-[60vh] items-center justify-center text-gray-500">Cargando…</div>}>
+        <ShellLayer />
+        <div className="x-shell-app min-h-screen bg-slate-50 text-slate-800 dark:bg-[#0b1120] dark:text-slate-100 antialiased transition-colors duration-300">
+          {user && <Navbar />}
+          <main
+            key={location.pathname}
+            className={`x-shell-main ${user ? 'mx-auto max-w-7xl px-4 py-6 pb-24 sm:pb-6' : ''}`}
+          >
+            <AppErrorBoundary>
+              <Suspense fallback={<div className="flex min-h-[60vh] items-center justify-center text-gray-500">Cargando…</div>}>
+                <Routes>
+                  {allRoutes}
+                </Routes>
+              </Suspense>
+            </AppErrorBoundary>
+          </main>
+          {user && <BottomNav />}
+          {user && user.role !== 'admin' && user.role !== 'verificador' && user.role !== 'tecnico' && <SideCart />}
+          {user && (user.role === 'gerente' || user.role === 'proveedor_admin') && <AiFloatingWidget />}
+          <CookieConsent />
+          <FeedbackHost />
+        </div>
+      </Suspense>
+    </ShellProvider>
   );
 }

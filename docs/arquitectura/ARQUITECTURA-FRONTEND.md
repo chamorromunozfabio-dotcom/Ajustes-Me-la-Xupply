@@ -61,7 +61,7 @@ Regla de oro: **para encontrar un archivo, busca el dominio primero**.
 
 ```text
 app/frontend/src/
-├── App.tsx                       # ensambla los routes de los 9 módulos + root
+├── App.tsx                       # ensambla los routes de los 10 módulos + root
 ├── main.tsx                      # entry, providers, PWA
 ├── vite-env.d.ts
 ├── shared/
@@ -111,7 +111,8 @@ app/frontend/src/
     │   ├── profile/      routes.tsx + pages/MyProfile.tsx
     │   └── team/         {routes,types}.tsx + components/ + pages/TeamManagement.tsx
     ├── public/
-    │   ├── landing/      routes.tsx + hooks.ts + landingData.ts + components/ + pages/{Landing.tsx,Landing.css}
+    │   ├── landing/      routes.tsx + hooks.ts + components/ + pages/{Landing.tsx,Landing.css}
+    │   │                 (el contenido editable vive en shared/lib/landingContent.ts)
     │   ├── app-download/ routes.tsx + pages/DownloadApp.tsx
     │   └── shell/        routes.tsx (not-found) + pages/NotFound.tsx
     ├── catalog/

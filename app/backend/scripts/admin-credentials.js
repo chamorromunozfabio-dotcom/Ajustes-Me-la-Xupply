@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Gestión de credenciales de plataforma (admin / verificador).
+ * Gestión de credenciales de plataforma (admin / verificador / tecnico).
  *
  * Uso (desde app/backend, con DATABASE_URL en el entorno o en .env):
  *
@@ -35,11 +35,11 @@ if (has('help') || has('h')) {
   npm run admin:credentials -- --username=revisor --role=verificador --generate --yes
 
 Opciones:
-  --list                 Lista usuarios de plataforma (admin/verificador), sin hashes
+  --list                 Lista usuarios de plataforma (admin/verificador/tecnico), sin hashes
   --username=<usuario>   Usuario a crear o actualizar
   --password=<clave>     Contraseña (mínimo 12 caracteres)
   --generate             Genera una contraseña aleatoria y la muestra una vez
-  --role=<rol>           admin (por defecto) o verificador
+  --role=<rol>           admin (por defecto), verificador o tecnico
   --email=<correo>       Correo opcional
   --yes                  Confirma la escritura en la base de datos
 
@@ -81,7 +81,7 @@ async function main() {
       const result = await client.query(
         `SELECT u.username, r.name AS role, u.is_active, u.restaurant_id, u.supplier_id, u.last_login
            FROM users u JOIN roles r ON r.id = u.role_id
-          WHERE r.name IN ('admin', 'verificador')
+          WHERE r.name IN ('admin', 'verificador', 'tecnico')
           ORDER BY r.name, u.username`
       );
       console.log(`Usuarios de plataforma en ${target}:`);
@@ -109,8 +109,8 @@ async function main() {
       console.error('[admin] Usuario inválido: 3-40 caracteres, minúsculas, números, punto, guion o guion bajo.');
       process.exit(1);
     }
-    if (!['admin', 'verificador'].includes(roleName)) {
-      console.error('[admin] --role debe ser admin o verificador.');
+    if (!['admin', 'verificador', 'tecnico'].includes(roleName)) {
+      console.error('[admin] --role debe ser admin, verificador o tecnico.');
       process.exit(1);
     }
 

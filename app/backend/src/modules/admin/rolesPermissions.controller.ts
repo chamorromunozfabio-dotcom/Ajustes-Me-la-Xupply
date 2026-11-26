@@ -55,6 +55,10 @@ export async function createRole(req: Request, res: Response, next: NextFunction
   }
 }
 
+const SYSTEM_ROLE_NAMES = new Set([
+  'admin', 'gerente', 'empleado', 'proveedor_admin', 'domiciliario', 'verificador', 'tecnico',
+]);
+
 export async function updateRole(req: Request, res: Response, next: NextFunction) {
   try {
     const { id } = req.params;
@@ -64,10 +68,11 @@ export async function updateRole(req: Request, res: Response, next: NextFunction
     const target = await findRole(numericId);
     if (!target.rowCount) return res.status(404).json({ error: 'Rol no encontrado' });
     
-    if (numericId >= 1 && numericId <= 5) {
-      // Los roles seed 1..5 est├ín protegidos. No se puede cambiar su "name" (identificador)
+    const isSystemRole = (numericId >= 1 && numericId <= 5) || SYSTEM_ROLE_NAMES.has(target.rows[0].name);
+    if (isSystemRole) {
+      // Los roles del sistema no pueden cambiar su "name" (identificador).
       if (name && name !== target.rows[0].name) {
-        return res.status(409).json({ error: 'No puedes renombrar el identificador interno de un rol del sistema (IDs 1-5)' });
+        return res.status(409).json({ error: 'No puedes renombrar el identificador interno de un rol del sistema' });
       }
     } else {
       if (name && !/^[a-z_]+$/.test(name)) {
@@ -99,12 +104,12 @@ export async function updateRole(req: Request, res: Response, next: NextFunction
 export async function deleteRole(req: Request, res: Response, next: NextFunction) {
   try {
     const numericId = Number(req.params.id);
-    if (numericId >= 1 && numericId <= 5) {
-      return res.status(409).json({ error: 'No se pueden eliminar los roles del sistema base (IDs 1 al 5).' });
-    }
-    
     const target = await findRole(numericId);
     if (!target.rowCount) return res.status(404).json({ error: 'Rol no encontrado' });
+
+    if ((numericId >= 1 && numericId <= 5) || SYSTEM_ROLE_NAMES.has(target.rows[0].name)) {
+      return res.status(409).json({ error: 'No se pueden eliminar los roles del sistema.' });
+    }
     
     const usersWithRole = await query('SELECT count(*) FROM users WHERE role_id = $1', [numericId]);
     if (parseInt(usersWithRole.rows[0].count, 10) > 0) {
