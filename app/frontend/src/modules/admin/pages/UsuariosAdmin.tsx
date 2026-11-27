@@ -14,7 +14,7 @@ import UserDetailModal from '../components/UserDetailModal';
 
 /** Ámbito del rol, igual que en el backend (lib/userTenant.ts). */
 function scopeForRoleName(name?: string): RoleScope {
-  if (name === 'gerente' || name === 'empleado') return 'restaurant';
+  if (name === 'gerente') return 'restaurant';
   if (name === 'proveedor_admin' || name === 'domiciliario') return 'supplier';
   return 'platform';
 }
@@ -163,7 +163,7 @@ export default function UsuariosAdmin() {
         name: '',
         email: '',
         phone: '',
-        role_id: roles.find(r => r.name === 'empleado')?.id || 3,
+        role_id: roles.find(r => r.name === 'gerente')?.id || 2,
         restaurant_id: '',
         branch_id: '',
         supplier_id: '',

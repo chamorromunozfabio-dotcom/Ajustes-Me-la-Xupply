@@ -2,7 +2,6 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useShellContent } from '../context/ShellContext';
 import { shellLabel } from '../lib/shellContent';
-import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
 import { Home, Search, ShoppingBag, Menu, Package, Truck, Radar } from 'lucide-react';
 
@@ -12,8 +11,7 @@ export default function BottomNav() {
   const label = (key: keyof typeof shell.labels, fallback: string) =>
     shellLabel(shell, key, fallback);
   const location = useLocation();
-  const { count, openCart } = useCart();
-  const { t, lang } = useLanguage();
+  const { t } = useLanguage();
 
   if (!user || !shell.visibility.showBottomNav) return null;
 
@@ -22,6 +20,7 @@ export default function BottomNav() {
   const isAdmin = user.role === 'admin';
 
   if (isAdmin || user.role === 'verificador') return null; // Admin/back office usan layout de escritorio
+  if (user.role === 'gerente') return null; // Gerente usa el shell superior de Restaurante
 
   const isActive = (path: string) => {
     if (path === '/' && location.pathname === '/') return true;
@@ -70,27 +69,11 @@ export default function BottomNav() {
           <span>{label('orders', t('nav.orders'))}</span>
         </Link>
 
-        {shell.visibility.showCart && !isSupplier && !isDomiciliario && (
-          <button
-            type="button"
-            onClick={openCart}
-            className="x-shell-dock__item flex flex-col items-center justify-center py-1.5 gap-0.5 text-[10px] font-semibold text-slate-500 dark:text-slate-400 relative"
-          >
-            <div className="relative">
-              <ShoppingBag className="w-5 h-5" strokeWidth={2} />
-              {count > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-rose-500 text-white text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full border-2 border-white dark:border-slate-900">
-                  {count}
-                </span>
-              )}
-            </div>
-            <span>{label('cart', t('nav.cart'))}</span>
-          </button>
-        )}
+
 
         <Link to="/ajustes" className={navItemClass('/ajustes')}>
           <Menu className="w-5 h-5" strokeWidth={isActive('/ajustes') ? 2.5 : 2} />
-          <span>{lang === 'en' ? 'Settings' : 'Ajustes'}</span>
+          <span>{t('nav.settings')}</span>
         </Link>
       </div>
     </nav>

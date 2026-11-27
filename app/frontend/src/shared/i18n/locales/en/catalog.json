@@ -1,0 +1,195 @@
+{
+  "eyebrow": "Marketplace · Catalog",
+  "title": "Catalog",
+  "subtitle": "Explore available products and manage your inventory.",
+  "new_product": "New Product",
+  "refresh": "Refresh",
+  "refreshing": "Refreshing...",
+  "search_placeholder": "Search by name, supplier or category...",
+  "search_aria": "Search products",
+  "sort": "Sort:",
+  "sort_recent": "Most recent",
+  "sort_price_asc": "Price: low to high",
+  "sort_price_desc": "Price: high to low",
+  "sort_name": "Name A-Z",
+  "categories": "Categories",
+  "all": "All",
+  "clear_filters": "Clear filters",
+  "load_error": "We couldn't load the catalog right now. Check your connection and try again.",
+  "retry": "Retry",
+  "empty_title": "No products to show",
+  "empty_search": "We couldn't find matches for \"{{query}}\".",
+  "empty_filters": "There are no products in this category right now.",
+  "empty_default": "When products are available, they'll appear here.",
+  "view_all": "View all products",
+  "units_available": "{{count}} units available",
+  "min_order": "Min {{count}}",
+  "out_of_stock": "Out of stock",
+  "add": "Add",
+  "customize": "Customize and add",
+  "edit_product": "Edit product",
+  "delete_product": "Delete product",
+  "modal_customize": "Customize product",
+  "modal_edit": "Edit product",
+  "modal_new": "New product",
+  "customization_help": "Select preparation and packaging options so our team can send the product exactly as you need it.",
+  "customization": "Customization",
+  "type_label": "Type:",
+  "packaging_label": "Packaging:",
+  "additional_notes": "Additional notes (optional):",
+  "notes": "Notes",
+  "cancel": "Cancel",
+  "add_customized": "Add to Cart with Customization",
+  "save_changes": "Save changes",
+  "create_product": "Create product",
+  "name": "Name",
+  "category": "Category",
+  "select": "Select",
+  "supplier": "Supplier",
+  "unit": "Unit",
+  "price": "Price (COP)",
+  "min_order_label": "Min. order",
+  "stock": "Available stock",
+  "image_optional": "Product image (optional)",
+  "image_help": "Upload a clear photo from your computer (JPG, PNG or WEBP, max 5 MB) or paste an https URL if it's already published.",
+  "image_url_placeholder": "Or paste an https:// URL...",
+  "preview": "Preview",
+  "preview_alt": "Product preview",
+  "remove_image": "Remove image",
+  "uploading_image": "Uploading image...",
+  "image_read_error": "Could not read the selected image.",
+  "image_upload_error": "Could not upload the image.",
+  "delete_confirm": "Delete \"{{name}}\"?",
+  "create_error": "Could not create the product. Check the fields and try again.",
+  "update_error": "Could not update the product. Try again.",
+  "delete_error": "Could not delete the product. Try again.",
+  "custom_default": {
+    "typeLabel": "Options / Variation:",
+    "typeOptions": [
+      "Standard / Original",
+      "Requires specification (see notes)",
+      "Extra quality control",
+      "Safety packaging"
+    ],
+    "packLabel": "Required packaging type:",
+    "packOptions": [
+      "Standard packaging",
+      "Sealed bag",
+      "Protective box",
+      "Crate"
+    ],
+    "notesPlaceholder": "Special instructions for this product..."
+  },
+  "customization_presets": {
+    "beverage": {
+      "typeLabel": "Presentation and temperature:",
+      "typeOptions": [
+        "Chilled / Cold",
+        "Room temperature",
+        "No added sugar",
+        "100% natural pulp",
+        "Concentrate to dilute",
+        "Ready to serve"
+      ],
+      "packLabel": "Required packaging type:",
+      "packOptions": [
+        "Individual bottle",
+        "Institutional gallon",
+        "Master case / Pack",
+        "Returnable plastic crate",
+        "Hermetic pouch bag"
+      ],
+      "notesPlaceholder": "E.g. Serve cold, unstrained pulp, pack in cases of 6 units..."
+    },
+    "dairy": {
+      "typeLabel": "Presentation and aging:",
+      "typeOptions": [
+        "Whole block",
+        "Sliced / Laminated",
+        "Finely grated",
+        "Portioned x 500g",
+        "Optimal aging",
+        "Strict refrigeration"
+      ],
+      "packLabel": "Required packaging type:",
+      "packOptions": [
+        "Vacuum sealed",
+        "Hermetic bag",
+        "Plastic crate",
+        "Thermal box with ice",
+        "Standard packaging"
+      ],
+      "notesPlaceholder": "E.g. Separate slices with film paper, batch with more than 15 days to expiration..."
+    },
+    "produce": {
+      "typeLabel": "Selection and ripeness:",
+      "typeOptions": [
+        "Ripe (immediate consumption)",
+        "Semi-ripe / Firm (3-5 day rotation)",
+        "Green to preserve",
+        "Washed and disinfected",
+        "Peeled and chopped",
+        "Top quality selection"
+      ],
+      "packLabel": "Required packaging type:",
+      "packOptions": [
+        "Plastic crate",
+        "Breathable perforated bags",
+        "Ventilated cardboard box",
+        "Protective mesh",
+        "Standard packaging"
+      ],
+      "notesPlaceholder": "E.g. Select large avocados, tomatoes without bruises, pack in separate crates..."
+    },
+    "grains": {
+      "typeLabel": "Presentation and grind:",
+      "typeOptions": [
+        "Whole grain",
+        "Fine grind",
+        "Coarse grind",
+        "Dry / Dehydrated",
+        "Canned / Precooked",
+        "Certified organic"
+      ],
+      "packLabel": "Required packaging type:",
+      "packOptions": [
+        "Sealed sack / Bag",
+        "Vacuum bag x 1kg",
+        "Cardboard box",
+        "Plastic container",
+        "Standard packaging"
+      ],
+      "notesPlaceholder": "E.g. Check expiration date greater than 6 months, moisture-resistant packaging..."
+    },
+    "meat": {
+      "typeLabel": "Cut and preparation:",
+      "typeOptions": [
+        "Whole piece",
+        "Portioned / Filleted",
+        "Chopped / Ground",
+        "Special marinated",
+        "Frozen / Sealed",
+        "Fresh of the day"
+      ],
+      "packLabel": "Required packaging type:",
+      "packOptions": [
+        "Individual vacuum sealed",
+        "Food-grade plastic bag",
+        "Thermal box with dry ice",
+        "Styrofoam tray",
+        "Standard packaging"
+      ],
+      "notesPlaceholder": "E.g. Thick cut for grill, separate 250g portions in individual bags..."
+    }
+  },
+  "product_updated": "Product updated",
+  "product_created": "Product created",
+  "product_deleted": "Product deactivated",
+  "subtitle_supplier": "Manage your offer and keep supplies up to date for your customers.",
+  "products_count": "product(s)",
+  "all_suppliers": "All suppliers",
+  "no_category": "No category",
+  "wholesale_price": "Wholesale price",
+  "quantity": "Quantity",
+  "only_managers_buy": "Only managers can buy"
+}

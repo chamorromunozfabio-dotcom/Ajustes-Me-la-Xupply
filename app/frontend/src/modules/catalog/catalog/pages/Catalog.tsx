@@ -1,5 +1,6 @@
 import { toast } from '../../../../shared/utils/feedback';
 import { useEffect, useState, FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Apple,
   ArrowDownWideNarrow,
@@ -79,170 +80,37 @@ interface CustomizationConfig {
   notesPlaceholder: string;
 }
 
-export function getProductCustomizationConfig(product: Product): CustomizationConfig {
+type CatalogT = (...args: any[]) => any;
+
+export function getProductCustomizationConfig(product: Product, t?: CatalogT): CustomizationConfig {
   const cat = (product.category || '').toLowerCase();
   const name = (product.name || '').toLowerCase();
-
-  // Bebidas, Jugos, Aguas, Gaseosas
-  if (
-    cat.includes('bebida') ||
-    cat.includes('jugo') ||
-    name.includes('jugo') ||
-    name.includes('agua') ||
-    name.includes('gaseosa') ||
-    name.includes('bebida') ||
-    name.includes('cerveza') ||
-    name.includes('refresco')
-  ) {
-    return {
-      typeLabel: 'Presentación y temperatura:',
-      typeOptions: [
-        'Refrigerado / Frío',
-        'Temperatura ambiente',
-        'Sin azúcar añadida',
-        'Pulpa natural 100%',
-        'Concentrado para diluir',
-        'Listo para servir',
-      ],
-      packLabel: 'Tipo de empaque requerido:',
-      packOptions: [
-        'Botella individual',
-        'Galón institucional',
-        'Caja máster / Paca',
-        'Canastilla plástica retornable',
-        'Bolsa pouch hermética',
-      ],
-      notesPlaceholder: 'Ej. Servir frío, pulpa sin colar, empacar en pacas de 6 unidades...',
-    };
-  }
-
-  // Lácteos, Quesos, Leches, Yogures
-  if (
-    cat.includes('lacteo') ||
-    cat.includes('lácteo') ||
-    name.includes('queso') ||
-    name.includes('leche') ||
-    name.includes('mantequilla') ||
-    name.includes('yogurt') ||
-    name.includes('crema')
-  ) {
-    return {
-      typeLabel: 'Presentación y maduración:',
-      typeOptions: [
-        'Bloque entero',
-        'Tajado / Laminado',
-        'Rallado fino',
-        'Porcionado x 500g',
-        'Maduración óptima',
-        'Refrigerado estricto',
-      ],
-      packLabel: 'Tipo de empaque requerido:',
-      packOptions: [
-        'Sellado al vacío',
-        'Bolsa hermética',
-        'Canastilla plástica',
-        'Caja térmica con hielo',
-        'Empaque estándar',
-      ],
-      notesPlaceholder: 'Ej. Separar tajadas con papel film, lote con más de 15 días de vencimiento...',
-    };
-  }
-
-  // Verduras, Frutas, Hortalizas
-  if (
-    cat.includes('verdura') ||
-    cat.includes('fruta') ||
-    name.includes('tomate') ||
-    name.includes('cebolla') ||
-    name.includes('papa') ||
-    name.includes('pimenton') ||
-    name.includes('limon') ||
-    name.includes('aguacate') ||
-    name.includes('platano') ||
-    name.includes('lechuga')
-  ) {
-    return {
-      typeLabel: 'Selección y maduración:',
-      typeOptions: [
-        'Maduro (consumo inmediato)',
-        'Pintón / Firme (rotación 3-5 días)',
-        'Verde para conservar',
-        'Lavado y desinfectado',
-        'Pelado y picado',
-        'Selección primera calidad',
-      ],
-      packLabel: 'Tipo de empaque requerido:',
-      packOptions: [
-        'Canastilla plástica',
-        'Bolsas perforadas respirables',
-        'Caja de cartón ventilada',
-        'Malla protectora',
-        'Empaque estándar',
-      ],
-      notesPlaceholder: 'Ej. Aguacates listos para usar en 2 días, tomates calibre mediano parejos...',
-    };
-  }
-
-  // Granos, Abarrotes, Condimentos
-  if (
-    cat.includes('grano') ||
-    cat.includes('condimento') ||
-    name.includes('arroz') ||
-    name.includes('frijol') ||
-    name.includes('lenteja') ||
-    name.includes('aceite') ||
-    name.includes('sal') ||
-    name.includes('azucar') ||
-    name.includes('harina')
-  ) {
-    return {
-      typeLabel: 'Presentación y granulometría:',
-      typeOptions: [
-        'Grano entero seleccionado',
-        'Molido fino',
-        'Bolsa sellada de 1kg',
-        'Saco 25kg institucional',
-        'Limpieza y secado óptimo',
-      ],
-      packLabel: 'Tipo de empaque requerido:',
-      packOptions: [
-        'Saco de polipropileno',
-        'Bolsa plástica sellada',
-        'Caja máster',
-        'Empaque al vacío',
-        'Empaque estándar',
-      ],
-      notesPlaceholder: 'Ej. Bultos limpios y secos, estibados para fácil descargue...',
-    };
-  }
-
-  // Por defecto: Carnes, Pollo, Cerdo, Pescados, Mariscos
-  return {
-    typeLabel: 'Tipo de corte o preparación:',
-    typeOptions: [
-      'Corte grueso (2cm)',
-      'Corte fino / mariposa',
-      'Molido fino',
-      'Porcionado individual',
-      'Entero sin cortar',
-      'Deshuesado / Limpio',
-    ],
-    packLabel: 'Tipo de empaque requerido:',
-    packOptions: [
-      'Sellado al vacío',
-      'Bandeja con film',
-      'Caja térmica con hielo',
-      'Bolsas selladas de 1kg',
-      'Empaque estándar',
-    ],
-    notesPlaceholder: 'Ej. Porcionar en paquetes de 2kg y etiquetar con fecha de entrega...',
+  const pick = (key: string): CustomizationConfig | null => {
+    if (!t) return null;
+    const v = t(`customization_presets.${key}`, { returnObjects: true });
+    return v && typeof v === 'object' ? v as CustomizationConfig : null;
   };
+  if (cat.includes('bebida') || cat.includes('jugo') || name.includes('jugo') || name.includes('agua') || name.includes('gaseosa') || name.includes('bebida') || name.includes('cerveza') || name.includes('refresco')) {
+    return pick('beverage') || { typeLabel:'Presentaci?n y temperatura:', typeOptions:['Refrigerado / Fr?o','Temperatura ambiente','Sin az?car a?adida','Pulpa natural 100%','Concentrado para diluir','Listo para servir'], packLabel:'Tipo de empaque requerido:', packOptions:['Botella individual','Gal?n institucional','Caja m?ster / Paca','Canastilla pl?stica retornable','Bolsa pouch herm?tica'], notesPlaceholder:'Ej. Servir fr?o, pulpa sin colar, empacar en pacas de 6 unidades...' };
+  }
+  if (cat.includes('lacteo') || cat.includes('l?cteo') || name.includes('queso') || name.includes('leche') || name.includes('mantequilla') || name.includes('yogurt') || name.includes('crema')) {
+    return pick('dairy') || { typeLabel:'Presentaci?n y maduraci?n:', typeOptions:['Bloque entero','Tajado / Laminado','Rallado fino','Porcionado x 500g','Maduraci?n ?ptima','Refrigerado estricto'], packLabel:'Tipo de empaque requerido:', packOptions:['Sellado al vac?o','Bolsa herm?tica','Canastilla pl?stica','Caja t?rmica con hielo','Empaque est?ndar'], notesPlaceholder:'Ej. Separar tajadas con papel film, lote con m?s de 15 d?as de vencimiento...' };
+  }
+  if (cat.includes('verdura') || cat.includes('fruta') || name.includes('tomate') || name.includes('cebolla') || name.includes('papa') || name.includes('pimenton') || name.includes('limon') || name.includes('aguacate') || name.includes('platano') || name.includes('lechuga')) {
+    return pick('produce') || { typeLabel:'Selecci?n y maduraci?n:', typeOptions:['Maduro (consumo inmediato)','Pint?n / Firme (rotaci?n 3-5 d?as)','Verde para conservar','Lavado y desinfectado','Pelado y picado','Selecci?n primera calidad'], packLabel:'Tipo de empaque requerido:', packOptions:['Canastilla pl?stica','Bolsas perforadas respirables','Caja de cart?n ventilada','Malla protectora','Empaque est?ndar'], notesPlaceholder:'Ej. Aguacates listos para usar en 2 d?as, tomates calibre mediano parejos...' };
+  }
+  if (cat.includes('grano') || cat.includes('condimento') || name.includes('arroz') || name.includes('frijol') || name.includes('lenteja') || name.includes('aceite') || name.includes('sal') || name.includes('azucar') || name.includes('harina')) {
+    return pick('grains') || { typeLabel:'Presentaci?n y granulometr?a:', typeOptions:['Grano entero seleccionado','Molido fino','Bolsa sellada de 1kg','Saco 25kg institucional','Limpieza y secado ?ptimo'], packLabel:'Tipo de empaque requerido:', packOptions:['Saco de polipropileno','Bolsa pl?stica sellada','Caja m?ster','Empaque al vac?o','Empaque est?ndar'], notesPlaceholder:'Ej. Bultos limpios y secos, estibados para f?cil descargue...' };
+  }
+  return pick('meat') || { typeLabel:'Tipo de corte o preparaci?n:', typeOptions:['Corte grueso (2cm)','Corte fino / mariposa','Molido fino','Porcionado individual','Entero sin cortar','Deshuesado / Limpio'], packLabel:'Tipo de empaque requerido:', packOptions:['Sellado al vac?o','Bandeja con film','Caja t?rmica con hielo','Bolsas selladas de 1kg','Empaque est?ndar'], notesPlaceholder:'Ej. Porcionar en paquetes de 2kg y etiquetar con fecha de entrega...' };
 }
 
 export default function Catalog() {
   const { user } = useAuth();
   const { add } = useCart();
   const { push } = useNotifications();
+  const { t, i18n } = useTranslation(['catalog', 'common']);
+  const locale = i18n.language === 'en' ? 'en-US' : 'es-CO';
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
@@ -252,7 +120,6 @@ export default function Catalog() {
   const [modal, setModal] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
   const [form, setForm] = useState<ProductForm>(emptyForm);
-  const [linkedSupplierIds, setLinkedSupplierIds] = useState<number[]>([]);
   const [priceSort, setPriceSort] = useState<'asc' | 'desc' | ''>('');
 
   // Cantidades interactivas por producto
@@ -277,25 +144,13 @@ export default function Catalog() {
   useEffect(() => {
     api<Category[]>('/categories').then(setCategories).catch(console.error);
     api<Supplier[]>('/suppliers').then(setSuppliers).catch(console.error);
-
-    const updateLinked = () => {
-      const stored = localStorage.getItem('xupply_linked_suppliers');
-      if (stored) {
-        try {
-          setLinkedSupplierIds(JSON.parse(stored));
-        } catch (e) {}
-      }
-    };
-    updateLinked();
-    window.addEventListener('xupply_linked_suppliers_changed', updateLinked);
-    return () => window.removeEventListener('xupply_linked_suppliers_changed', updateLinked);
   }, []);
 
   useEffect(load, [supplierFilter, categoryFilter, search]);
 
-  const filteredProducts = isSupplier 
-    ? products 
-    : products.filter(p => p.supplier_id && linkedSupplierIds.includes(p.supplier_id));
+  const filteredProducts = isSupplier
+    ? products.filter(p => p.supplier_id === user?.supplier_id)
+    : products;
 
   const displayedProducts = [...filteredProducts].sort((a, b) => {
     if (priceSort === 'asc') return a.price_per_unit - b.price_per_unit;
@@ -329,7 +184,7 @@ export default function Catalog() {
   };
 
   const openCustomization = (p: Product) => {
-    const cfg = getProductCustomizationConfig(p);
+    const cfg = getProductCustomizationConfig(p, t);
     setCustomizingProduct(p);
     const initialQty = quantities[p.id] || Math.max(p.min_order_qty || 1, 1);
     setCustomQty(initialQty);
@@ -375,7 +230,7 @@ export default function Catalog() {
           body: JSON.stringify(payload),
         }
       );
-      push({ message: `Producto ${editing ? 'actualizado' : 'creado'}`, at: new Date().toISOString() });
+      push({ message: editing ? t('product_updated', { defaultValue: 'Producto actualizado' }) : t('product_created', { defaultValue: 'Producto creado' }), at: new Date().toISOString() });
       setModal(false);
       load();
     } catch (err) {
@@ -386,7 +241,7 @@ export default function Catalog() {
   const removeProduct = async (id: number) => {
     try {
       await api(`/products/${id}`, { method: 'DELETE' });
-      push({ message: 'Producto desactivado', at: new Date().toISOString() });
+      push({ message: t('product_deleted', { defaultValue: 'Producto desactivado' }), at: new Date().toISOString() });
       load();
     } catch (err) {
       toast((err as Error).message, 'error');
@@ -403,24 +258,24 @@ export default function Catalog() {
     <div className="cat x-page">
       <header className="cat__hero">
         <div>
-          <p className="cat__eyebrow">Comercio · Catálogo</p>
-          <h1 className="cat__title">Catálogo mayorista</h1>
+          <p className="cat__eyebrow">{t('eyebrow')}</p>
+          <h1 className="cat__title">{t('title')}</h1>
           <p className="cat__subtitle">
             {isSupplier
-              ? 'Gestiona tu oferta y mantén los insumos al día para tus clientes.'
-              : 'Explora insumos de tus proveedores vinculados y construye tu pedido.'}
+              ? t('subtitle_supplier', { defaultValue: 'Gestiona tu oferta y mantén los insumos al día para tus clientes.' })
+              : t('subtitle')}
           </p>
         </div>
         <div className="cat__hero-actions">
           {isSupplier && (
             <button type="button" onClick={openCreate} className="x-btn x-btn--primary">
               <Plus aria-hidden="true" className="w-4 h-4" />
-              Nuevo producto
+              {t('new_product')}
             </button>
           )}
           <span className="x-badge x-badge--primary">
             <Package aria-hidden="true" className="w-3 h-3" />
-            {displayedProducts.length} producto(s)
+            {displayedProducts.length} {t('products_count', { defaultValue: 'producto(s)' })}
           </span>
         </div>
       </header>
@@ -428,20 +283,20 @@ export default function Catalog() {
       <div className="cat__toolbar x-card">
         <div className="cat__search">
           <Search aria-hidden="true" />
-          <label className="sr-only" htmlFor="catalog-search">Buscar producto</label>
+          <label className="sr-only" htmlFor="catalog-search">{t('search_aria')}</label>
           <input
             id="catalog-search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar producto..."
+            placeholder={t('search_placeholder')}
             className="x-input"
           />
         </div>
         <div className="cat__filter">
           <SlidersHorizontal aria-hidden="true" />
-          <label className="sr-only" htmlFor="catalog-supplier">Filtrar por proveedor</label>
+          <label className="sr-only" htmlFor="catalog-supplier">{t('supplier')}</label>
           <select id="catalog-supplier" value={supplierFilter} onChange={(e) => setSupplierFilter(e.target.value ? Number(e.target.value) : '')} className="x-select">
-            <option value="">Todos los proveedores</option>
+            <option value="">{t('all_suppliers', { defaultValue: 'Todos los proveedores' })}</option>
             {suppliers.map((s) => (
               <option key={s.id} value={s.id}>{s.name}</option>
             ))}
@@ -449,9 +304,9 @@ export default function Catalog() {
         </div>
         <div className="cat__filter">
           <Tag aria-hidden="true" />
-          <label className="sr-only" htmlFor="catalog-category">Filtrar por categoría</label>
+          <label className="sr-only" htmlFor="catalog-category">{t('category')}</label>
           <select id="catalog-category" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value ? Number(e.target.value) : '')} className="x-select">
-            <option value="">Todas las categorías</option>
+            <option value="">{t('all')}</option>
             {categories.map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
@@ -459,11 +314,11 @@ export default function Catalog() {
         </div>
         <div className="cat__filter">
           <ArrowDownWideNarrow aria-hidden="true" />
-          <label className="sr-only" htmlFor="catalog-sort">Ordenar por precio</label>
+          <label className="sr-only" htmlFor="catalog-sort">{t('sort')}</label>
           <select id="catalog-sort" value={priceSort} onChange={(e) => setPriceSort(e.target.value as any)} className="x-select">
-            <option value="">Ordenar por precio</option>
-            <option value="desc">Mayor a menor</option>
-            <option value="asc">Menor a mayor</option>
+            <option value="">{t('sort_recent')}</option>
+            <option value="desc">{t('sort_price_desc')}</option>
+            <option value="asc">{t('sort_price_asc')}</option>
           </select>
         </div>
       </div>
@@ -483,8 +338,8 @@ export default function Catalog() {
                 }}
               />
               <span className="cat-card__media-shade" aria-hidden="true" />
-              <span className="cat-card__cat">{p.category || 'General'}</span>
-              <span className="cat-card__stock">Disp: {p.stock_available} {p.unit}</span>
+              <span className="cat-card__cat">{p.category || t('general', { ns: 'common', defaultValue: 'General' })}</span>
+              <span className="cat-card__stock">{t('available', { ns: 'common', defaultValue: 'Disp' })}: {p.stock_available} {p.unit}</span>
             </div>
 
             {/* Product Card Content */}
@@ -495,35 +350,35 @@ export default function Catalog() {
 
               <div className="cat-card__pricing">
                 <div>
-                  <span className="cat-card__price-label">Precio mayorista</span>
+                  <span className="cat-card__price-label">{t('wholesale_price', { defaultValue: 'Precio mayorista' })}</span>
                   <span className="cat-card__price">
-                    ${p.price_per_unit.toLocaleString('es-CO')}{' '}
+                    ${p.price_per_unit.toLocaleString(locale)}{' '}
                     <small>/ {p.unit}</small>
                   </span>
                 </div>
-                <span className="cat-card__min">Mín: {p.min_order_qty} {p.unit}</span>
+                <span className="cat-card__min">{t('min_order', { count: p.min_order_qty })} {p.unit}</span>
               </div>
 
               {isSupplier ? (
                 <div className="cat-card__actions">
                   <button type="button" onClick={() => openEdit(p)} className="x-btn">
                     <Pencil aria-hidden="true" className="w-3.5 h-3.5" />
-                    Editar
+                    {t('edit_product')}
                   </button>
                   <button type="button" onClick={() => removeProduct(p.id)} className="x-btn x-btn--danger">
                     <Trash2 aria-hidden="true" className="w-3.5 h-3.5" />
-                    Desactivar
+                    {t('delete_product')}
                   </button>
                 </div>
               ) : user?.role === 'gerente' ? (
                 <div className="cat-card__buy">
                   {/* Selector rápido de cantidad */}
                   <div className="cat-card__stepper">
-                    <span>Cantidad ({p.unit})</span>
+                    <span>{t('quantity', { ns: 'common', defaultValue: 'Cantidad' })} ({p.unit})</span>
                     <div className="cat-card__stepper-controls">
                       <button
                         type="button"
-                        aria-label="Disminuir cantidad"
+                        aria-label={t('decrease_qty', { ns: 'common', defaultValue: 'Disminuir cantidad' })}
                         onClick={() =>
                           setQuantities((prev) => ({
                             ...prev,
@@ -536,7 +391,7 @@ export default function Catalog() {
                       </button>
                       <input
                         type="number"
-                        aria-label={`Cantidad de ${p.name}`}
+                        aria-label={`${t('quantity', { ns: 'common', defaultValue: 'Cantidad' })} ${p.name}`}
                         min={p.min_order_qty || 1}
                         value={quantities[p.id] ?? (p.min_order_qty || 1)}
                         onChange={(e) =>
@@ -546,7 +401,7 @@ export default function Catalog() {
                       />
                       <button
                         type="button"
-                        aria-label="Aumentar cantidad"
+                        aria-label={t('increase_qty', { ns: 'common', defaultValue: 'Aumentar cantidad' })}
                         onClick={() =>
                           setQuantities((prev) => ({
                             ...prev,
@@ -565,10 +420,10 @@ export default function Catalog() {
                       type="button"
                       onClick={() => openCustomization(p)}
                       className="x-btn cat-card__custom"
-                      title="Personalizar especificaciones de corte o empaque"
+                      title={t('customize')}
                     >
                       <Settings2 aria-hidden="true" className="w-3.5 h-3.5" />
-                      Personalizar
+                      {t('customize')}
                     </button>
                     <button
                       type="button"
@@ -576,12 +431,12 @@ export default function Catalog() {
                       className="x-btn x-btn--primary cat-card__add"
                     >
                       <ShoppingBasket aria-hidden="true" className="w-3.5 h-3.5" />
-                      Agregar
+                      {t('add')}
                     </button>
                   </div>
                 </div>
               ) : (
-                <p className="cat-card__locked">Solo los gerentes pueden comprar</p>
+                <p className="cat-card__locked">{t('only_managers_buy', { ns: 'common', defaultValue: 'Solo los gerentes pueden comprar' })}</p>
               )}
             </div>
           </div>
@@ -589,13 +444,8 @@ export default function Catalog() {
         {displayedProducts.length === 0 && (
           <div className="cat__empty x-empty">
             <div className="x-empty__icon"><Package aria-hidden="true" className="w-6 h-6" /></div>
-            <p className="x-empty__title">No hay productos disponibles</p>
-            {!isSupplier && linkedSupplierIds.length === 0 && (
-              <p className="x-empty__text">
-                Aún no has vinculado a ningún proveedor. Ve a la pestaña{' '}
-                <a href="/proveedores" className="cat__link">Directorio (Proveedores)</a> para empezar a construir tu mercado.
-              </p>
-            )}
+            <p className="x-empty__title">{t('empty_title')}</p>
+            <p className="x-empty__text">{search ? t('empty_search', { query: search }) : categoryFilter ? t('empty_filters') : t('empty_default')}</p>
           </div>
         )}
       </div>
@@ -603,7 +453,7 @@ export default function Catalog() {
       {/* Modal de Personalización de Pedido */}
       {customizingProduct && (
         <Modal
-          title={`Personalizar: ${customizingProduct.name}`}
+          title={`${t('modal_customize')}: ${customizingProduct.name}`}
           onClose={() => setCustomizingProduct(null)}
         >
           <div className="cat__modal">
@@ -617,7 +467,7 @@ export default function Catalog() {
                 <h4 className="cat__summary-name">{customizingProduct.name}</h4>
                 <p className="cat__summary-supplier">{customizingProduct.supplier_name}</p>
                 <p className="cat__summary-price">
-                  ${customizingProduct.price_per_unit.toLocaleString('es-CO')} COP / {customizingProduct.unit}
+                  ${customizingProduct.price_per_unit.toLocaleString(locale)} COP / {customizingProduct.unit}
                 </p>
               </div>
             </div>
@@ -625,12 +475,12 @@ export default function Catalog() {
             {/* Cantidad a pedir */}
             <div>
               <label className="x-label" htmlFor="custom-qty">
-                Cantidad a ordenar ({customizingProduct.unit})
+                {t('qty_to_order', { ns: 'common', defaultValue: 'Cantidad a ordenar' })} ({customizingProduct.unit})
               </label>
               <div className="cat__modal-qty">
                 <button
                   type="button"
-                  aria-label="Disminuir cantidad"
+                  aria-label={t('decrease_qty', { ns: 'common', defaultValue: 'Disminuir cantidad' })}
                   onClick={() => setCustomQty((q) => Math.max(customizingProduct.min_order_qty || 1, q - 1))}
                   className="cat__step-btn"
                 >
@@ -646,21 +496,21 @@ export default function Catalog() {
                 />
                 <button
                   type="button"
-                  aria-label="Aumentar cantidad"
+                  aria-label={t('increase_qty', { ns: 'common', defaultValue: 'Aumentar cantidad' })}
                   onClick={() => setCustomQty((q) => q + 1)}
                   className="cat__step-btn"
                 >
                   <Plus aria-hidden="true" />
                 </button>
                 <span className="cat__subtotal">
-                  Subtotal: <b>${(customQty * customizingProduct.price_per_unit).toLocaleString('es-CO')} COP</b>
+                  {t('subtotal', { ns: 'common', defaultValue: 'Subtotal' })}: <b>${(customQty * customizingProduct.price_per_unit).toLocaleString(locale)} COP</b>
                 </span>
               </div>
             </div>
 
             {/* Opciones dinámicas según tipo de producto (Bebidas, Lácteos, Carnes, Verduras, etc.) */}
             {customizingProduct && (() => {
-              const cfg = getProductCustomizationConfig(customizingProduct);
+              const cfg = getProductCustomizationConfig(customizingProduct, t);
               return (
                 <>
                   <div>
@@ -698,7 +548,7 @@ export default function Catalog() {
                   {/* Notas especiales adicionales */}
                   <div>
                     <label className="x-label" htmlFor="custom-notes">
-                      Instrucciones adicionales para el proveedor (opcional)
+                      {t('additional_notes')}
                     </label>
                     <textarea
                       id="custom-notes"
@@ -719,7 +569,7 @@ export default function Catalog() {
                 onClick={() => setCustomizingProduct(null)}
                 className="x-btn"
               >
-                Cancelar
+                {t('cancel')}
               </button>
               <button
                 type="button"
@@ -727,7 +577,7 @@ export default function Catalog() {
                 className="x-btn x-btn--primary"
               >
                 <ShoppingBasket aria-hidden="true" className="w-4 h-4" />
-                Agregar al Carrito con Personalización
+                {t('add_customized')}
               </button>
             </div>
           </div>
@@ -736,17 +586,17 @@ export default function Catalog() {
 
       {/* Modal Proveedor: Crear / Editar producto */}
       {modal && (
-        <Modal title={editing ? `Editar ${editing.name}` : 'Nuevo producto'} onClose={() => setModal(false)}>
+        <Modal title={editing ? `${t('modal_edit')} ${editing.name}` : t('modal_new')} onClose={() => setModal(false)}>
           <form onSubmit={submit} className="cat__form">
             <div>
-              <label className={label}>Nombre</label>
+              <label className={label}>{t('name')}</label>
               <input value={form.name} onChange={set('name')} className={input} required />
             </div>
             {(user?.role === 'admin' || !user?.supplier_id) && suppliers.length > 0 && (
               <div>
-                <label className={label}>Proveedor asignado</label>
+                <label className={label}>{t('supplier')}</label>
                 <select value={form.supplier_id} onChange={set('supplier_id')} className={input}>
-                  <option value="">Selecciona el proveedor...</option>
+                  <option value="">{t('select')}...</option>
                   {suppliers.map((s) => (
                     <option key={s.id} value={s.id}>{s.name}</option>
                   ))}
@@ -754,35 +604,35 @@ export default function Catalog() {
               </div>
             )}
             <div>
-              <label className={label}>Categoría</label>
+              <label className={label}>{t('category')}</label>
               <select value={form.category_id} onChange={set('category_id')} className={input}>
-                <option value="">Sin categoría</option>
+                <option value="">{t('no_category', { defaultValue: 'Sin categoría' })}</option>
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className={label}>URL de la Imagen (Opcional)</label>
+              <label className={label}>{t('image_optional')}</label>
               <input
                 type="url"
-                placeholder="https://images.unsplash.com/... o enlace de tu foto"
+                placeholder={t('image_url_placeholder')}
                 value={form.image_url}
                 onChange={set('image_url')}
                 className={input}
               />
             </div>
             <div>
-              <label className={label}>Descripción</label>
+              <label className={label}>{t('description', { ns: 'common', defaultValue: 'Descripción' })}</label>
               <textarea value={form.description} onChange={set('description')} className={input} rows={2} />
             </div>
             <div className="cat__form-grid">
               <div>
-                <label className={label}>Precio por unidad</label>
+                <label className={label}>{t('price')}</label>
                 <input type="number" step="0.01" min="0" value={form.price_per_unit} onChange={set('price_per_unit')} className={input} required />
               </div>
               <div>
-                <label className={label}>Unidad</label>
+                <label className={label}>{t('unit')}</label>
                 <select value={form.unit} onChange={set('unit')} className={input}>
                   <option value="kg">kg</option>
                   <option value="libra">libra</option>
@@ -791,16 +641,16 @@ export default function Catalog() {
                 </select>
               </div>
               <div>
-                <label className={label}>Cantidad mínima</label>
+                <label className={label}>{t('min_order_label')}</label>
                 <input type="number" step="0.01" min="0" value={form.min_order_qty} onChange={set('min_order_qty')} className={input} />
               </div>
               <div>
-                <label className={label}>Stock disponible</label>
+                <label className={label}>{t('stock')}</label>
                 <input type="number" step="0.01" min="0" value={form.stock_available} onChange={set('stock_available')} className={input} />
               </div>
             </div>
             <button type="submit" className="x-btn x-btn--primary x-btn--block cat__submit">
-              {editing ? 'Guardar cambios' : 'Crear producto'}
+              {editing ? t('save_changes') : t('create_product')}
             </button>
           </form>
         </Modal>

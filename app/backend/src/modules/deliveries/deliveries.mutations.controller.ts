@@ -244,7 +244,7 @@ export async function updateStatus(req: Request, res: Response, next: NextFuncti
     if (user.role === 'domiciliario' && !['en_camino', 'llegando'].includes(status)) {
       return res.status(403).json({ error: 'El domiciliario solo puede cambiar a en_camino o llegando' });
     }
-    if ((user.role === 'gerente' || user.role === 'empleado') && status !== 'fallido') {
+    if (user.role === 'gerente' && status !== 'fallido') {
       return res.status(403).json({ error: 'El restaurante solo puede reportar la entrega como fallida' });
     }
     if (status === 'entregado' && user.role !== 'admin') {

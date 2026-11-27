@@ -6,9 +6,9 @@ const router = Router();
 router.use(authRequired);
 
 router.get('/', list);
-router.post('/', roleRequired('gerente', 'empleado', 'admin'), create);
+router.post('/', roleRequired('gerente', 'admin'), create);
 router.get('/:id', byId);
-router.patch('/:id/status', roleRequired('admin', 'gerente', 'empleado', 'proveedor_admin'), updateStatus);
+router.patch('/:id/status', roleRequired('admin', 'gerente', 'proveedor_admin'), updateStatus);
 router.get('/:id/history', history);
 router.get('/:id/notify-inventory', roleRequired('gerente', 'admin'), notifyInventory);
 

@@ -40,7 +40,7 @@ export default function TermsModal({ isOpen, onClose }: TermsModalProps) {
         <div>
           <h4 className="font-bold text-slate-800 text-sm mb-1 dark:text-white">3. Jerarquía y Manejo de Equipos</h4>
           <p>
-            Los gerentes de restaurantes son responsables exclusivos del personal operativo (empleados) asignados a su
+            Los gerentes de restaurantes son responsables exclusivos de la operación de su
             establecimiento. Los proveedores asumen la coordinación y veracidad de datos de sus conductores y flota de
             reparto vehicular.
           </p>

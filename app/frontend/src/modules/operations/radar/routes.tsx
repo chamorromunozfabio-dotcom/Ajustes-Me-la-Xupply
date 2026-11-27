@@ -4,5 +4,5 @@ import { RolesAllowed } from '../../../shared/routing/guards';
 const Radar = lazy(() => import('./pages/Radar'));
 
 export const radarRoutes: React.ReactElement[] = [
-  <Route key="radar" path="/radar" element={<RolesAllowed roles={['admin', 'gerente', 'empleado', 'proveedor_admin']}><Radar /></RolesAllowed>} />,
+  <Route key="radar" path="/radar" element={<RolesAllowed roles={['admin', 'gerente', 'proveedor_admin']}><Radar /></RolesAllowed>} />,
 ];

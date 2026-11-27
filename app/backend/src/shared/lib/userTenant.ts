@@ -2,7 +2,7 @@
  * Invariantes de rol / inquilino (tenant) para altas y cambios de usuario.
  *
  * Cada rol vive en un ámbito distinto:
- *  - "restaurant": gerente y empleado pertenecen a un restaurante (restaurant_id).
+ *  - "restaurant": el gerente pertenece a un restaurante (restaurant_id).
  *  - "supplier":  proveedor_admin y domiciliario pertenecen a un proveedor (supplier_id).
  *  - "platform":  admin, verificador y tecnico son de plataforma y no deben
  *                 tener restaurante ni proveedor.
@@ -16,7 +16,6 @@ export type TenantScope = 'restaurant' | 'supplier' | 'platform' | 'unknown';
 export function tenantScopeForRole(roleName: string | undefined | null): TenantScope {
   switch (roleName) {
     case 'gerente':
-    case 'empleado':
       return 'restaurant';
     case 'proveedor_admin':
     case 'domiciliario':

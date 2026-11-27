@@ -1,6 +1,7 @@
 import { errorMessage, toast } from '../../../shared/utils/feedback';
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   ArrowLeft,
   CalendarClock,
@@ -30,6 +31,7 @@ export default function OrderDetail() {
   const { id } = useParams();
   const { user } = useAuth();
   const { push } = useNotifications();
+  const { t } = useTranslation('orders');
   const [order, setOrder] = useState<Order | null>(null);
   const [history, setHistory] = useState<{ action: string; new_values: string; created_at: string }[]>([]);
   const [deliveryModal, setDeliveryModal] = useState(false);
@@ -56,7 +58,7 @@ export default function OrderDetail() {
 
   const completeWithKey = async (deliveryId: number) => {
     if (!securityKeyInput.trim()) {
-      setKeyError('Por favor digita la llave de 4 dígitos proporcionada por el domiciliario');
+      setKeyError(t('detail.key_error'));
       return;
     }
     setVerifyingKey(true);
@@ -66,7 +68,7 @@ export default function OrderDetail() {
         method: 'POST',
         body: JSON.stringify({ confirmation_code: securityKeyInput.trim() }),
       });
-      push({ message: '¡Envío completado exitosamente con la llave de entrega!', at: new Date().toISOString() });
+      push({ message: t('detail.completed'), at: new Date().toISOString() });
       setSecurityKeyInput('');
       load();
     } catch (err) {
@@ -106,7 +108,7 @@ export default function OrderDetail() {
         method: 'PATCH',
         body: JSON.stringify({ status }),
       });
-      push({ message: `Pedido actualizado → ${status}`, at: new Date().toISOString() });
+      push({ message: t('detail.order_updated', { status: orderStatusLabel(status, t) }), at: new Date().toISOString() });
       load();
     } catch (err) {
       toast(errorMessage(err), 'error');
@@ -125,7 +127,7 @@ export default function OrderDetail() {
           items: order!.items.map((i) => ({ product_name: i.name, quantity: i.quantity, unit: i.unit })),
         }),
       });
-      push({ message: 'Entrega creada y asignada al domiciliario exitosamente', at: new Date().toISOString() });
+      push({ message: t('detail.delivery_created'), at: new Date().toISOString() });
       setDeliveryModal(false);
       load();
     } catch (err) {
@@ -133,16 +135,18 @@ export default function OrderDetail() {
     }
   };
 
-  if (!order) return <div className="x-empty">Cargando pedido...</div>;
+  if (!order) return <div className="x-empty">{t('detail.loading')}</div>;
 
   const done = ['entregado', 'cancelado'].includes(order.status);
   const latestDelivery = order.deliveries && order.deliveries.length > 0 ? order.deliveries[0] : null;
 
+  const backTo = useLocation().pathname.startsWith('/mercado') ? '/mercado/pedidos' : '/pedidos';
+
   return (
     <div className="ord-detail x-page">
-      <Link to="/pedidos" className="ord-detail__back">
+      <Link to={backTo} className="ord-detail__back">
         <ArrowLeft aria-hidden="true" />
-        Volver a pedidos
+        {t('detail.back')}
       </Link>
 
       <div className="ord-detail__layout">
@@ -157,13 +161,13 @@ export default function OrderDetail() {
               </div>
               <div className="ord-detail__badges">
                 <span className={`x-badge ${orderStatusBadgeClass(order.status)}`}>
-                  {orderStatusLabel(order.status)}
+                  {orderStatusLabel(order.status, t)}
                 </span>
                 {order.payment_status === 'pagado' && (
-                  <span className="x-badge x-badge--success">Pagado</span>
+                  <span className="x-badge x-badge--success">{t('detail.paid')}</span>
                 )}
                 {order.payment_status === 'pendiente' && (
-                  <span className="x-badge x-badge--warn">Pago pendiente</span>
+                  <span className="x-badge x-badge--warn">{t('detail.pending_payment')}</span>
                 )}
               </div>
             </div>
@@ -173,26 +177,26 @@ export default function OrderDetail() {
                 <table>
                   <thead>
                     <tr>
-                      <th>Producto</th>
-                      <th className="ord-detail__num">Cantidad</th>
-                      <th className="ord-detail__num">Precio</th>
-                      <th className="ord-detail__num">Subtotal</th>
+                      <th>{t('detail.product')}</th>
+                      <th className="ord-detail__num">{t('detail.quantity')}</th>
+                      <th className="ord-detail__num">{t('detail.price')}</th>
+                      <th className="ord-detail__num">{t('detail.subtotal')}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {order.items.map((i) => (
                       <tr key={i.id}>
-                        <td data-label="Producto">{i.name}</td>
-                        <td data-label="Cantidad" className="ord-detail__num">{i.quantity} {i.unit}</td>
-                        <td data-label="Precio" className="ord-detail__num">{formatMoney(i.unit_price)}</td>
-                        <td data-label="Subtotal" className="ord-detail__num">{formatMoney(i.subtotal)}</td>
+                        <td data-label={t('detail.product')}>{i.name}</td>
+                        <td data-label={t('detail.quantity')} className="ord-detail__num">{i.quantity} {i.unit}</td>
+                        <td data-label={t('detail.price')} className="ord-detail__num">{formatMoney(i.unit_price)}</td>
+                        <td data-label={t('detail.subtotal')} className="ord-detail__num">{formatMoney(i.subtotal)}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
               <div className="ord-detail__total">
-                <span>Total</span>
+                <span>{t('detail.total')}</span>
                 <strong>{formatMoney(order.total)}</strong>
               </div>
             </div>
@@ -203,10 +207,8 @@ export default function OrderDetail() {
                   <CreditCard />
                 </span>
                 <div className="ord-detail__pay-copy">
-                  <p className="ord-detail__pay-title">Este pedido requiere pago antes de confirmarse</p>
-                  <p className="ord-detail__pay-text">
-                    Pago seguro con Wompi: tarjeta, PSE o Nequi. Al aprobarse, el proveedor podrá confirmar el pedido.
-                  </p>
+                  <p className="ord-detail__pay-title">{t('detail.pay_required')}</p>
+                  <p className="ord-detail__pay-text">{t('detail.pay_text')}</p>
                 </div>
                 <button
                   type="button"
@@ -214,7 +216,7 @@ export default function OrderDetail() {
                   disabled={paying}
                   className="x-btn x-btn--primary"
                 >
-                  {paying ? 'Abriendo Wompi…' : `Pagar ${formatMoney(order.total)}`}
+                  {paying ? t('detail.paying') : t('detail.pay', { amount: formatMoney(order.total) })}
                 </button>
               </div>
             )}
@@ -223,19 +225,19 @@ export default function OrderDetail() {
               {order.notes && (
                 <p className="ord-detail__fact">
                   <span className="ord-detail__fact-icon" aria-hidden="true"><StickyNote /></span>
-                  <span><b>Notas: </b>{order.notes}</span>
+                  <span><b>{t('detail.notes')} </b>{order.notes}</span>
                 </p>
               )}
               {order.delivery_address && (
                 <p className="ord-detail__fact">
                   <span className="ord-detail__fact-icon" aria-hidden="true"><MapPin /></span>
-                  <span><b>Dirección de entrega: </b>{order.delivery_address}</span>
+                  <span><b>{t('detail.delivery_address')} </b>{order.delivery_address}</span>
                 </p>
               )}
               {order.requested_delivery_date && (
                 <p className="ord-detail__fact">
                   <span className="ord-detail__fact-icon" aria-hidden="true"><CalendarClock /></span>
-                  <span><b>Entrega solicitada: </b>{formatDate(order.requested_delivery_date)}</span>
+                  <span><b>{t('detail.requested_delivery')} </b>{formatDate(order.requested_delivery_date)}</span>
                 </p>
               )}
             </div>
@@ -248,8 +250,8 @@ export default function OrderDetail() {
                 <div className="ord-detail__delivery-id">
                   <span className="ord-detail__delivery-icon" aria-hidden="true"><Truck /></span>
                   <div>
-                    <h3 className="ord-detail__delivery-title">Información y Estado de Entrega</h3>
-                    <p className="ord-detail__guide">Guía: {latestDelivery.delivery_code}</p>
+                    <h3 className="ord-detail__delivery-title">{t('detail.delivery_info')}</h3>
+                    <p className="ord-detail__guide">{t('detail.guide', { code: latestDelivery.delivery_code })}</p>
                   </div>
                 </div>
                 <span className="ord-detail__delivery-status">{latestDelivery.status}</span>
@@ -257,26 +259,26 @@ export default function OrderDetail() {
 
               <div className="ord-detail__delivery-grid">
                 <p className="ord-detail__data">
-                  <b>Ubicación de entrega</b>
+                  <b>{t('detail.delivery_location')}</b>
                   {latestDelivery.delivery_address || order.delivery_address || 'Bucaramanga, Santander'}
                 </p>
                 <p className="ord-detail__data">
-                  <b>Quién lo lleva (Domiciliario)</b>
+                  <b>{t('detail.driver')}</b>
                   {latestDelivery.driver_name ? (
                     <span className="ord-detail__data-highlight">{latestDelivery.driver_name}</span>
                   ) : (
-                    <span className="ord-detail__data-wait">Sin conductor asignado aún</span>
+                    <span className="ord-detail__data-wait">{t('detail.no_driver')}</span>
                   )}
                 </p>
                 {latestDelivery.driver_phone && (
                   <p className="ord-detail__data">
-                    <b>Teléfono de contacto</b>
+                    <b>{t('detail.driver_phone')}</b>
                     {latestDelivery.driver_phone}
                   </p>
                 )}
                 {latestDelivery.vehicle_name && (
                   <p className="ord-detail__data">
-                    <b>Vehículo de despacho</b>
+                    <b>{t('detail.vehicle')}</b>
                     {latestDelivery.vehicle_name} ({latestDelivery.plate})
                   </p>
                 )}
@@ -287,14 +289,12 @@ export default function OrderDetail() {
                 <div className="ord-detail__key">
                   <span className="ord-detail__key-icon" aria-hidden="true"><KeyRound /></span>
                   <span className="ord-detail__key-label">
-                    Tu Llave de Entrega:
+                    {t('detail.your_key')}
                     <span className="ord-detail__key-value">
                       {latestDelivery.confirmation_code || '----'}
                     </span>
                   </span>
-                  <p className="ord-detail__key-text">
-                    Entrega este código al gerente del restaurante al llegar para que complete la entrega en su sistema.
-                  </p>
+                  <p className="ord-detail__key-text">{t('detail.key_hint')}</p>
                 </div>
               )}
 
@@ -303,17 +303,15 @@ export default function OrderDetail() {
                 latestDelivery.status === 'entregado' ? (
                   <div className="ord-detail__success">
                     <CheckCircle2 aria-hidden="true" />
-                    <span>Envío completado exitosamente a satisfacción con la llave de seguridad.</span>
+                    <span>{t('detail.completed')}</span>
                   </div>
                 ) : (
                   <div className="ord-detail__confirm">
                     <div className="ord-detail__confirm-head">
                       <ShieldCheck aria-hidden="true" />
                       <div>
-                        <h4 className="ord-detail__confirm-title">Completar Envío con Llave de Seguridad</h4>
-                        <p className="ord-detail__confirm-text">
-                          El domiciliario te entregará un código de 4 dígitos al momento de recibir el pedido. Ingrésalo a continuación para confirmar la recepción a satisfacción:
-                        </p>
+                        <h4 className="ord-detail__confirm-title">{t('detail.complete_with_key')}</h4>
+                        <p className="ord-detail__confirm-text">{t('detail.complete_hint')}</p>
                       </div>
                     </div>
                     <div className="ord-detail__confirm-row">
@@ -322,9 +320,9 @@ export default function OrderDetail() {
                         maxLength={6}
                         value={securityKeyInput}
                         onChange={(e) => setSecurityKeyInput(e.target.value.trim())}
-                        placeholder="Código (Ej: 7421)"
+                        placeholder={t('detail.code_placeholder')}
                         className="x-input ord-detail__code-input"
-                        aria-label="Código de confirmación de entrega"
+                        aria-label={t('detail.code_placeholder')}
                       />
                       <button
                         type="button"
@@ -332,7 +330,7 @@ export default function OrderDetail() {
                         disabled={verifyingKey || !securityKeyInput.trim()}
                         className="x-btn x-btn--primary"
                       >
-                        {verifyingKey ? 'Validando...' : 'Completar Envío con esta Llave'}
+                        {verifyingKey ? t('detail.validating') : t('detail.complete_btn')}
                       </button>
                     </div>
                     {keyError && <p className="ord-detail__error">{keyError}</p>}
@@ -345,7 +343,7 @@ export default function OrderDetail() {
                 {!isGerente && (isDriver || isSupplier || user?.role === 'admin') && (
                   <Link to="/logistica" className="x-btn x-btn--primary">
                     <MapPinned aria-hidden="true" />
-                    Ver en Mapa GPS en Tiempo Real
+                    {t('detail.view_map')}
                   </Link>
                 )}
                 {canManageDelivery && (
@@ -362,7 +360,7 @@ export default function OrderDetail() {
                     className="x-btn"
                   >
                     <Pencil aria-hidden="true" />
-                    Cambiar Domiciliario / Vehículo
+                    {t('detail.change_driver')}
                   </button>
                 )}
               </div>
@@ -371,16 +369,16 @@ export default function OrderDetail() {
 
           <section className="x-card">
             <div className="x-card__head">
-              <h3 className="x-card__title">Historial de Eventos</h3>
+              <h3 className="x-card__title">{t('detail.history')}</h3>
             </div>
             <div className="x-card__body">
               {history.length === 0 ? (
-                <p className="ord-detail__empty">Sin eventos registrados.</p>
+                <p className="ord-detail__empty">{t('detail.no_events')}</p>
               ) : (
                 <ul className="ord-detail__history-list">
                   {history.map((h, i) => (
                     <li key={i}>
-                      <span>{h.action === 'create' ? 'Pedido creado' : `Cambio de estado: ${h.action}`}</span>
+                      <span>{h.action === 'create' ? t('detail.created') : t('detail.status_change', { status: h.action })}</span>
                       <time>{formatDate(h.created_at)}</time>
                     </li>
                   ))}
@@ -394,7 +392,7 @@ export default function OrderDetail() {
           <section className="ord-detail__side-card">
             <h3 className="ord-detail__side-title">
               <Package aria-hidden="true" />
-              Gestión del Pedido
+              {t('detail.management')}
             </h3>
 
             {/* Botón directo para asignar domiciliario si aún no tiene */}
@@ -405,13 +403,13 @@ export default function OrderDetail() {
                 className="x-btn x-btn--primary x-btn--block"
               >
                 <UserPlus aria-hidden="true" />
-                Asignar Domiciliario al Pedido
+                {t('detail.assign_driver')}
               </button>
             )}
 
             {isSupplier ? (
               <div className="ord-detail__flow">
-                <p className="ord-detail__flow-label">Flujo de Estados</p>
+                <p className="ord-detail__flow-label">{t('detail.flow')}</p>
                 {SUPPLIER_FLOW.map((s) => (
                   <button
                     key={s}
@@ -420,7 +418,7 @@ export default function OrderDetail() {
                     disabled={done || order.status === s || SUPPLIER_FLOW.indexOf(s) < SUPPLIER_FLOW.indexOf(order.status)}
                     className={`x-btn ord-detail__flow-btn ${order.status === s ? 'ord-detail__flow-btn--active' : ''}`}
                   >
-                    Marcar como {orderStatusLabel(s)}
+                    {t('detail.mark_as', { status: orderStatusLabel(s, t) })}
                   </button>
                 ))}
               </div>
@@ -431,19 +429,19 @@ export default function OrderDetail() {
                 disabled={done}
                 className="x-btn x-btn--danger x-btn--block"
               >
-                Cancelar pedido
+                {t('detail.cancel')}
               </button>
             )}
-            <p className="ord-detail__sync">Los cambios se sincronizan en tiempo real.</p>
+            <p className="ord-detail__sync">{t('detail.sync')}</p>
           </section>
         </aside>
       </div>
 
       {deliveryModal && (
-        <Modal title="Asignar Domiciliario y Programar Entrega" onClose={() => setDeliveryModal(false)}>
+        <Modal title={t('detail.assign_modal')} onClose={() => setDeliveryModal(false)}>
           <div className="ord-detail__modal-grid">
             <div>
-              <label className="x-label" htmlFor="delivery-driver">Seleccionar Domiciliario / Conductor:</label>
+              <label className="x-label" htmlFor="delivery-driver">{t('detail.select_driver')}</label>
               <select
                 id="delivery-driver"
                 value={deliveryForm.driver_id}
@@ -451,7 +449,7 @@ export default function OrderDetail() {
                 className="x-select"
                 required
               >
-                <option value="">-- Elige un usuario del sistema --</option>
+                <option value="">{t('detail.choose_user')}</option>
                 {drivers.map((d) => (
                   <option key={d.id} value={d.id}>
                     {d.name} ({d.username}) · {d.role_label || d.role_name || 'Usuario'} {d.phone ? `· Tel: ${d.phone}` : ''}
@@ -459,18 +457,18 @@ export default function OrderDetail() {
                 ))}
               </select>
               {drivers.length === 0 && (
-                <span className="x-hint">No se encontraron usuarios registrados.</span>
+                <span className="x-hint">{t('detail.no_users')}</span>
               )}
             </div>
             <div>
-              <label className="x-label" htmlFor="delivery-vehicle">Vehículo de Entrega (opcional):</label>
+              <label className="x-label" htmlFor="delivery-vehicle">{t('detail.vehicle_optional')}</label>
               <select
                 id="delivery-vehicle"
                 value={deliveryForm.vehicle_id}
                 onChange={(e) => setDeliveryForm({ ...deliveryForm, vehicle_id: e.target.value })}
                 className="x-select"
               >
-                <option value="">-- Sin vehículo específico asignado --</option>
+                <option value="">{t('detail.no_vehicle')}</option>
                 {vehicles.map((v) => (
                   <option key={v.id} value={v.id}>
                     {v.name} ({v.plate}) · {v.type}
@@ -479,7 +477,7 @@ export default function OrderDetail() {
               </select>
             </div>
             <div>
-              <label className="x-label" htmlFor="delivery-schedule">Fecha y hora estimada (opcional):</label>
+              <label className="x-label" htmlFor="delivery-schedule">{t('detail.schedule_optional')}</label>
               <input
                 id="delivery-schedule"
                 type="datetime-local"
@@ -494,7 +492,7 @@ export default function OrderDetail() {
               disabled={!deliveryForm.driver_id}
               className="x-btn x-btn--primary x-btn--block ord-detail__modal-actions"
             >
-              Asignar Domiciliario y Guardar
+              {t('detail.save_assign')}
             </button>
           </div>
         </Modal>

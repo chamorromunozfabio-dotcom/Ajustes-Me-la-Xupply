@@ -7,6 +7,7 @@ import { CartProvider } from './shared/context/CartContext';
 import { NotificationProvider } from './shared/context/NotificationContext';
 import { ThemeProvider } from './shared/context/ThemeContext';
 import { LanguageProvider } from './shared/context/LanguageContext';
+import './shared/i18n';
 import './shared/styles/index.css';
 import { CapacitorUpdater } from '@capgo/capacitor-updater';
 

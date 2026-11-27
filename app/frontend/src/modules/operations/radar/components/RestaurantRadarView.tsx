@@ -31,7 +31,7 @@ export function RestaurantRadarView({ ...props }: Props) {
             🔒 Solo comparte el semáforo (nunca cifras exactas)
           </span>
           <Link
-            to="/inventario"
+            to="/gestion/inventario"
             className="rounded-full bg-white px-3 py-1 text-[11px] font-black text-sky-700 hover:bg-sky-50 transition"
           >
             Ver mi inventario →

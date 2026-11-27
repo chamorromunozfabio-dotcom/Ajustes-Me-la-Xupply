@@ -163,7 +163,7 @@ const DEFAULT_ANNOUNCEMENTS: Announcement[] = [
     summary: 'Más de 40 restaurantes en Bucaramanga y Santander redujeron costos hasta un 18% centralizando compras en Xupply.',
     image_url: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&auto=format&fit=crop&q=80',
     action_label: 'Explorar Catálogo',
-    action_url: '/catalogo',
+    action_url: '/mercado/catalogo',
   },
   {
     id: 3,
@@ -174,7 +174,7 @@ const DEFAULT_ANNOUNCEMENTS: Announcement[] = [
     summary: 'Configura stock mínimo en tus insumos prioritarios para recibir alertas tempranas antes de que se agoten en horarios punta.',
     image_url: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&auto=format&fit=crop&q=80',
     action_label: 'Revisar Inventario',
-    action_url: '/inventario',
+    action_url: '/gestion/inventario',
   },
 ];
 
@@ -328,7 +328,7 @@ export default function Dashboard() {
 
   const isAdmin = user?.role === 'admin';
   const isSupplier = user?.role === 'proveedor_admin';
-  const isRestaurant = !isSupplier && !isAdmin && (!!user?.restaurant_id || user?.role === 'gerente' || user?.role === 'empleado');
+  const isRestaurant = !isSupplier && !isAdmin && (!!user?.restaurant_id || user?.role === 'gerente');
   const isDomiciliario = user?.role === 'domiciliario';
 
   const handleAddSuggestedProduct = (s: SuggestionItem) => {
@@ -402,12 +402,12 @@ return (
           {isAdmin ? (
             <Link to="/admin" className="x-btn x-btn--primary">
               <IconKey className="w-4 h-4" />
-              Panel Maestro Administrador
+              {t('dashboard.admin_panel', lang === 'es' ? 'Panel Maestro Administrador' : 'Master Admin Panel')}
             </Link>
           ) : !isDomiciliario && !isSupplier ? (
-            <Link to="/catalogo" className="x-btn x-btn--primary">
+            <Link to="/mercado/catalogo" className="x-btn x-btn--primary">
               <IconBox className="w-4 h-4" />
-              Nueva Orden B2B
+              {t('dashboard.new_b2b_order', lang === 'es' ? 'Nueva Orden B2B' : 'New B2B Order')}
             </Link>
           ) : null}
         </div>
@@ -416,27 +416,27 @@ return (
       {fetchNotice && (
         <div className="dash__notice" role="status">
           <span className="dash__notice-icon"><Info size={16} /></span>
-          <span>Conexión optimizada en segundo plano. Los datos podrían tardar en actualizarse.</span>
+          <span>{t('dashboard.connection_notice', lang === 'es' ? 'Conexión optimizada en segundo plano. Los datos podrían tardar en actualizarse.' : 'Background connection optimized. Data may take a moment to refresh.')}</span>
           <button
             type="button"
             onClick={() => window.location.reload()}
             className="dash__notice-btn"
           >
             <RefreshCw size={13} />
-            Actualizar
+            {t('dashboard.refresh', lang === 'es' ? 'Actualizar' : 'Refresh')}
           </button>
         </div>
       )}
 
-      <nav className="dash__tabs" aria-label="Resumen operativo">
-        <span className="dash__tab dash__tab--active" aria-current="page">Resumen Operativo</span>
+      <nav className="dash__tabs" aria-label={t('dashboard.operational_summary', lang === 'es' ? 'Resumen operativo' : 'Operational summary')}>
+        <span className="dash__tab dash__tab--active" aria-current="page">{t('dashboard.operational_summary', lang === 'es' ? 'Resumen Operativo' : 'Operational Summary')}</span>
         {isRestaurant && (
-          <Link to="/inventario" className="dash__tab">
-            Alertas de Stock ({data.stock_alerts.length})
+          <Link to="/gestion/inventario" className="dash__tab">
+            {t('dashboard.stock_alerts', lang === 'es' ? 'Alertas de Stock' : 'Stock Alerts')} ({data.stock_alerts.length})
           </Link>
         )}
         {isDomiciliario && (
-          <Link to="/logistica" className="dash__tab">Mapa GPS</Link>
+          <Link to="/logistica" className="dash__tab">{t('dashboard.gps_map', lang === 'es' ? 'Mapa GPS' : 'GPS Map')}</Link>
         )}
       </nav>
 
@@ -444,26 +444,26 @@ return (
           <div className="dash__kpis dash__kpis--driver">
             <section className="dash__kpi dash__kpi--success">
               <div className="dash__kpi-head">
-                <h2 className="dash__kpi-title">Entregas Asignadas</h2>
+                <h2 className="dash__kpi-title">{t('dashboard.assigned_deliveries', lang === 'es' ? 'Entregas Asignadas' : 'Assigned Deliveries')}</h2>
                 <span className="dash__kpi-icon dash__kpi-icon--success"><IconMotorcycle className="w-5 h-5" /></span>
               </div>
               <strong className="dash__kpi-value">{(data.driver_deliveries || []).length}</strong>
               <div className="dash__kpi-foot">
-                <Link to="/pedidos" className="dash__kpi-link">Ver detalles de entrega →</Link>
+                <Link to="/mercado/pedidos" className="dash__kpi-link">{t('dashboard.view_delivery_details', lang === 'es' ? 'Ver detalles de entrega →' : 'View delivery details →')}</Link>
               </div>
             </section>
 
             <section className="dash__kpi">
               <div className="dash__kpi-head">
-                <h2 className="dash__kpi-title">Telemetría GPS</h2>
+                <h2 className="dash__kpi-title">{t('dashboard.gps_telemetry', lang === 'es' ? 'Telemetría GPS' : 'GPS Telemetry')}</h2>
                 <span className="dash__kpi-icon"><IconGps className="w-5 h-5" /></span>
               </div>
               <div className="dash__kpi-foot">
                 <span className="dash__dot" />
-                <span className="dash__live">Conectado y Transmitiendo</span>
+                <span className="dash__live">{t('dashboard.gps_live', lang === 'es' ? 'Conectado y Transmitiendo' : 'Connected and Streaming')}</span>
               </div>
               <div className="dash__kpi-foot">
-                <Link to="/logistica" className="dash__kpi-link">Abrir Mapa Satelital →</Link>
+                <Link to="/logistica" className="dash__kpi-link">{t('dashboard.open_satellite_map', lang === 'es' ? 'Abrir Mapa Satelital →' : 'Open Satellite Map →')}</Link>
               </div>
             </section>
           </div>
@@ -471,61 +471,61 @@ return (
           <div className="dash__kpis">
             <section className="dash__kpi">
               <div className="dash__kpi-head">
-                <h2 className="dash__kpi-title">Pedidos {isSupplier ? 'Entrantes' : 'Activos'}</h2>
+                <h2 className="dash__kpi-title">{isSupplier ? t('dashboard.incoming_orders', lang === 'es' ? 'Pedidos Entrantes' : 'Incoming Orders') : t('dashboard.active_orders', lang === 'es' ? 'Pedidos Activos' : 'Active Orders')}</h2>
                 <span className="dash__kpi-icon"><IconOrders className="w-5 h-5" /></span>
               </div>
               <strong className="dash__kpi-value">{data.orders?.activos || 0}</strong>
               <div className="dash__kpi-foot">
-                <span className="dash__kpi-positive">{data.orders?.nuevos || 0} Nuevos</span>
-                <span>• {data.orders?.total || 0} Históricos</span>
+                <span className="dash__kpi-positive">{data.orders?.nuevos || 0} {t('dashboard.new', lang === 'es' ? 'Nuevos' : 'New')}</span>
+                <span>• {data.orders?.total || 0} {t('dashboard.historical', lang === 'es' ? 'Históricos' : 'Historical')}</span>
               </div>
             </section>
 
             {isAdmin ? (
               <section className="dash__kpi dash__kpi--violet">
                 <div className="dash__kpi-head">
-                  <h2 className="dash__kpi-title">Auditoría & Trazabilidad</h2>
+                  <h2 className="dash__kpi-title">{t('dashboard.audit_traceability', lang === 'es' ? 'Auditoría & Trazabilidad' : 'Audit & Traceability')}</h2>
                   <span className="dash__kpi-icon dash__kpi-icon--violet"><IconKey className="w-5 h-5" /></span>
                 </div>
-                <strong className="dash__kpi-value dash__kpi-value--text">Supervisión en Vivo</strong>
-                <div className="dash__kpi-foot">Movimientos y auditoría de cada usuario en tiempo real.</div>
+                <strong className="dash__kpi-value dash__kpi-value--text">{t('dashboard.live_supervision', lang === 'es' ? 'Supervisión en Vivo' : 'Live Supervision')}</strong>
+                <div className="dash__kpi-foot">{t('dashboard.audit_desc', lang === 'es' ? 'Movimientos y auditoría de cada usuario en tiempo real.' : 'Real-time user movements and audit.')}</div>
                 <div className="dash__kpi-foot">
-                  <Link to="/admin" className="dash__kpi-link">Ver auditoría completa →</Link>
+                  <Link to="/admin" className="dash__kpi-link">{t('dashboard.view_full_audit', lang === 'es' ? 'Ver auditoría completa →' : 'View full audit →')}</Link>
                 </div>
               </section>
             ) : isRestaurant ? (
               <section className="dash__kpi dash__kpi--warn">
                 <div className="dash__kpi-head">
-                  <h2 className="dash__kpi-title">Stock Crítico (ROP)</h2>
+                  <h2 className="dash__kpi-title">{t('dashboard.critical_stock', lang === 'es' ? 'Stock Crítico (ROP)' : 'Critical Stock (ROP)')}</h2>
                   <span className="dash__kpi-icon dash__kpi-icon--warn"><IconInventory className="w-5 h-5" /></span>
                 </div>
                 <strong className="dash__kpi-value">{data.stock_alerts?.length || 0}</strong>
-                <div className="dash__kpi-foot">insumos</div>
-                <div className="dash__kpi-foot">Requieren orden de compra pronto.</div>
+                <div className="dash__kpi-foot">{t('dashboard.supplies', lang === 'es' ? 'insumos' : 'supplies')}</div>
+                <div className="dash__kpi-foot">{t('dashboard.reorder_soon', lang === 'es' ? 'Requieren orden de compra pronto.' : 'Require purchase order soon.')}</div>
               </section>
             ) : (
               <section className="dash__kpi">
                 <div className="dash__kpi-head">
-                  <h2 className="dash__kpi-title">Mi Catálogo</h2>
+                  <h2 className="dash__kpi-title">{t('dashboard.my_catalog', lang === 'es' ? 'Mi Catálogo' : 'My Catalog')}</h2>
                   <span className="dash__kpi-icon"><IconBox className="w-5 h-5" /></span>
                 </div>
                 <strong className="dash__kpi-value">{data.products || 0}</strong>
                 <div className="dash__kpi-foot">SKUs</div>
                 <div className="dash__kpi-foot">
-                  <Link to="/inventario" className="dash__kpi-link">Gestionar productos →</Link>
+                  <Link to="/gestion/inventario" className="dash__kpi-link">{t('dashboard.manage_products', lang === 'es' ? 'Gestionar productos →' : 'Manage products →')}</Link>
                 </div>
               </section>
             )}
 
             <section className="dash__kpi">
               <div className="dash__kpi-head">
-                <h2 className="dash__kpi-title">{isSupplier ? 'Ventas' : 'Inversión'} del Mes</h2>
+                <h2 className="dash__kpi-title">{isSupplier ? t('dashboard.month_sales', lang === 'es' ? 'Ventas del Mes' : 'Monthly Sales') : t('dashboard.month_investment', lang === 'es' ? 'Inversión del Mes' : 'Monthly Investment')}</h2>
                 <span className="dash__kpi-icon"><IconChart className="w-5 h-5" /></span>
               </div>
               <strong className="dash__kpi-value">{formatMoney(data.orders?.monto_total || 0)}</strong>
               <div className="dash__kpi-foot">
-                <span className="dash__kpi-positive">En curso</span>
-                <span>• Datos de {new Date().toLocaleDateString('es-ES', { month: 'long' })}</span>
+                <span className="dash__kpi-positive">{t('dashboard.in_progress', lang === 'es' ? 'En curso' : 'In progress')}</span>
+                <span>• {t('dashboard.data_for', lang === 'es' ? 'Datos de' : 'Data for')} {new Date().toLocaleDateString(lang === 'es' ? 'es-ES' : 'en-US', { month: 'long' })}</span>
               </div>
             </section>
           </div>
@@ -534,27 +534,27 @@ return (
         <div className="dash__lower">
           <section className="dash__panel">
             <div className="dash__panel-head">
-              <h3 className="dash__panel-title">Accesos Rápidos</h3>
+              <h3 className="dash__panel-title">{t('dashboard.quick_access', lang === 'es' ? 'Accesos Rápidos' : 'Quick Access')}</h3>
             </div>
             <div className="dash__panel-body">
               <div className="dash__quick">
                 {(isSupplier || isDomiciliario || user?.role === 'admin') && (
                   <Link to="/logistica" className="dash__quick-link">
-                    <span className="dash__quick-label"><span className="dash__quick-glyph"><IconGps className="w-5 h-5" /></span>Rastreo GPS en Vivo</span>
+                    <span className="dash__quick-label"><span className="dash__quick-glyph"><IconGps className="w-5 h-5" /></span>{t('dashboard.live_gps_tracking', lang === 'es' ? 'Rastreo GPS en Vivo' : 'Live GPS Tracking')}</span>
                     <ChevronRight size={15} className="dash__quick-icon" />
                   </Link>
                 )}
 
                 {!isDomiciliario && (
-                  <Link to="/proveedores" className="dash__quick-link">
-                    <span className="dash__quick-label"><span className="dash__quick-glyph"><IconSuppliers className="w-5 h-5" /></span>Directorio de Proveedores</span>
+                  <Link to={isSupplier ? '/proveedores' : '/mercado/proveedores'} className="dash__quick-link">
+                    <span className="dash__quick-label"><span className="dash__quick-glyph"><IconSuppliers className="w-5 h-5" /></span>{isSupplier ? t('dashboard.supplier_directory', lang === 'es' ? 'Directorio de Proveedores' : 'Supplier Directory') : t('nav.suppliers')}</span>
                     <ChevronRight size={15} className="dash__quick-icon" />
                   </Link>
                 )}
 
                 {(user?.role === 'gerente' || isSupplier) && (
                   <Link to="/xupply-ia" className="dash__quick-link">
-                    <span className="dash__quick-label"><span className="dash__quick-glyph"><IconAi className="w-5 h-5" /></span>Asistente Xupply IA</span>
+                    <span className="dash__quick-label"><span className="dash__quick-glyph"><IconAi className="w-5 h-5" /></span>{t('dashboard.xupply_ai_assistant', lang === 'es' ? 'Asistente Xupply IA' : 'Xupply AI Assistant')}</span>
                     <ChevronRight size={15} className="dash__quick-icon" />
                   </Link>
                 )}
@@ -564,7 +564,7 @@ return (
 
           <section className="dash__panel">
             <div className="dash__panel-head">
-              <h3 className="dash__panel-title">Órdenes Recientes</h3>
+              <h3 className="dash__panel-title">{t('dashboard.recent_orders', lang === 'es' ? 'Órdenes Recientes' : 'Recent Orders')}</h3>
               <span className="x-badge x-badge--primary">{data.recent?.length || 0}</span>
             </div>
             <div className="dash__panel-body">
@@ -583,7 +583,7 @@ return (
                         <span className={statusBadgeClass(order.status)}>
                           {ORDER_STATUS[order.status as keyof typeof ORDER_STATUS]?.label || order.status}
                         </span>
-                        <Link to={`/pedidos/${order.id}`} className="dash__feed-link">Ver</Link>
+                        <Link to={`${isSupplier ? '/pedidos' : '/mercado/pedidos'}/${order.id}`} className="dash__feed-link">{t('dashboard.view', lang === 'es' ? 'Ver' : 'View')}</Link>
                       </div>
                     </div>
                   ))}
@@ -591,7 +591,7 @@ return (
               ) : (
                 <div className="x-empty dash__empty">
                   <span className="x-empty__icon"><IconOrders className="w-5 h-5" /></span>
-                  <span className="x-empty__title">No hay actividad reciente.</span>
+                  <span className="x-empty__title">{t('dashboard.no_recent_activity', lang === 'es' ? 'No hay actividad reciente.' : 'No recent activity.')}</span>
                 </div>
               )}
             </div>

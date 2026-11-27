@@ -9,22 +9,14 @@ import AppErrorBoundary from './shared/ui/AppErrorBoundary';
 
 const Navbar = lazy(() => import('./shared/ui/Navbar'));
 const BottomNav = lazy(() => import('./shared/ui/BottomNav'));
-const SideCart = lazy(() => import('./modules/catalog/cart/components/SideCart'));
 const AiFloatingWidget = lazy(() => import('./modules/ai/components/AiFloatingWidget'));
 
 import { authRoutes } from './modules/identity/auth/routes';
 import { verificationRoutes } from './modules/identity/verification/routes';
 import { notFoundRoute, rootRoute } from './modules/public/shell/routes';
 import { appDownloadRoutes } from './modules/public/app-download/routes';
-import { catalogRoutes } from './modules/catalog/catalog/routes';
-import { cartRoutes } from './modules/catalog/cart/routes';
-import { ordersRoutes } from './modules/orders/routes';
-import { inventoryRoutes } from './modules/operations/inventory/routes';
-import { radarRoutes } from './modules/operations/radar/routes';
-import { invoicingRoutes } from './modules/finance/invoicing/routes';
 import { directoryRoutes } from './modules/catalog/directory/routes';
 import { deliveriesRoutes } from './modules/deliveries/routes';
-import { plansRoutes } from './modules/finance/plans/routes';
 import { paymentsRoutes } from './modules/finance/payments/routes';
 import { aiRoutes } from './modules/ai/routes';
 import { teamRoutes } from './modules/identity/team/routes';
@@ -32,21 +24,17 @@ import { profileRoutes } from './modules/identity/profile/routes';
 import { adminRoutes } from './modules/admin/routes';
 import { dashboardRoutes } from './modules/operations/dashboard/routes';
 import { landingRoutes } from './modules/public/landing/routes';
+import { restaurantRoutes, restaurantLegacyRoutes } from './modules/operations/restaurant/routes';
 
 const allRoutes = [
   ...authRoutes,
   ...verificationRoutes,
   rootRoute,
   ...appDownloadRoutes,
-  ...catalogRoutes,
-  ...cartRoutes,
-  ...ordersRoutes,
-  ...inventoryRoutes,
-  ...radarRoutes,
-  ...invoicingRoutes,
+  ...restaurantRoutes,
+  ...restaurantLegacyRoutes,
   ...directoryRoutes,
   ...deliveriesRoutes,
-  ...plansRoutes,
   ...paymentsRoutes,
   ...aiRoutes,
   ...teamRoutes,
@@ -80,7 +68,6 @@ export default function App() {
             </AppErrorBoundary>
           </main>
           {user && <BottomNav />}
-          {user && user.role !== 'admin' && user.role !== 'verificador' && user.role !== 'tecnico' && <SideCart />}
           {user && (user.role === 'gerente' || user.role === 'proveedor_admin') && <AiFloatingWidget />}
           <CookieConsent />
           <FeedbackHost />

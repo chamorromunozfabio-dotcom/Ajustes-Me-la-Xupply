@@ -1,0 +1,195 @@
+{
+  "eyebrow": "Mercado · Catálogo",
+  "title": "Catálogo",
+  "subtitle": "Explora productos disponibles y gestiona tu inventario.",
+  "new_product": "Nuevo Producto",
+  "refresh": "Actualizar",
+  "refreshing": "Actualizando...",
+  "search_placeholder": "Buscar por nombre, proveedor o categoría...",
+  "search_aria": "Buscar productos",
+  "sort": "Ordenar:",
+  "sort_recent": "Más recientes",
+  "sort_price_asc": "Precio: menor a mayor",
+  "sort_price_desc": "Precio: mayor a menor",
+  "sort_name": "Nombre A-Z",
+  "categories": "Categorías",
+  "all": "Todos",
+  "clear_filters": "Limpiar filtros",
+  "load_error": "No pudimos cargar el catálogo en este momento. Revisa tu conexión e intenta de nuevo.",
+  "retry": "Reintentar",
+  "empty_title": "No hay productos para mostrar",
+  "empty_search": "No encontramos coincidencias para \"{{query}}\".",
+  "empty_filters": "No hay productos en esta categoría por ahora.",
+  "empty_default": "Cuando haya productos disponibles, aparecerán aquí.",
+  "view_all": "Ver todos los productos",
+  "units_available": "{{count}} uds disponibles",
+  "min_order": "Mínimo {{count}}",
+  "out_of_stock": "Agotado",
+  "add": "Agregar",
+  "customize": "Personalizar y agregar",
+  "edit_product": "Editar producto",
+  "delete_product": "Eliminar producto",
+  "modal_customize": "Personalizar producto",
+  "modal_edit": "Editar producto",
+  "modal_new": "Nuevo producto",
+  "customization_help": "Selecciona las opciones de preparación y empaque para que nuestro equipo te envíe el producto exactamente como lo necesitas.",
+  "customization": "Personalización",
+  "type_label": "Tipo:",
+  "packaging_label": "Empaque:",
+  "additional_notes": "Notas adicionales (opcional):",
+  "notes": "Notas",
+  "cancel": "Cancelar",
+  "add_customized": "Agregar al Carrito con Personalización",
+  "save_changes": "Guardar cambios",
+  "create_product": "Crear producto",
+  "name": "Nombre",
+  "category": "Categoría",
+  "select": "Selecciona",
+  "supplier": "Proveedor",
+  "unit": "Unidad",
+  "price": "Precio (COP)",
+  "min_order_label": "Pedido mín.",
+  "stock": "Stock disponible",
+  "image_optional": "Imagen del producto (opcional)",
+  "image_help": "Sube una foto clara desde tu computador (JPG, PNG o WEBP, máx. 5 MB) o pega una URL https si ya la tienes publicada.",
+  "image_url_placeholder": "O pega una URL https://...",
+  "preview": "Vista previa",
+  "preview_alt": "Vista previa del producto",
+  "remove_image": "Quitar imagen",
+  "uploading_image": "Subiendo imagen...",
+  "image_read_error": "No se pudo leer la imagen seleccionada.",
+  "image_upload_error": "No se pudo subir la imagen.",
+  "delete_confirm": "¿Eliminar \"{{name}}\"?",
+  "create_error": "No se pudo crear el producto. Revisa los campos e intenta de nuevo.",
+  "update_error": "No se pudo actualizar el producto. Intenta de nuevo.",
+  "delete_error": "No se pudo eliminar el producto. Intenta de nuevo.",
+  "custom_default": {
+    "typeLabel": "Opciones / Variación:",
+    "typeOptions": [
+      "Estándar / Original",
+      "Requiere especificación (ver notas)",
+      "Control de calidad extra",
+      "Empaque de seguridad"
+    ],
+    "packLabel": "Tipo de empaque requerido:",
+    "packOptions": [
+      "Empaque estándar",
+      "Bolsa sellada",
+      "Caja protectora",
+      "Canastilla"
+    ],
+    "notesPlaceholder": "Instrucciones especiales para este producto..."
+  },
+  "customization_presets": {
+    "beverage": {
+      "typeLabel": "Presentación y temperatura:",
+      "typeOptions": [
+        "Refrigerado / Frío",
+        "Temperatura ambiente",
+        "Sin azúcar añadida",
+        "Pulpa natural 100%",
+        "Concentrado para diluir",
+        "Listo para servir"
+      ],
+      "packLabel": "Tipo de empaque requerido:",
+      "packOptions": [
+        "Botella individual",
+        "Galón institucional",
+        "Caja máster / Paca",
+        "Canastilla plástica retornable",
+        "Bolsa pouch hermética"
+      ],
+      "notesPlaceholder": "Ej. Servir frío, pulpa sin colar, empacar en pacas de 6 unidades..."
+    },
+    "dairy": {
+      "typeLabel": "Presentación y maduración:",
+      "typeOptions": [
+        "Bloque entero",
+        "Tajado / Laminado",
+        "Rallado fino",
+        "Porcionado x 500g",
+        "Maduración óptima",
+        "Refrigerado estricto"
+      ],
+      "packLabel": "Tipo de empaque requerido:",
+      "packOptions": [
+        "Sellado al vacío",
+        "Bolsa hermética",
+        "Canastilla plástica",
+        "Caja térmica con hielo",
+        "Empaque estándar"
+      ],
+      "notesPlaceholder": "Ej. Separar tajadas con papel film, lote con más de 15 días de vencimiento..."
+    },
+    "produce": {
+      "typeLabel": "Selección y maduración:",
+      "typeOptions": [
+        "Maduro (consumo inmediato)",
+        "Pintón / Firme (rotación 3-5 días)",
+        "Verde para conservar",
+        "Lavado y desinfectado",
+        "Pelado y picado",
+        "Selección primera calidad"
+      ],
+      "packLabel": "Tipo de empaque requerido:",
+      "packOptions": [
+        "Canastilla plástica",
+        "Bolsas perforadas respirables",
+        "Caja de cartón ventilada",
+        "Malla protectora",
+        "Empaque estándar"
+      ],
+      "notesPlaceholder": "Ej. Seleccionar aguacates grandes, tomates sin golpes, empaque en canastillas separadas..."
+    },
+    "grains": {
+      "typeLabel": "Presentación y molienda:",
+      "typeOptions": [
+        "Grano entero",
+        "Molido fino",
+        "Molido grueso",
+        "Seco / Deshidratado",
+        "En conserva / Precocido",
+        "Orgánico certificado"
+      ],
+      "packLabel": "Tipo de empaque requerido:",
+      "packOptions": [
+        "Bulto / Saco sellado",
+        "Bolsa al vacío x 1kg",
+        "Caja de cartón",
+        "Recipiente plástico",
+        "Empaque estándar"
+      ],
+      "notesPlaceholder": "Ej. Verificar fecha de vencimiento mayor a 6 meses, empaque resistente a humedad..."
+    },
+    "meat": {
+      "typeLabel": "Corte y preparación:",
+      "typeOptions": [
+        "Pieza entera",
+        "Porcionado / En filetes",
+        "Picado / Molido",
+        "Marinado especial",
+        "Congelado / Sellado",
+        "Fresco del día"
+      ],
+      "packLabel": "Tipo de empaque requerido:",
+      "packOptions": [
+        "Sellado al vacío individual",
+        "Bolsa plástica grado alimenticio",
+        "Caja térmica con hielo seco",
+        "Bandeja estirofoam",
+        "Empaque estándar"
+      ],
+      "notesPlaceholder": "Ej. Corte grueso para parrilla, separar porciones de 250g en bolsas individuales..."
+    }
+  },
+  "product_updated": "Producto actualizado",
+  "product_created": "Producto creado",
+  "product_deleted": "Producto desactivado",
+  "subtitle_supplier": "Gestiona tu oferta y mantén los insumos al día para tus clientes.",
+  "products_count": "producto(s)",
+  "all_suppliers": "Todos los proveedores",
+  "no_category": "Sin categoría",
+  "wholesale_price": "Precio mayorista",
+  "quantity": "Cantidad",
+  "only_managers_buy": "Solo los gerentes pueden comprar"
+}

@@ -20,7 +20,7 @@ export default function MapRestrictedNotice() {
         </ul>
       </div>
       <div className="dlv-restricted__cta">
-        <Link to="/pedidos" className="x-btn x-btn--primary">
+        <Link to="/mercado/pedidos" className="x-btn x-btn--primary">
           Ir a mis pedidos
           <ArrowRight aria-hidden="true" className="w-3.5 h-3.5" />
         </Link>

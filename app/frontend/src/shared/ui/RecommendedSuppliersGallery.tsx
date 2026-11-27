@@ -168,7 +168,7 @@ export default function RecommendedSuppliersGallery({
                 <span>→</span>
               </Link>
               <Link
-                to="/proveedores"
+                to="/mercado/proveedores"
                 className="inline-flex items-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold px-4 py-2.5 text-xs transition border border-white/15 cursor-pointer"
               >
                 <span>Explorar Directorio</span>

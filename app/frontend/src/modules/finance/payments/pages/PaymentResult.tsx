@@ -168,7 +168,7 @@ export default function PaymentResult() {
               </Link>
             ) : (
               <Link
-                to="/planes"
+                to="/gestion/planes"
                 className="flex-1 rounded-xl bg-slate-900 px-4 py-3 text-center text-sm font-bold text-white transition hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600"
               >
                 Ver mi plan

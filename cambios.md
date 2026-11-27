@@ -7,13 +7,14 @@ Contraseña para **todos** los usuarios: `demo1234` (restablecida el 2026-11-27;
 | Usuario | Contraseña | Rol | Estado del login |
 | --- | --- | --- | --- |
 | `admin` | `demo1234` | admin | HTTP 200 |
-| `gerente` | `demo1234` | gerente | HTTP 200 |
-| `empleado` | `demo1234` | empleado | HTTP 200 |
+| `gerente` | `demo1234` | gerente (rol único restaurante) | HTTP 200 |
 | `proveedor` | `demo1234` | proveedor_admin | HTTP 200 |
 | `domiciliario` | `demo1234` | domiciliario | HTTP 200 |
 | `verificador` | `demo1234` | verificador | HTTP 200 |
 | `pendiente` | `demo1234` | gerente (restaurante 6) | HTTP 403 `VERIFICATION_PENDING`: cuenta en revisión, requiere aprobación de un verificador |
 | `tecnico` | `demo1234` | tecnico | HTTP 200 |
+
+> Nota: el usuario demo `empleado` fue eliminado de la BD (`xupply-db-pruebas`) como parte de la simplificación a un único rol restaurante (`gerente`).
 
 > Nota: `pendiente` tiene la contraseña correcta pero el login sigue bloqueado a propósito por su estado de verificación; no es un fallo de credenciales.
 
@@ -122,8 +123,60 @@ Contraseña para **todos** los usuarios: `demo1234` (restablecida el 2026-11-27;
 
 ---
 
+## Módulo: Identidad / Roles (limpieza rol restaurante, 2026-11-27)
+
+- **Decisión**: se elimina el rol operativo `empleado` como rol de uso en restaurante; queda `gerente` como **único rol restaurante**. El sistema no gestiona empleados internos de restaurante en esta versión.
+- **BD (`xupply-db-pruebas`)**: eliminado el usuario demo `empleado` (`DELETE FROM users WHERE username='empleado'`). La tabla de credenciales del inicio se actualizó para reflejarlo.
+- **Backend**:
+  - `shared/lib/userTenant.ts`: el scope `restaurant` ahora aplica solo a `gerente`.
+  - `modules/identity/users/users.service.ts`: `gerente` ya no gestiona empleados; devuelve 403 con mensaje de funcionalidad no habilitada.
+  - `modules/identity/users/users.controller.ts`: `gerente` no lista ni crea usuarios de equipo; se removió `empleado` de roles permitidos en alta/cambio de rol; comentario de invariante actualizado.
+  - Guards/rutas: se quitó `empleado` de `roleRequired` en pedidos, inventario, radar, deliveries/confirm, reviews, payments checkout de pedido.
+  - `modules/orders/orders/orders.controller.ts`: se removió la regla especial “empleado solo cancela pedidos nuevos” y la condición de rol empleado en visibilidad de confirmación.
+  - `modules/deliveries/deliveries.mutations.controller.ts`: solo `gerente` (restaurante) queda restringido a marcar `fallido` cuando aplica.
+  - `modules/admin/rolesPermissions.controller.ts`: `empleado` retirado de `SYSTEM_ROLE_NAMES`.
+  - Ajustes de texto/comentarios en AI, products y términos relacionados a empleados de restaurante.
+- **Frontend**:
+  - Rutas protegidas: `catalogo` y `radar` ya no incluyen `empleado`; `carrito` e `inventario` quedan solo para `gerente`.
+  - `Dashboard`, `AjustesPage`, `HamburgerDrawer`: `isRestaurant` ya no considera `empleado`.
+  - `LanguageContext`: eliminadas claves `role.empleado`.
+  - `UsuariosAdmin`: scope y rol por defecto actualizados a `gerente`; ya no propone `empleado`.
+  - `TeamManagement`: restaurante sin roles de equipo internos; proveedor conserva domiciliario.
+  - `TermsModal`/`AiFloatingWidget`: textos actualizados para no hablar de empleados de restaurante.
+
+---
+
 ## Verificación
 
-- `npm run build --prefix app/frontend` → compilación correcta (`✓ built in 11.76s`).
+- `npm run build --prefix app/frontend` → compilación correcta (`✓ built in 11.73s`).
 - Health check de la API → `HTTP 200 {"status":"ok","service":"xupply-api","db":"connected","tables_ready":true}`.
 - `HamburgerDrawer.tsx` sin imports/usos externos; referencias solo internas al componente.
+
+---
+
+## Módulo: Shell restaurante / Mercado / Gestión / i18n (2026-11-27)
+
+### Shell y navegación (rol `gerente`)
+- **`shared/ui/RestaurantLayout.tsx`** *(nuevo)*: shell dedicado a restaurante con tabs principales `Inicio / Mercado / Gestión / Ajustes`, centradas en desktop. Subnav contextual: Mercado (`Catálogo`, `Pedidos`, `Proveedores`) y Gestión (`Inventario`, `Radar de stock`, `Facturación`, `Contabilidad`, `Planes Xupply`).
+- **`App.tsx` / rutas restaurante**: se agregó `modules/operations/restaurant/routes.tsx` con rutas `/gestion/*` y `/mercado/proveedores`; se mantienen compatibilidades/redirecciones de rutas legacy del shell restaurante (`/comercio/facturacion|contabilidad|planes`, `/administracion/*`, `/mercado/carrito` accesible por compat/header) sin tocar `/comercio/:type/:id` (perfil público/directorio).
+- **Carrito**: eliminado del submenú Mercado; acceso por icono de carrito en header (`Navbar`) junto a notificaciones. `SideCart` retirado del flujo del nuevo shell.
+- **Ajustes/UI**: Ajustes queda como página de configuración; logout más accesible en esquina/banner de usuario/cargo acomodado según ajustes de shell; se quitó `Administración` del shell restaurante y el acceso viejo por menú superior.
+
+### Mercado abierto
+- Eliminado el gate de vinculación proveedor basado en `localStorage` (`xupply_linked_suppliers`) para ver productos/comprar/dejar reseña. Reseñas en `ComercioProfile` ya no exigen vinculación previa; backend/rutas de reviews ajustadas para el flujo abierto según cambios ya aplicados.
+
+### i18n (migración escalable ES/EN)
+- **Dependencias**: instaladas `i18next` y `react-i18next` (cambio confirmado por el usuario en `package.json`/lockfile).
+- **Infra**: `shared/i18n/index.ts` con `supportedLngs=['es','en']`, `fallbackLng='es'`, namespaces registrados (`common`, `catalog`, `orders`, `cart`, `directory`), persistencia en `xupply_lang` y sincronización de `document.documentElement.lang`. `main.tsx` importa i18n.
+- **Compatibilidad**: `shared/context/LanguageContext.tsx` convertido a adaptador sobre i18next (`lang/setLanguage/toggleLanguage/t(key,fallback)`), manteniendo compatibilidad con componentes existentes.
+- **Locales agregados**: `shared/i18n/locales/es|en/common.json`, `catalog.json`, `orders.json`, `cart.json`, `directory.json`.
+- **Componentes migrados**:
+  - Shell/nav/settings: `RestaurantLayout`, `AdminLayout`, `BottomNav`, `AjustesPage`, `Navbar`, `NotificationBell`.
+  - Inicio: `Dashboard` textos visibles principales con `dashboard.*`.
+  - Mercado (parcial, en curso): `Catalog.tsx` migrado a `useTranslation(['catalog','common'])` (header, búsqueda/filtros/orden, contadores, tarjetas, acciones, modal personalización, modal crear/editar, toasts/aria, formato de precio por locale); `CartPage.tsx`, `Orders.tsx`, `OrderDetail.tsx`, `OrderCard.tsx`, `Suppliers.tsx`.
+  - Presentación pedidos: `orders/presentation.ts` `orderStatusLabel(status,t?)` permite traducir estados.
+- **Pendiente i18n**: completar cobertura ES/EN en `ComercioProfile`, componentes compartidos de catálogo, módulos Gestión (`Inventory`, `Radar`, `Facturación`, `Contabilidad`, `Planes`), Auth/Admin/compartidos restantes y textos de feedback/validación.
+
+### Verificación
+- `npm run build --prefix app/frontend` → OK tras Paso 3.1 y tras migraciones parciales de Mercado (`✓ built in 8.00s` en la última corrida).
+- Cambios **sin commit/push**; `package.json` y lockfile modificados por instalación i18n confirmada.

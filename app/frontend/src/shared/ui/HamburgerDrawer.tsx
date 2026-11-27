@@ -63,7 +63,7 @@ export default function HamburgerDrawer({ isOpen, onClose }: HamburgerDrawerProp
   const isAdmin = user?.role === 'admin';
   const isVerifier = user?.role === 'verificador';
   const isOwner = user?.role === 'gerente' || user?.role === 'proveedor_admin';
-  const isRestaurant = !isSupplier && !isAdmin && (!!user?.restaurant_id || user?.role === 'gerente' || user?.role === 'empleado');
+  const isRestaurant = !isSupplier && !isAdmin && (!!user?.restaurant_id || user?.role === 'gerente');
   const canTrack = isAdmin || isSupplier || isDomiciliario;
 
   const linkItemClass =

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { ArrowDownWideNarrow, Compass, Filter, Package, RefreshCw } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../../../shared/api/client';
 import { useAuth } from '../../../shared/context/AuthContext';
 import { useSocketSubscription } from '../../../shared/hooks/useSocketSubscription';
@@ -11,6 +12,8 @@ import '../Orders.css';
 
 export default function Orders() {
   const { user } = useAuth();
+  const location = useLocation();
+  const { t } = useTranslation('orders');
   const [orders, setOrders] = useState<Order[]>([]);
   const [status, setStatus] = useState('');
   const [priceSort, setPriceSort] = useState<'asc' | 'desc' | ''>('');
@@ -27,7 +30,7 @@ export default function Orders() {
       .then((data) => setOrders(Array.isArray(data) ? data : []))
       .catch((err) => {
         console.error(err);
-        setError((err as Error).message || 'No se pudieron cargar los pedidos.');
+        setError((err as Error).message || t('load_error'));
       })
       .finally(() => setLoading(false));
   }, [status]);
@@ -62,14 +65,14 @@ export default function Orders() {
     <div className="ord x-page">
       <header className="ord__hero">
         <div>
-          <p className="ord__eyebrow">Operaciones · Pedidos</p>
-          <h1 className="ord__title">Pedidos</h1>
+          <p className="ord__eyebrow">{t('eyebrow')}</p>
+          <h1 className="ord__title">{t('title')}</h1>
           <p className="ord__subtitle">
             {isSupplier
-              ? 'Pedidos que tus clientes te enviaron, en orden de llegada.'
+              ? t('subtitle_supplier')
               : isDriver
-              ? 'Entregas asignadas a ti.'
-              : 'Historial y estado de tus compras mayoristas.'}
+              ? t('subtitle_driver')
+              : t('subtitle_restaurant')}
           </p>
         </div>
 
@@ -77,7 +80,7 @@ export default function Orders() {
           <div className="ord__filter">
             <Filter aria-hidden="true" />
             <label className="sr-only" htmlFor="orders-status">
-              Filtrar por estado
+              {t('filter_status')}
             </label>
             <select
               id="orders-status"
@@ -87,7 +90,7 @@ export default function Orders() {
             >
               {statuses.map((value) => (
                 <option key={value} value={value}>
-                  {value === '' ? 'Todos los estados' : ORDER_STATUS[value]?.label ?? value}
+                  {value === '' ? t('all_statuses') : t(`status.${value}`, { defaultValue: ORDER_STATUS[value]?.label ?? value })}
                 </option>
               ))}
             </select>
@@ -95,7 +98,7 @@ export default function Orders() {
           <div className="ord__filter">
             <ArrowDownWideNarrow aria-hidden="true" />
             <label className="sr-only" htmlFor="orders-sort">
-              Ordenar por precio
+              {t('sort_price')}
             </label>
             <select
               id="orders-sort"
@@ -103,19 +106,19 @@ export default function Orders() {
               onChange={(event) => setPriceSort(event.target.value as 'asc' | 'desc' | '')}
               className="x-select"
             >
-              <option value="">Ordenar por precio</option>
-              <option value="desc">Mayor a menor</option>
-              <option value="asc">Menor a mayor</option>
+              <option value="">{t('sort_price')}</option>
+              <option value="desc">{t('sort_desc')}</option>
+              <option value="asc">{t('sort_asc')}</option>
             </select>
           </div>
           <button
             type="button"
             onClick={refresh}
             className="x-btn ord__refresh"
-            title="Actualizar pedidos"
+            title={t('refresh')}
           >
             <RefreshCw aria-hidden="true" className="w-3.5 h-3.5" />
-            Actualizar
+            {t('refresh')}
           </button>
         </div>
       </header>
@@ -123,11 +126,11 @@ export default function Orders() {
       {!loading && visibleOrders.length > 0 && (
         <div className="ord__toolbar">
           <span className="ord__count">
-            {visibleOrders.length} pedido(s) {status ? 'con el filtro activo' : 'en total'}
+            {t('count', { count: visibleOrders.length, suffix: status ? t('count_filtered') : t('count_total') })}
           </span>
           <span className="ord__live">
             <span className="ord__live-dot" aria-hidden="true" />
-            Sincronización automática · 30 s
+            {t('auto_sync')}
           </span>
         </div>
       )}
@@ -137,7 +140,7 @@ export default function Orders() {
           <span>{error}</span>
           <button type="button" onClick={load} className="x-btn x-btn--sm">
             <RefreshCw aria-hidden="true" className="w-3 h-3" />
-            Reintentar
+            {t('retry')}
           </button>
         </div>
       )}
@@ -154,34 +157,34 @@ export default function Orders() {
             <Package className="w-6 h-6" aria-hidden="true" />
           </div>
           <h2 className="x-empty__title">
-            {status ? 'No hay pedidos con ese estado' : 'Todavía no hay pedidos'}
+            {status ? t('empty_filtered_title') : t('empty_title')}
           </h2>
           <p className="x-empty__text">
             {status
-              ? 'Prueba con otro estado o limpia el filtro.'
+              ? t('empty_filtered_text')
               : isSupplier
-              ? 'Cuando un restaurante te compre, el pedido aparecerá aquí automáticamente.'
+              ? t('empty_supplier')
               : isDriver
-              ? 'Cuando te asignen una entrega, la verás en tu ruta.'
-              : 'Explora el catálogo mayorista y crea tu primer pedido.'}
+              ? t('empty_driver')
+              : t('empty_restaurant')}
           </p>
           <div className="x-cluster" style={{ marginTop: 10 }}>
             {status ? (
               <button type="button" onClick={() => setStatus('')} className="x-btn x-btn--primary">
-                Ver todos
+                {t('view_all')}
               </button>
             ) : isDriver ? (
               <Link to="/repartidor" className="x-btn x-btn--primary">
                 <Compass aria-hidden="true" className="w-3.5 h-3.5" />
-                Ir a mi ruta
+                {t('go_route')}
               </Link>
             ) : isSupplier ? (
               <Link to="/" className="x-btn x-btn--primary">
-                Volver al panel
+                {t('back_panel')}
               </Link>
             ) : (
-              <Link to="/catalogo" className="x-btn x-btn--primary">
-                Explorar catálogo
+              <Link to={location.pathname.startsWith('/mercado') ? '/mercado/catalogo' : '/catalogo'} className="x-btn x-btn--primary">
+                {t('explore_catalog')}
               </Link>
             )}
           </div>
@@ -195,7 +198,7 @@ export default function Orders() {
       )}
 
       {!loading && visibleOrders.length > 0 && (
-        <p className="ord__hint">Los estados se actualizan solos mientras la pestaña esté abierta.</p>
+        <p className="ord__hint">{t('hint')}</p>
       )}
     </div>
   );

@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../../../shared/context/AuthContext';
+import { useLanguage } from '../../../shared/context/LanguageContext';
 import { IconDashboard, IconTeam, IconKey, IconDocument, IconSettings } from '../../../shared/ui/Icons';
 import { hasAdminAccess, canManageContent, canVerifyAccounts } from '../../../shared/utils/permissions';
 
@@ -13,9 +14,10 @@ function IconShield({ className }: { className?: string }) {
 
 export default function AdminLayout() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   
   if (!hasAdminAccess(user)) {
-    return <div className="p-8 text-center text-rose-500 font-bold">Acceso Denegado</div>;
+    return <div className="p-8 text-center text-rose-500 font-bold">{t('nav.access_denied')}</div>;
   }
 
   const canConfig = user?.role === 'admin' || !!user?.permissions?.includes('config');
@@ -25,20 +27,20 @@ export default function AdminLayout() {
   const navItems = [
     ...(canConfig
       ? [
-          { to: '/admin', label: 'Actividades de Usuarios', end: true, icon: IconDashboard },
-          { to: '/admin/usuarios', label: 'Usuarios', icon: IconTeam },
-          { to: '/admin/roles', label: 'Roles', icon: IconKey },
-          { to: '/admin/permisos', label: 'Permisos', icon: IconShield },
-          { to: '/admin/comercios', label: 'Comercios', icon: IconTeam },
+          { to: '/admin', label: t('nav.admin_activity'), end: true, icon: IconDashboard },
+          { to: '/admin/usuarios', label: t('nav.admin_users'), icon: IconTeam },
+          { to: '/admin/roles', label: t('nav.admin_roles'), icon: IconKey },
+          { to: '/admin/permisos', label: t('nav.admin_permissions'), icon: IconShield },
+          { to: '/admin/comercios', label: t('nav.admin_stores'), icon: IconTeam },
         ]
       : []),
     ...(canVerify
-      ? [{ to: '/admin/verificaciones', label: 'Verificaciones', icon: IconShield }]
+      ? [{ to: '/admin/verificaciones', label: t('nav.admin_verifications'), icon: IconShield }]
       : []),
     ...(canContent
-      ? [{ to: '/admin/contenido', label: 'Contenido', icon: IconDocument }]
+      ? [{ to: '/admin/contenido', label: t('nav.admin_content'), icon: IconDocument }]
       : []),
-    { to: '/admin/ajustes', label: 'Ajustes', icon: IconSettings },
+    { to: '/admin/ajustes', label: t('nav.admin_settings'), icon: IconSettings },
   ];
 
   return (
@@ -49,10 +51,10 @@ export default function AdminLayout() {
           <div className="x-shell-rail__head hidden md:block">
             <span className="x-shell-rail__glyph" />
             <h2 className="text-sm font-black uppercase tracking-wider text-slate-400 dark:text-slate-500">
-              {canConfig ? 'Administración' : canVerify ? 'Back office' : 'Contenido'}
+              {canConfig ? t('nav.admin_control') : canVerify ? t('nav.admin_backoffice') : t('nav.admin_content_panel')}
             </h2>
             <p className="text-xs text-slate-400 mt-1">
-              {canConfig ? 'Super Admin Panel' : canVerify ? 'Verificación de cuentas' : 'Edición de contenido'}
+              {canConfig ? t('nav.admin_panel') : canVerify ? t('nav.admin_verify_accounts') : t('nav.admin_content_edit')}
             </p>
           </div>
           

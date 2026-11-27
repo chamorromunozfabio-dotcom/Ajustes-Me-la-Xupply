@@ -1,11 +1,13 @@
 import { Link } from 'react-router-dom';
 import { CalendarDays, ChevronRight, Navigation, Package, Store } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Order } from '../../../shared/types';
 import { formatMoney, formatDate } from '../../../shared/utils/constants';
 import { orderStatusBadgeClass, orderStatusLabel } from '../presentation';
 import '../Orders.css';
 
 export default function OrderCard({ order, isSupplier }: { order: Order; isSupplier: boolean }) {
+  const { t } = useTranslation('orders');
   const statusClass = orderStatusBadgeClass(order.status);
   const PartyIcon = isSupplier ? Store : Package;
 
@@ -21,7 +23,7 @@ export default function OrderCard({ order, isSupplier }: { order: Order; isSuppl
       </span>
 
       <span className="ord-card__side">
-        <span className={`x-badge ${statusClass}`}>{orderStatusLabel(order.status)}</span>
+        <span className={`x-badge ${statusClass}`}>{orderStatusLabel(order.status, t)}</span>
         <span className="ord-card__total">{formatMoney(order.total)}</span>
       </span>
 

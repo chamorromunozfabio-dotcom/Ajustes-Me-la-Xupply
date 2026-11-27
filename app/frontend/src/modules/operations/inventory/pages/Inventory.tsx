@@ -86,7 +86,7 @@ export default function Inventory() {
         <h2 className="text-xl font-bold">Inventario</h2>
         <div className="flex items-center gap-2">
           <Link
-            to="/radar"
+            to="/gestion/radar"
             className="rounded border border-rose-300 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-100 transition"
           >
             📡 Radar de Stock

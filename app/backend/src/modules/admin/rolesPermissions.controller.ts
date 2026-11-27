@@ -56,7 +56,7 @@ export async function createRole(req: Request, res: Response, next: NextFunction
 }
 
 const SYSTEM_ROLE_NAMES = new Set([
-  'admin', 'gerente', 'empleado', 'proveedor_admin', 'domiciliario', 'verificador', 'tecnico',
+  'admin', 'gerente', 'proveedor_admin', 'domiciliario', 'verificador', 'tecnico',
 ]);
 
 export async function updateRole(req: Request, res: Response, next: NextFunction) {

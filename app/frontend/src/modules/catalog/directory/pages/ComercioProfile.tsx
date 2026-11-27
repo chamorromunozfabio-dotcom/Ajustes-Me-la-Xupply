@@ -1,11 +1,11 @@
 import { toast } from '../../../../shared/utils/feedback';
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { api } from '../../../../shared/api/client';
 import { Review } from '../../../../shared/types';
 import { useNotifications } from '../../../../shared/context/NotificationContext';
-import { IconStar, IconCheck } from '../../../../shared/ui/Icons';
-import { Link as LinkIcon, ArrowLeft } from 'lucide-react';
+import { IconStar } from '../../../../shared/ui/Icons';
+import { ArrowLeft } from 'lucide-react';
 import { formatDate } from '../../../../shared/utils/constants';
 
 export default function ComercioProfile() {
@@ -13,7 +13,6 @@ export default function ComercioProfile() {
   const { push } = useNotifications();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [linkedIds, setLinkedIds] = useState<number[]>([]);
   
   // Reviews state
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -24,12 +23,6 @@ export default function ComercioProfile() {
     fetchProfile();
     if (type === 'supplier') {
       fetchReviews();
-      const stored = localStorage.getItem('xupply_linked_suppliers');
-      if (stored) {
-        try {
-          setLinkedIds(JSON.parse(stored));
-        } catch (e) {}
-      }
     }
   }, [type, id]);
 
@@ -76,28 +69,11 @@ export default function ComercioProfile() {
     }
   };
 
-  const toggleLink = () => {
-    if (!id) return;
-    const supId = Number(id);
-    let newLinked;
-    if (linkedIds.includes(supId)) {
-      newLinked = linkedIds.filter(i => i !== supId);
-      push({ message: 'Proveedor desvinculado', at: new Date().toISOString() });
-    } else {
-      newLinked = [...linkedIds, supId];
-      push({ message: 'Proveedor vinculado. Ya puedes dejar una reseña.', at: new Date().toISOString() });
-    }
-    setLinkedIds(newLinked);
-    localStorage.setItem('xupply_linked_suppliers', JSON.stringify(newLinked));
-    window.dispatchEvent(new Event('xupply_linked_suppliers_changed'));
-  };
-
   if (loading) return <div className="p-8 text-center text-slate-500 font-medium">Cargando perfil del comercio...</div>;
   if (!data || !data.profile) return <div className="p-8 text-center text-rose-500 font-bold">Comercio no encontrado</div>;
 
   const { profile, catalog } = data;
   const isSupplier = type === 'supplier';
-  const isLinked = isSupplier && linkedIds.includes(Number(id));
   
   // Facebook style constants
   const defaultImage = profile.category === 'Carnes' 
@@ -144,18 +120,6 @@ export default function ComercioProfile() {
           </div>
           
           <div className="flex gap-2 z-10 pb-4">
-            {isSupplier && (
-              <button
-                onClick={toggleLink}
-                className={`flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-md ${
-                  isLinked 
-                    ? 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-emerald-500/20' 
-                    : 'bg-brand text-white hover:bg-sky-600 shadow-brand/20'
-                }`}
-              >
-                {isLinked ? <><IconCheck className="w-4 h-4" /> Vinculado</> : <><LinkIcon className="w-4 h-4" /> Vincular Proveedor</>}
-              </button>
-            )}
             <div className={`px-4 py-2.5 rounded-xl text-sm font-bold shadow-sm flex items-center ${profile.is_active ? 'bg-slate-100 text-emerald-600 dark:bg-slate-800' : 'bg-rose-50 text-rose-600 dark:bg-rose-900/20'}`}>
               {profile.is_active ? 'Activo' : 'Inactivo'}
             </div>
@@ -230,39 +194,31 @@ export default function ComercioProfile() {
                 </div>
               </div>
               
-              {isLinked ? (
-                <div className="p-6 bg-slate-50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800">
-                  <h4 className="font-bold text-sm text-slate-800 dark:text-slate-200 mb-4">Dejar una reseña</h4>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm font-bold text-slate-500 dark:text-slate-400">Calificación:</span>
-                      <select value={rating} onChange={(e) => setRating(Number(e.target.value))} className="flex-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm font-bold outline-none focus:border-brand">
-                        <option value="5">5 - Excelente</option>
-                        <option value="4">4 - Muy bueno</option>
-                        <option value="3">3 - Regular</option>
-                        <option value="2">2 - Malo</option>
-                        <option value="1">1 - Pésimo</option>
-                      </select>
-                    </div>
-                    <textarea
-                      placeholder="Comparte tu experiencia con este proveedor..."
-                      value={comment}
-                      onChange={(e) => setComment(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 text-sm outline-none focus:border-brand focus:ring-1 focus:ring-brand resize-none"
-                      rows={3}
-                    />
-                    <button onClick={submitReview} className="w-full rounded-xl bg-brand py-3 text-sm font-bold text-white hover:bg-sky-600 transition shadow-lg shadow-brand/20">
-                      Publicar Reseña
-                    </button>
+              <div className="p-6 bg-slate-50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800">
+                <h4 className="font-bold text-sm text-slate-800 dark:text-slate-200 mb-4">Dejar una reseña</h4>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-bold text-slate-500 dark:text-slate-400">Calificación:</span>
+                    <select value={rating} onChange={(e) => setRating(Number(e.target.value))} className="flex-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm font-bold outline-none focus:border-brand">
+                      <option value="5">5 - Excelente</option>
+                      <option value="4">4 - Muy bueno</option>
+                      <option value="3">3 - Regular</option>
+                      <option value="2">2 - Malo</option>
+                      <option value="1">1 - Pésimo</option>
+                    </select>
                   </div>
+                  <textarea
+                    placeholder="Comparte tu experiencia con este proveedor..."
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 text-sm outline-none focus:border-brand focus:ring-1 focus:ring-brand resize-none"
+                    rows={3}
+                  />
+                  <button onClick={submitReview} className="w-full rounded-xl bg-brand py-3 text-sm font-bold text-white hover:bg-sky-600 transition shadow-lg shadow-brand/20">
+                    Publicar Reseña
+                  </button>
                 </div>
-              ) : (
-                <div className="p-6 bg-amber-50 dark:bg-amber-900/10 border-t border-amber-100 dark:border-amber-900/30 text-center">
-                  <p className="text-sm font-bold text-amber-700 dark:text-amber-500">
-                    Debes vincular a este proveedor para poder dejar una reseña.
-                  </p>
-                </div>
-              )}
+              </div>
             </div>
           )}
         </div>

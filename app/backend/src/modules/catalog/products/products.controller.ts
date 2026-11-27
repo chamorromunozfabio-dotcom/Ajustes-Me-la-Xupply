@@ -96,7 +96,7 @@ export async function update(req: Request, res: Response, next: NextFunction) {
 
     // Default-deny: solo el proveedor dueño del producto (o un admin) puede
     // modificarlo. Antes, si `user.supplier_id` era null (cualquier gerente,
-    // empleado o domiciliario), la comprobación se saltaba y se podía cambiar
+    // domiciliario u otro rol sin inquilino), la comprobación se saltaba y se podía cambiar
     // el precio/stock de productos de CUALQUIER proveedor.
     const isOwner =
       user.role === 'admin' ||

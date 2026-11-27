@@ -165,7 +165,7 @@ export async function byId(req: Request, res: Response, next: NextFunction) {
     // restaurante: los usuarios del restaurante NO deben verlo por API
     // (podrían auto-confirmar sin la presencia del conductor).
     const isRestaurantUser =
-      user.role === 'gerente' || user.role === 'empleado' || (user.restaurant_id !== null && user.role !== 'admin');
+      user.role === 'gerente' || (user.restaurant_id !== null && user.role !== 'admin');
     if (isRestaurantUser) {
       deliveriesList = deliveriesList.map((d: any) => {
         const { confirmation_code, ...rest } = d;
@@ -186,12 +186,7 @@ export async function updateStatus(req: Request, res: Response, next: NextFuncti
     const current = await findOrder(req.params.id);
     if (!current.rowCount) return res.status(404).json({ error: 'Pedido no encontrado' });
     const order = current.rows[0];
-    if (user.role === 'empleado') {
-      const allowedForEmpleado = ['nuevo'];
-      if (!allowedForEmpleado.includes(order.status) || !['cancelado'].includes(status)) {
-        return res.status(403).json({ error: 'El empleado solo puede cancelar pedidos nuevos' });
-      }
-    }
+
     if (user.supplier_id && order.supplier_id !== user.supplier_id) {
       return res.status(403).json({ error: 'No autorizado' });
     }

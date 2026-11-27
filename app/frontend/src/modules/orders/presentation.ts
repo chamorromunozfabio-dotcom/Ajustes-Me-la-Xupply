@@ -4,7 +4,8 @@ import { ORDER_STATUS } from '../../shared/utils/constants';
  * Presentación del módulo de pedidos. Las etiquetas siguen viniendo de
  * ORDER_STATUS: aquí solo se decide el color del badge, nunca el estado.
  */
-export function orderStatusLabel(status: string): string {
+export function orderStatusLabel(status: string, t?: (...args: any[]) => any): string {
+  if (t) return t(`status.${status}`, { defaultValue: ORDER_STATUS[status]?.label ?? status });
   return ORDER_STATUS[status]?.label ?? status;
 }
 

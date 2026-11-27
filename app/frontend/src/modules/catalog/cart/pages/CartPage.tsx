@@ -2,6 +2,7 @@ import { toast } from '../../../../shared/utils/feedback';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, MapPin, Minus, Plus, Settings2, ShoppingBasket, Store, Trash2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useCart } from '../../../../shared/context/CartContext';
 import { useNotifications } from '../../../../shared/context/NotificationContext';
 import { api } from '../../../../shared/api/client';
@@ -14,6 +15,7 @@ export default function CartPage() {
   const { items, setQuantity, remove, total, clear } = useCart();
   const { push } = useNotifications();
   const navigate = useNavigate();
+  const { t } = useTranslation('cart');
   const [notes, setNotes] = useState('');
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -51,7 +53,7 @@ export default function CartPage() {
         });
         if (!order.id) throw new Error('No se pudo crear el pedido');
       }
-      push({ message: `Pedido creado para ${groupBySupplier().length} proveedor(es)`, at: new Date().toISOString() });
+      push({ message: t('created', { count: groupBySupplier().length }), at: new Date().toISOString() });
       clear();
       navigate('/pedidos');
     } catch (err) {
@@ -66,10 +68,10 @@ export default function CartPage() {
       <div className="cart x-page">
         <div className="x-empty">
           <div className="x-empty__icon"><ShoppingBasket aria-hidden="true" className="w-6 h-6" /></div>
-          <p className="x-empty__title">Tu carrito está vacío</p>
-          <p className="x-empty__text">Agrega insumos desde el catálogo para comenzar tu pedido.</p>
+          <p className="x-empty__title">{t('empty_title')}</p>
+          <p className="x-empty__text">{t('empty_text')}</p>
           <button type="button" onClick={() => navigate('/catalogo')} className="x-btn x-btn--primary">
-            Ir al catálogo
+            {t('go_catalog')}
           </button>
         </div>
       </div>
@@ -80,15 +82,15 @@ export default function CartPage() {
     <div className="cart x-page">
       <header className="cat__hero">
         <div>
-          <p className="cat__eyebrow">Comercio · Carrito</p>
-          <h1 className="cat__title">Tu carrito</h1>
+          <p className="cat__eyebrow">{t('eyebrow')}</p>
+          <h1 className="cat__title">{t('title')}</h1>
           <p className="cat__subtitle">
-            {items.length} insumo(s) de {groupBySupplier().length} proveedor(es), listos para confirmar.
+            {t('subtitle', { items: items.length, suppliers: groupBySupplier().length })}
           </p>
         </div>
         <button type="button" onClick={() => navigate('/catalogo')} className="x-btn">
           <ArrowLeft aria-hidden="true" className="w-3.5 h-3.5" />
-          Seguir comprando
+          {t('continue')}
         </button>
       </header>
 
@@ -99,9 +101,9 @@ export default function CartPage() {
               <div className="x-card__head">
                 <h3 className="x-card__title">
                   <Store aria-hidden="true" className="cart__group-icon" />
-                  {list[0].product.supplier_name || 'Proveedor oficial'}
+                  {list[0].product.supplier_name || t('supplier_fallback')}
                 </h3>
-                <span className="x-badge">{list.length} ítem(s)</span>
+                <span className="x-badge">{t('items_count', { count: list.length })}</span>
               </div>
               <div className="cart__items">
                 {list.map((i) => (
@@ -125,7 +127,7 @@ export default function CartPage() {
                       <div className="cart__stepper">
                         <button
                           type="button"
-                          aria-label="Disminuir cantidad"
+                          aria-label={t('decrease_qty')}
                           onClick={() => setQuantity(i.product.id, i.quantity - 1)}
                           className="cat__step-btn"
                         >
@@ -133,7 +135,7 @@ export default function CartPage() {
                         </button>
                         <input
                           type="number"
-                          aria-label={`Cantidad de ${i.product.name}`}
+                          aria-label={t('qty_aria', { name: i.product.name })}
                           min={1}
                           value={i.quantity}
                           onChange={(e) => setQuantity(i.product.id, Math.max(1, Number(e.target.value)))}
@@ -141,7 +143,7 @@ export default function CartPage() {
                         />
                         <button
                           type="button"
-                          aria-label="Aumentar cantidad"
+                          aria-label={t('increase_qty')}
                           onClick={() => setQuantity(i.product.id, i.quantity + 1)}
                           className="cat__step-btn"
                         >
@@ -153,7 +155,7 @@ export default function CartPage() {
                         type="button"
                         onClick={() => remove(i.product.id)}
                         className="cart__remove"
-                        title="Eliminar producto"
+                        title={t('remove')}
                       >
                         <Trash2 aria-hidden="true" className="w-4 h-4" />
                       </button>
@@ -167,35 +169,35 @@ export default function CartPage() {
 
         <aside className="cart__summary x-card">
           <div className="x-card__head">
-            <h2 className="x-card__title">Resumen del pedido</h2>
+            <h2 className="x-card__title">{t('summary')}</h2>
           </div>
           <div className="cart__summary-body">
             <div className="cart__total">
-              <span>Total estimado</span>
+              <span>{t('total')}</span>
               <strong>{formatMoney(total)}</strong>
             </div>
-            <p className="cart__hint">El flete se coordina con el proveedor al confirmar.</p>
+            <p className="cart__hint">{t('hint')}</p>
 
             <div>
               <label className="x-label" htmlFor="cart-address">
                 <MapPin aria-hidden="true" className="cart__label-icon" />
-                Dirección de entrega
+                {t('address')}
               </label>
               <input
                 id="cart-address"
                 value={deliveryAddress}
                 onChange={(e) => setDeliveryAddress(e.target.value)}
-                placeholder="Carrera 27 # 45-12, Bucaramanga"
+                placeholder={t('address_placeholder')}
                 className="x-input"
               />
             </div>
             <div>
-              <label className="x-label" htmlFor="cart-notes">Notas para el pedido</label>
+              <label className="x-label" htmlFor="cart-notes">{t('notes')}</label>
               <textarea
                 id="cart-notes"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Instrucciones especiales de entrega"
+                placeholder={t('notes_placeholder')}
                 className="x-textarea"
                 rows={2}
               />
@@ -206,7 +208,7 @@ export default function CartPage() {
               disabled={submitting}
               className="x-btn x-btn--primary x-btn--block cat__submit"
             >
-              {submitting ? 'Creando pedido...' : 'Crear pedido'}
+              {submitting ? t('creating') : t('create')}
             </button>
           </div>
         </aside>

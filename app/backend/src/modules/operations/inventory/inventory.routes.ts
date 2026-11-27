@@ -8,8 +8,8 @@ router.use(authRequired);
 router.get('/', list);
 router.get('/alerts', alerts);
 router.get('/predictions', predictions);
-router.post('/', roleRequired('gerente', 'empleado', 'admin'), create);
-router.put('/:id', roleRequired('gerente', 'empleado', 'admin'), update);
-router.post('/:id/movements', roleRequired('gerente', 'empleado', 'admin'), addMovement);
+router.post('/', roleRequired('gerente', 'admin'), create);
+router.put('/:id', roleRequired('gerente', 'admin'), update);
+router.post('/:id/movements', roleRequired('gerente', 'admin'), addMovement);
 
 export default router;

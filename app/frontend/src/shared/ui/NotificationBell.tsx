@@ -65,7 +65,7 @@ export default function NotificationBell() {
                 onClick={clear}
                 className="text-xs font-semibold text-sky-600 hover:text-sky-800 dark:text-sky-400 cursor-pointer"
               >
-                Limpiar todo
+                {t('notifications.clear')}
               </button>
             )}
           </div>
@@ -74,7 +74,7 @@ export default function NotificationBell() {
             {items.length === 0 ? (
               <div className="py-8 text-center text-xs text-slate-400">
                 <IconEmpty className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
-                No tienes notificaciones pendientes.
+                {t('notifications.empty')}
               </div>
             ) : (
               items.map((n, i) => (
@@ -92,7 +92,7 @@ export default function NotificationBell() {
                     type="button"
                     onClick={() => dismiss(i)}
                     className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition p-1"
-                    title="Descartar"
+                    title={t('notifications.dismiss')}
                   >
                     ×
                   </button>

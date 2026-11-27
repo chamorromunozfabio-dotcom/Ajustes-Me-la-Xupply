@@ -21,7 +21,7 @@ export async function chat(req: Request, res: Response) {
 5. El gerente ingresa la llave en su pantalla y pulsa *"Completar Envío con Llave"*, confirmando la entrega en tiempo real para ambas partes.`;
   }
   // 2. Preguntas sobre Jerarquía y Equipo (Gerente-Empleado, Proveedor-Domiciliario)
-  else if (q.includes('equipo') || q.includes('empleado') || q.includes('domiciliario') || q.includes('jefe') || q.includes('jerarquia') || q.includes('jerarquía')) {
+  else if (q.includes('equipo') || q.includes('domiciliario') || q.includes('jefe') || q.includes('jerarquia') || q.includes('jerarquía')) {
     reply = `👥 **Estructura Jerárquica en Xupply:**
 - **Gerente de Restaurante:** Es el líder de operaciones gastronómicas. En el módulo **Equipo**, solo visualiza y gestiona a sus **Empleados Operativos** asignados a su restaurante.
 - **Proveedor:** Es el líder logístico de distribución. En el módulo **Equipo**, solo visualiza y gestiona a su flota de **Domiciliarios / Conductores** con sus vehículos (moto, furgón o camión) y placas.

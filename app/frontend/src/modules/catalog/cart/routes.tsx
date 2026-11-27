@@ -4,5 +4,5 @@ import { RolesAllowed } from '../../../shared/routing/guards';
 const CartPage = lazy(() => import('./pages/CartPage'));
 
 export const cartRoutes: React.ReactElement[] = [
-  <Route key="cart" path="/carrito" element={<RolesAllowed roles={['gerente', 'empleado']}><CartPage /></RolesAllowed>} />,
+  <Route key="cart" path="/carrito" element={<RolesAllowed roles={['gerente']}><CartPage /></RolesAllowed>} />,
 ];

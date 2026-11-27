@@ -1,47 +1,23 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { api } from '../../../../shared/api/client';
 import { Supplier } from '../../../../shared/types';
 import RecommendedSuppliersGallery from '../../../../shared/ui/RecommendedSuppliersGallery';
-import { IconStar, IconCheck } from '../../../../shared/ui/Icons';
-import { Link as LinkIcon } from 'lucide-react';
-import { useNotifications } from '../../../../shared/context/NotificationContext';
+import { IconStar } from '../../../../shared/ui/Icons';
 
 export default function Suppliers() {
-  const { push } = useNotifications();
+  const { t } = useTranslation('directory');
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
-  const [linkedIds, setLinkedIds] = useState<number[]>([]);
 
   const load = () => api<Supplier[]>('/suppliers').then(setSuppliers).catch(console.error);
 
   useEffect(() => {
     load();
-    const stored = localStorage.getItem('xupply_linked_suppliers');
-    if (stored) {
-      try {
-        setLinkedIds(JSON.parse(stored));
-      } catch (e) {}
-    }
   }, []);
 
-  const toggleLink = (e: React.MouseEvent, id: number) => {
-    e.preventDefault();
-    e.stopPropagation();
-    let newLinked;
-    if (linkedIds.includes(id)) {
-      newLinked = linkedIds.filter(i => i !== id);
-      push({ message: 'Proveedor desvinculado de tu catálogo', at: new Date().toISOString() });
-    } else {
-      newLinked = [...linkedIds, id];
-      push({ message: 'Proveedor vinculado. Sus productos ya aparecen en tu mercado.', at: new Date().toISOString() });
-    }
-    setLinkedIds(newLinked);
-    localStorage.setItem('xupply_linked_suppliers', JSON.stringify(newLinked));
-    window.dispatchEvent(new Event('xupply_linked_suppliers_changed'));
-  };
-
   const groupedSuppliers = suppliers.reduce((acc, s) => {
-    const cat = s.category || 'General';
+    const cat = s.category || t('general');
     if (!acc[cat]) acc[cat] = [];
     acc[cat].push(s);
     return acc;
@@ -52,7 +28,7 @@ export default function Suppliers() {
       <RecommendedSuppliersGallery />
 
       <div>
-        <h2 className="mb-6 text-2xl font-extrabold text-slate-800 dark:text-slate-100">Directorio de Proveedores por Categoría</h2>
+        <h2 className="mb-6 text-2xl font-extrabold text-slate-800 dark:text-slate-100">{t('directory_title')}</h2>
         
         {Object.entries(groupedSuppliers).map(([category, items]) => (
           <div key={category} className="mb-10">
@@ -61,7 +37,6 @@ export default function Suppliers() {
             </h3>
             <div className="flex flex-col gap-5">
               {items.map((s) => {
-                const isLinked = linkedIds.includes(s.id);
                 // Fallback realistic images for horizontal banners based on category
                 const defaultImage = category === 'Carnes' 
                   ? 'https://images.unsplash.com/photo-1603048297172-c92544798d5e?auto=format&fit=crop&q=80&w=1200'
@@ -75,7 +50,7 @@ export default function Suppliers() {
                   <Link 
                     to={`/comercio/supplier/${s.id}`} 
                     key={s.id} 
-                    className={`relative w-full h-48 sm:h-56 md:h-64 rounded-3xl overflow-hidden group border ${isLinked ? 'border-emerald-500 shadow-emerald-500/20 shadow-xl' : 'border-slate-200 dark:border-slate-800 shadow-md hover:shadow-xl'}`}
+                    className="relative w-full h-48 sm:h-56 md:h-64 rounded-3xl overflow-hidden group border border-slate-200 dark:border-slate-800 shadow-md hover:shadow-xl"
                   >
                     <img src={coverImage} alt={s.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                     
@@ -92,24 +67,13 @@ export default function Suppliers() {
                             {Number(s.rating).toFixed(1)}/5
                           </span>
                           <h3 className="text-2xl sm:text-3xl font-black text-white leading-tight drop-shadow-md mb-2">{s.name}</h3>
-                          <p className="text-slate-300 font-medium line-clamp-1">{s.description || 'Proveedor de insumos para el sector gastronómico.'}</p>
-                          <p className="text-sm text-slate-400 mt-1">{s.city ?? 'Bucaramanga, Santander'}</p>
+                          <p className="text-slate-300 font-medium line-clamp-1">{s.description || t('default_desc')}</p>
+                          <p className="text-sm text-slate-400 mt-1">{s.city ?? t('city_fallback')}</p>
                         </div>
                         
                         <div className="flex gap-3 shrink-0">
-                          <button
-                            onClick={(e) => toggleLink(e, s.id)}
-                            className={`flex items-center justify-center gap-2 px-5 py-3 rounded-xl font-bold transition-all backdrop-blur-md ${
-                              isLinked 
-                                ? 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-lg shadow-emerald-500/30' 
-                                : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'
-                            }`}
-                            title={isLinked ? 'Desvincular' : 'Vincular'}
-                          >
-                            {isLinked ? <><IconCheck className="w-4 h-4" /> Vinculado</> : <><LinkIcon className="w-4 h-4" /> Vincular</>}
-                          </button>
                           <div className="flex items-center justify-center px-6 py-3 bg-brand hover:bg-sky-500 text-white rounded-xl font-bold transition-colors">
-                            Ver Perfil
+                            {t('view_profile')}
                           </div>
                         </div>
                       </div>

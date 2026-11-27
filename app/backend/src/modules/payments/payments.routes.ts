@@ -30,7 +30,7 @@ paymentsRouter.get('/config', getConfig);
  */
 paymentsRouter.post(
   '/checkout/order/:id',
-  roleRequired('gerente', 'empleado', 'admin'),
+  roleRequired('gerente', 'admin'),
   checkoutOrder
 );
 

@@ -24,10 +24,8 @@ export async function list(req: Request, res: Response, next: NextFunction) {
       // Proveedor es jefe del domiciliario: solo ve domiciliarios de su empresa
       sql += ` AND r.name = 'domiciliario' AND u.supplier_id = $${params.length}`;
     } else if (user.role === 'gerente') {
-      if (!user.restaurant_id) return res.status(403).json({ error: 'No autorizado' });
-      params.push(user.restaurant_id);
-      // Gerente es jefe del empleado: solo ve empleados operativos de su restaurante
-      sql += ` AND r.name = 'empleado' AND u.restaurant_id = $${params.length}`;
+      // Restaurante no gestiona empleados internos en esta versión.
+      return res.json([]);
     } else if (user.role !== 'admin') {
       return res.status(403).json({ error: 'No autorizado' });
     }
@@ -56,8 +54,8 @@ export async function create(req: Request, res: Response, next: NextFunction) {
     const allowedRoles = user.role === 'proveedor_admin'
       ? ['domiciliario']
       : user.role === 'gerente'
-        ? ['empleado']
-        : ['admin', 'gerente', 'empleado', 'proveedor_admin', 'domiciliario', 'verificador'];
+        ? []
+        : ['admin', 'gerente', 'proveedor_admin', 'domiciliario', 'verificador'];
 
     const roleRow = await getRoleName(numericRoleId);
     const roleName = roleRow.rows[0]?.name;
@@ -97,7 +95,7 @@ export async function create(req: Request, res: Response, next: NextFunction) {
       supplierId = req.body.supplier_id;
     }
 
-    // Invariante rol/tenant: gerente|empleado requieren restaurante; proveedor_admin|domiciliario
+    // Invariante rol/tenant: gerente requiere restaurante; proveedor_admin|domiciliario
     // requieren proveedor; admin y verificador son de plataforma. El inquilino se
     // deduce del rol antes de validar para no arrastrar valores de otra selección.
     const normalized = normalizeTenantIdsForRole(roleName, {
@@ -139,7 +137,7 @@ export async function update(req: Request, res: Response, next: NextFunction) {
     if (numericRoleId && numericRoleId !== targetUser.role_id) {
       const roleRow = await getRoleName(numericRoleId);
       roleName = roleRow.rows[0]?.name;
-      const allowedRoles = user.role === 'proveedor_admin' ? ['domiciliario'] : user.role === 'gerente' ? ['empleado'] : ['admin', 'gerente', 'empleado', 'proveedor_admin', 'domiciliario', 'verificador'];
+      const allowedRoles = user.role === 'proveedor_admin' ? ['domiciliario'] : user.role === 'gerente' ? [] : ['admin', 'gerente', 'proveedor_admin', 'domiciliario', 'verificador'];
       if (!roleName || !allowedRoles.includes(roleName)) {
         return res.status(403).json({ error: 'No puedes asignar ese rol' });
       }

@@ -111,6 +111,12 @@
   min-height: 62px !important;
   padding-top: 8px !important;
   padding-bottom: 8px !important;
+  gap: 12px;
+}
+
+.x-shell-actions {
+  margin-left: auto;
+  padding-right: 2px;
 }
 
 .x-shell-brand {
@@ -212,18 +218,21 @@
 .x-shell-header .x-shell-logout {
   background: rgba(244, 63, 94, 0.85) !important;
   border-color: rgba(255, 255, 255, 0.28) !important;
+  margin-left: 2px;
 }
 
 .x-shell-header .x-shell-user-chip {
   background: rgba(2, 6, 23, 0.2) !important;
   border: 1px solid rgba(255, 255, 255, 0.16) !important;
   border-radius: 13px !important;
-  padding: 5px 11px !important;
+  padding: 6px 12px !important;
   backdrop-filter: blur(10px);
+  min-width: 0;
 }
 
 .x-shell-header .x-shell-user-chip p {
   color: var(--shell-header-text) !important;
+  margin: 0;
 }
 
 .x-shell-header .x-shell-menu-btn {
@@ -468,14 +477,13 @@
 
 @media (min-width: 640px) and (max-width: 1023px) {
   .x-shell-header .x-shell-user-chip {
-    display: none !important;
+    max-width: 170px;
   }
 }
 
 @media (min-width: 1024px) and (max-width: 1279px) {
-  .x-shell-header .x-shell-user-chip,
-  .x-shell-header .x-shell-logout {
-    display: none !important;
+  .x-shell-header .x-shell-user-chip {
+    max-width: 190px;
   }
 }
 

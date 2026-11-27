@@ -6,6 +6,6 @@ const router = Router();
 router.use(authRequired);
 
 router.get('/', list);
-router.post('/', roleRequired('gerente', 'empleado', 'admin'), create);
+router.post('/', roleRequired('gerente', 'admin'), create);
 
 export default router;

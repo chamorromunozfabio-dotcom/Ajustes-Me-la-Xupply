@@ -10,9 +10,7 @@ export async function checkUserScope(reqUser: any, targetId: string | number, is
       return { status: 403, error: 'Solo puedes gestionar domiciliarios de tu empresa' };
     }
   } else if (reqUser.role === 'gerente') {
-    if (targetUser.role_name !== 'empleado' || targetUser.restaurant_id !== reqUser.restaurant_id) {
-      return { status: 403, error: 'Solo puedes gestionar empleados de tu restaurante' };
-    }
+    return { status: 403, error: 'La gestión de empleados de restaurante no está habilitada en esta versión' };
   } else if (reqUser.role === 'admin') {
     if (isDeactivate && targetUser.role_name === 'admin') {
       if (targetUser.id === reqUser.id) return { status: 400, error: 'No puedes desactivarte a ti mismo' };

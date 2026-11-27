@@ -11,9 +11,7 @@ import TeamUserFormModal from '../components/TeamUserFormModal';
 import MobileUserCards from '../components/MobileUserCards';
 import DesktopUserTable from '../components/DesktopUserTable';
 
-const RESTAURANT_ROLES: TeamRoleOption[] = [
-  { id: 3, name: 'empleado', label: 'Empleado Operativo' },
-];
+const RESTAURANT_ROLES: TeamRoleOption[] = [];
 
 const SUPPLIER_ROLES: TeamRoleOption[] = [
   { id: 5, name: 'domiciliario', label: 'Domiciliario / Conductor de Entregas' },
@@ -27,7 +25,7 @@ export default function TeamManagement() {
   const [editingUser, setEditingUser] = useState<TeamUser | null>(null);
 
   const isSupplier = user?.role === 'proveedor_admin';
-  const defaultRoleId = isSupplier ? 5 : 3;
+  const defaultRoleId = isSupplier ? 5 : 0;
 
   const [form, setForm] = useState<TeamFormState>({
     username: '',

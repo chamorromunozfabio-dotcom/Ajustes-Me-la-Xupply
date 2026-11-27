@@ -4,6 +4,7 @@ import { isCapacitorNative } from '../../../shared/api/client';
 import { DashboardPage } from '../../operations/dashboard/routes';
 import { LandingPage } from '../landing/routes';
 import NotFound from './pages/NotFound';
+import RestaurantLayout from '../../../shared/ui/RestaurantLayout';
 
 function RootRoute() {
   const { user, loading } = useAuth();
@@ -13,6 +14,7 @@ function RootRoute() {
     if (user.role === 'verificador') return <Navigate to="/admin/verificaciones" replace />;
     if (user.role === 'tecnico') return <Navigate to="/admin/contenido" replace />;
     if (user.role === 'domiciliario') return <Navigate to="/repartidor" replace />;
+    if (user.role === 'gerente') return <RestaurantLayout><DashboardPage /></RestaurantLayout>;
     return <DashboardPage />;
   }
   if (isCapacitorNative()) return <Navigate to="/login" replace />;

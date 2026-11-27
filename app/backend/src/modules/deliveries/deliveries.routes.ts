@@ -18,7 +18,7 @@ router.get('/:id', byId);
 router.post('/', roleRequired('proveedor_admin', 'admin', 'gerente'), create);
 router.patch('/:id/assign', roleRequired('proveedor_admin', 'admin', 'gerente'), assign);
 router.patch('/:id/status', updateStatus);
-router.post('/:id/confirm', roleRequired('gerente', 'empleado', 'admin'), confirm);
+router.post('/:id/confirm', roleRequired('gerente', 'admin'), confirm);
 router.patch('/:id/position', updatePosition);
 // Seguimiento completo: posición actual + ETA + polilínea del recorrido
 router.get('/:id/track', track);

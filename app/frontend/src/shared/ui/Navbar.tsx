@@ -2,11 +2,10 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useShellContent } from '../context/ShellContext';
 import { shellLabel } from '../lib/shellContent';
-import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
-import { hasAdminAccess } from '../utils/permissions';
 import NotificationBell from './NotificationBell';
-import { IconLogout, IconSettings } from './Icons';
+import { IconCart, IconLogout } from './Icons';
+import { useCart } from '../context/CartContext';
 import Logo from './Logo';
 
 export default function Navbar() {
@@ -14,7 +13,6 @@ export default function Navbar() {
   const shell = useShellContent();
   const label = (key: keyof typeof shell.labels, fallback: string) =>
     shellLabel(shell, key, fallback);
-  const { count, openCart } = useCart();
   const { t } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
@@ -28,6 +26,8 @@ export default function Navbar() {
   const isDomiciliario = user?.role === 'domiciliario';
   const isAdmin = user?.role === 'admin';
   const isVerifier = user?.role === 'verificador';
+  const isGerente = user?.role === 'gerente';
+  const { count: cartCount } = useCart();
 
   const brandName = tenant && tenant.name && tenant.type !== 'platform'
     ? `${tenant.name} · ${shell.brand.productName}`
@@ -87,7 +87,7 @@ export default function Navbar() {
           {/* Accesos Rápidos Principales (Desktop) */}
           {/* El back office (admin/verificador/tecnico) se maneja solo desde
               el rail lateral de AdminLayout; no duplicamos sus enlaces aquí. */}
-          {shell.visibility.showTopNav && !isAdmin && !isVerifier ? (
+          {shell.visibility.showTopNav && !isAdmin && !isVerifier && user?.role !== 'gerente' ? (
             <nav className="x-shell-nav hidden sm:flex items-center gap-1.5 bg-black/15 p-1 rounded-2xl border border-white/10 backdrop-blur-md">
             <Link to="/" className={linkClass('/')}>
               <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -140,71 +140,48 @@ export default function Navbar() {
           </nav>
           ) : null}
 
-          {/* Acciones del Lado Derecho: Carrito, Campanita, Menú Hamburguesa */}
-          <div className="flex items-center gap-2">
-            {/* Carrito Flotante (Restaurantes) */}
-            {shell.visibility.showCart && !isSupplier && !isDomiciliario && !isAdmin && !isVerifier && (
-              <button
-                type="button"
-                onClick={openCart}
-                className="x-shell-action x-shell-cart-btn flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/15 hover:bg-white/25 active:scale-95 text-white transition text-xs font-bold border border-white/15 cursor-pointer"
-                title={label('cart', 'Abrir Carrito')}
+          {/* Acciones del Lado Derecho */}
+          <div className="x-shell-actions flex items-center gap-2 sm:gap-2.5 ml-auto">
+            {isGerente && (
+              <Link
+                to="/mercado/carrito"
+                className="x-shell-icon-btn relative shrink-0 flex items-center justify-center h-9 w-9 rounded-xl bg-white/10 hover:bg-white/20 active:scale-95 text-white transition border border-white/15 cursor-pointer"
+                title={t('nav.cart')}
+                aria-label={t('nav.cart')}
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                </svg>
-                <span className="hidden sm:inline">{label('cart', t('nav.cart_btn'))}</span>
-                {count > 0 && (
-                  <span className="rounded-full bg-rose-500 px-1.5 py-0.2 text-[10px] font-black text-white shadow-xs">
-                    {count}
+                <IconCart className="w-4 h-4" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-amber-400 text-slate-900 text-[10px] font-black leading-none flex items-center justify-center border border-white/70">
+                    {cartCount > 99 ? '99+' : cartCount}
                   </span>
                 )}
-              </button>
+              </Link>
             )}
 
-            {/* Campanita de Notificaciones */}
             {shell.visibility.showNotifications ? (
               <span className="x-shell-bell-slot"><NotificationBell /></span>
             ) : null}
 
-            {/* Perfil de Usuario */}
             {shell.visibility.showUserChip ? (
-            <div className="x-shell-user-chip hidden md:flex items-center gap-2 bg-black/20 px-3 py-1.5 rounded-xl border border-white/10">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-              <div className="text-right">
-                <p className="text-xs font-bold leading-tight truncate max-w-[120px] text-white">
-                  {user?.name || user?.username}
-                </p>
-                <p className="text-[10px] text-white/75 capitalize leading-tight">
-                  {user?.role?.replace('_', ' ')}
-                </p>
+              <div className="x-shell-user-chip hidden sm:flex items-center gap-2.5 bg-black/20 px-3 py-1.5 rounded-xl border border-white/10 max-w-[220px]">
+                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                <div className="min-w-0 text-right leading-tight">
+                  <p className="text-[11px] font-bold truncate text-white">
+                    {user?.name || user?.username}
+                  </p>
+                  <p className="text-[10px] text-white/70 capitalize truncate">
+                    {user?.role?.replace('_', ' ')}
+                  </p>
+                </div>
               </div>
-            </div>
             ) : null}
 
-
-            {!hasAdminAccess(user) && (
-              <Link
-                to="/ajustes"
-                className={`x-shell-menu-btn flex items-center gap-2 rounded-2xl active:scale-95 px-3.5 py-2 text-xs font-black shadow-md transition cursor-pointer border ${
-                  isActive('/ajustes')
-                    ? 'bg-white text-brand border-white/80'
-                    : 'bg-white text-slate-900 hover:bg-slate-100 border-white/20'
-                }`}
-                title="Ajustes"
-                aria-label="Ajustes"
-              >
-                <IconSettings className="w-4 h-4 text-brand" />
-                <span>{t('nav.menu')}</span>
-              </Link>
-            )}
-
-            {/* Salida Rápida */}
             {shell.visibility.showLogout ? (
               <button
                 onClick={handleLogout}
-                className="x-shell-icon-btn x-shell-logout hidden lg:flex shrink-0 items-center justify-center h-9 w-9 rounded-xl bg-rose-500/80 hover:bg-rose-600 active:scale-95 text-white transition border border-rose-400/50 cursor-pointer"
-                title={label('logout', 'Cerrar sesión')}
+                className="x-shell-icon-btn x-shell-logout shrink-0 flex items-center justify-center h-9 w-9 rounded-xl bg-rose-500/80 hover:bg-rose-600 active:scale-95 text-white transition border border-rose-400/50 cursor-pointer"
+                title={t('nav.logout')}
+                aria-label={t('nav.logout')}
               >
                 <IconLogout className="w-4 h-4" />
               </button>

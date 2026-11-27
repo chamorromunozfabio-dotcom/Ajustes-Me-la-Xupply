@@ -20,7 +20,7 @@ const GENERAL_QUESTIONS_ES = [
   '¿Cómo funciona la llave de entrega?',
   '¿Qué proveedores me convienen según mi cocina?',
   '¿Cómo calcular el food cost de una receta?',
-  '¿Cómo gestionar empleados y domiciliarios?',
+  '¿Cómo gestionar domiciliarios?',
 ];
 
 const GENERAL_QUESTIONS_EN = [

@@ -508,7 +508,6 @@ CREATE TRIGGER update_deliveries_updated_at BEFORE UPDATE ON deliveries FOR EACH
 INSERT INTO roles (name, display_name, description) VALUES
 ('admin', 'Administrador', 'Acceso total al sistema: configuracion, metricas, usuarios'),
 ('gerente', 'Gerente', 'Gestion de pedidos, reportes y facturacion'),
-('empleado', 'Empleado', 'Acceso operativo a inventario y comandas'),
 ('proveedor_admin', 'Proveedor Admin', 'Catalogo digital, recepcion de pedidos y despachos'),
 ('domiciliario', 'Domiciliario', 'Rutas asignadas, entregas y GPS');
 
@@ -648,7 +647,6 @@ INSERT INTO menu_products (restaurant_id, name, category, price) VALUES
 INSERT INTO users (username, password_hash, name, email, role_id, restaurant_id, branch_id) VALUES
 ('admin', '$2a$10$oeMFaVfquf/BWyFhkKmh.upF3lNucd/f8.jq4pajD5Sl10zCwwU.e', 'Super Administrador', 'admin@xupply.com', 1, NULL, NULL),
 ('gerente', '$2a$10$oeMFaVfquf/BWyFhkKmh.upF3lNucd/f8.jq4pajD5Sl10zCwwU.e', 'Laura Vargas', 'gerente@ranchogrande.com', 2, 1, 1),
-('empleado', '$2a$10$oeMFaVfquf/BWyFhkKmh.upF3lNucd/f8.jq4pajD5Sl10zCwwU.e', 'Miguel Torres', 'empleado@ranchogrande.com', 3, 1, 1),
 ('proveedor', '$2a$10$oeMFaVfquf/BWyFhkKmh.upF3lNucd/f8.jq4pajD5Sl10zCwwU.e', 'Pedro Mora', 'pedro@carneelpaisa.com', 4, NULL, NULL),
 ('domiciliario', '$2a$10$oeMFaVfquf/BWyFhkKmh.upF3lNucd/f8.jq4pajD5Sl10zCwwU.e', 'Jhon Diaz', 'jhon@carneelpaisa.com', 5, NULL, NULL);
 
