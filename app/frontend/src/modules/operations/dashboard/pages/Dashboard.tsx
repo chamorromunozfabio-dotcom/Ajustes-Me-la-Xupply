@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { ChevronRight, Info, Menu, RefreshCw } from 'lucide-react';
 import './Dashboard.css';
 import { api } from '../../../../shared/api/client';
@@ -277,7 +277,6 @@ export default function Dashboard() {
   const { user } = useAuth();
   const { add } = useCart();
   const { t, lang } = useLanguage();
-  const navigate = useNavigate();
   const [data, setData] = useState<DashboardData>(DEFAULT_DASHBOARD_DATA);
   const [fetchNotice, setFetchNotice] = useState(false);
 
@@ -395,14 +394,10 @@ return (
         </div>
 
         <div className="dash__actions">
-          <button
-            type="button"
-            onClick={() => window.dispatchEvent(new Event('xupply_open_drawer'))}
-            className="x-btn"
-          >
+          <Link to="/ajustes" className="x-btn">
             <Menu size={15} />
-            {t('nav.full_drawer')}
-          </button>
+            {lang === 'es' ? 'Ajustes' : 'Settings'}
+          </Link>
 
           {isAdmin ? (
             <Link to="/admin" className="x-btn x-btn--primary">
@@ -495,7 +490,7 @@ return (
                 <strong className="dash__kpi-value dash__kpi-value--text">Supervisión en Vivo</strong>
                 <div className="dash__kpi-foot">Movimientos y auditoría de cada usuario en tiempo real.</div>
                 <div className="dash__kpi-foot">
-                  <Link to="/admin/auditoria" className="dash__kpi-link">Ver auditoría completa →</Link>
+                  <Link to="/admin" className="dash__kpi-link">Ver auditoría completa →</Link>
                 </div>
               </section>
             ) : isRestaurant ? (

@@ -88,14 +88,10 @@ export default function BottomNav() {
           </button>
         )}
 
-        <button
-          type="button"
-          onClick={() => window.dispatchEvent(new Event('xupply_open_drawer'))}
-          className="x-shell-dock__item flex flex-col items-center justify-center py-1.5 gap-0.5 text-[10px] font-semibold text-slate-500 dark:text-slate-400"
-        >
-          <Menu className="w-5 h-5" strokeWidth={2} />
-          <span>{label('menu', lang === 'en' ? 'Menu' : 'Menú')}</span>
-        </button>
+        <Link to="/ajustes" className={navItemClass('/ajustes')}>
+          <Menu className="w-5 h-5" strokeWidth={isActive('/ajustes') ? 2.5 : 2} />
+          <span>{lang === 'en' ? 'Settings' : 'Ajustes'}</span>
+        </Link>
       </div>
     </nav>
   );

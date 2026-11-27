@@ -320,6 +320,10 @@ export function ContentField({ fieldKey, label, value, onChange }: FieldProps) {
             placeholder="/register o https://..."
             value={value}
             onChange={(e) => onChange(e.target.value)}
+            onBlur={(e) => {
+              // No se publica un enlace inseguro: se descarta al salir del campo.
+              if (e.target.value.trim() && !isSafeLink(e.target.value)) onChange('');
+            }}
           />
           {!valid ? <span className="ce-field__hint ce-field__hint--warn">Usa /ruta o una URL http(s).</span> : null}
         </label>

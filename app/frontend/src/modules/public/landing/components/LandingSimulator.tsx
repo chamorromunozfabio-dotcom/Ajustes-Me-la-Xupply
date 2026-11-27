@@ -20,10 +20,12 @@ export function LandingSimulator({ content, selectedType, currentProducts, quant
           <div className="sim-controls">
             <h3>{simulator.typeLabel}</h3>
             <div className="type-buttons">
-              {(simulator.types || []).map(t => (
+              {(Array.isArray(simulator.types) ? simulator.types : []).map(t => (
                 <button
                   key={t.key}
+                  type="button"
                   className={`type-btn ${selectedType === t.key ? 'active' : ''}`}
+                  aria-pressed={selectedType === t.key}
                   onClick={() => handleTypeChange(t.key)}
                 >
                   {t.label}
@@ -42,12 +44,33 @@ export function LandingSimulator({ content, selectedType, currentProducts, quant
                       <span className="sim-item-fefo">
                         Lote FEFO (-{Math.round((prod.fefoDiscount || 0) * 100)}%)
                       </span>
+                      {prod.supplier ? <> • {prod.supplier}</> : null}
                     </span>
                   </div>
                   <div className="sim-qty-control">
-                    <button className="qty-btn" onClick={() => handleQuantity(prod.id, -1)} aria-label={receipt.decreaseLabel}>-</button>
-                    <span className="qty-val">{quantities[prod.id] || 0}</span>
-                    <button className="qty-btn" onClick={() => handleQuantity(prod.id, 1)} aria-label={receipt.increaseLabel}>+</button>
+                    <button
+                      type="button"
+                      className="qty-btn"
+                      onClick={() => handleQuantity(prod.id, -1)}
+                      aria-label={`${receipt.decreaseLabel} ${prod.name}`}
+                    >
+                      -
+                    </button>
+                    <span
+                      className="qty-val"
+                      aria-live="polite"
+                      aria-label={`${prod.name}: ${quantities[prod.id] || 0}`}
+                    >
+                      {quantities[prod.id] || 0}
+                    </span>
+                    <button
+                      type="button"
+                      className="qty-btn"
+                      onClick={() => handleQuantity(prod.id, 1)}
+                      aria-label={`${receipt.increaseLabel} ${prod.name}`}
+                    >
+                      +
+                    </button>
                   </div>
                 </div>
               ))}
@@ -96,7 +119,8 @@ export function LandingSimulator({ content, selectedType, currentProducts, quant
               className="btn"
               style={{
                 width: '100%',
-                background: orderTransmittedMsg ? '#10b981' : undefined,
+                background: orderTransmittedMsg ? 'var(--emerald)' : undefined,
+                color: orderTransmittedMsg ? 'var(--on-accent, #ffffff)' : undefined,
               }}
               onClick={handleEmitOrder}
             >

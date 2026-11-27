@@ -1,11 +1,30 @@
 import { Link } from 'react-router-dom';
+import type { KeyboardEvent } from 'react';
 import type { LandingInteractions } from '../hooks';
 
 type Props = Pick<LandingInteractions, 'content' | 'activeRole' | 'setActiveRole'>;
 
 export function LandingRoles({ content, activeRole, setActiveRole }: Props) {
   const { roles } = content;
-  const data = roles.data || [];
+  const data = Array.isArray(roles.data) ? roles.data : [];
+
+  const handleTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    if (!data.length) return;
+    const nextIndex = event.key === 'Home'
+      ? 0
+      : event.key === 'End'
+        ? data.length - 1
+        : event.key === 'ArrowRight'
+          ? (index + 1) % data.length
+          : (index - 1 + data.length) % data.length;
+    const nextRole = data[nextIndex];
+    if (!nextRole) return;
+    setActiveRole(nextRole.key);
+    const tabs = event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]');
+    tabs?.[nextIndex]?.focus();
+  };
 
   return (
     <>
@@ -17,12 +36,19 @@ export function LandingRoles({ content, activeRole, setActiveRole }: Props) {
         </div>
 
         {/* Role Tabs */}
-        <div className="role-tabs">
-          {data.map(role => (
+        <div className="role-tabs" role="tablist" aria-label={roles.title}>
+          {data.map((role, index) => (
             <button
               key={role.key}
+              type="button"
+              role="tab"
+              id={`role-tab-${role.key}`}
+              aria-selected={activeRole === role.key}
+              aria-controls={`role-panel-${role.key}`}
+              tabIndex={activeRole === role.key ? 0 : -1}
               className={'role-tab-btn' + (activeRole === role.key ? ' active' : '')}
               onClick={() => setActiveRole(role.key)}
+              onKeyDown={(event) => handleTabKeyDown(event, index)}
             >
               <span>{role.name}</span>
             </button>
@@ -34,6 +60,10 @@ export function LandingRoles({ content, activeRole, setActiveRole }: Props) {
           {data.map(role => (
             <div
               key={role.key}
+              role="tabpanel"
+              id={`role-panel-${role.key}`}
+              aria-labelledby={`role-tab-${role.key}`}
+              hidden={activeRole !== role.key}
               className={'role-panel' + (activeRole === role.key ? ' active' : '')}
             >
               <div className="role-info">
@@ -73,13 +103,16 @@ export function LandingRoles({ content, activeRole, setActiveRole }: Props) {
                   ))}
                 </div>
 
-                <div style={{ background: 'rgba(15,23,42,0.6)', border: '1px solid var(--line)', borderRadius: '10px', padding: '14px', textAlign: 'center' }}>
+                <div className="mockup-action-box">
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginBottom: '8px' }}>
                     {roles.actionLabel}
                   </span>
-                  <button className="btn sm ghost" style={{ width: '100%' }}>
+                  <span
+                    className="btn sm ghost mockup-action"
+                    title="Vista previa: acción no ejecutable"
+                  >
                     {role.mockupData?.actionText}
-                  </button>
+                  </span>
                 </div>
               </div>
             </div>

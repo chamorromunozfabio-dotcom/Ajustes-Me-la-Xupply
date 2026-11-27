@@ -1,9 +1,8 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../../../shared/context/AuthContext';
-import { IconDashboard, IconTeam, IconKey, IconDocument } from '../../../shared/ui/Icons';
-import { ReactNode } from 'react';
+import { IconDashboard, IconTeam, IconKey, IconDocument, IconSettings } from '../../../shared/ui/Icons';
+import { hasAdminAccess, canManageContent, canVerifyAccounts } from '../../../shared/utils/permissions';
 
-// Si no tienes IconShieldCheck, usaremos IconCheck como fallback si no lo agrego
 function IconShield({ className }: { className?: string }) {
   return (
     <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -11,8 +10,6 @@ function IconShield({ className }: { className?: string }) {
     </svg>
   );
 }
-
-import { hasAdminAccess, canVerifyAccounts, canManageContent } from '../../../shared/utils/permissions';
 
 export default function AdminLayout() {
   const { user } = useAuth();
@@ -41,6 +38,7 @@ export default function AdminLayout() {
     ...(canContent
       ? [{ to: '/admin/contenido', label: 'Contenido', icon: IconDocument }]
       : []),
+    { to: '/admin/ajustes', label: 'Ajustes', icon: IconSettings },
   ];
 
   return (

@@ -23,10 +23,13 @@
   --emerald: #10b981;
   --emerald-dark: #059669;
   --emerald-light: #34d399;
+  --on-brand: #ffffff;
+  --on-accent: #ffffff;
 
   --text: #f8fafc;
   --text-muted: #94a3b8;
-  --text-dim: #64748b;
+  /* Antes #64748b (~3.9:1) no llegaba a WCAG AA sobre fondo oscuro. */
+  --text-dim: #94a3b8;
 
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
@@ -36,7 +39,9 @@
   font-family: var(--font-sans);
   min-height: 100vh;
   position: relative;
-  overflow-x: hidden;
+  /* `hidden` convierte este contenedor en scroll container y rompe el
+     `position: sticky` del nav. `clip` recorta sin crear scroll. */
+  overflow-x: clip;
   line-height: 1.6;
 }
 
@@ -115,16 +120,29 @@
   }
 }
 
-/* Top Progress Line */
-.landing-page #pg {
+/* Top Progress Line (se monta en <body> desde Landing.tsx) */
+#pg {
   position: fixed;
   top: 0;
   left: 0;
-  height: 2.5px;
-  width: 0%;
-  background: linear-gradient(90deg, var(--brand), var(--brand-light), var(--emerald));
-  z-index: 100;
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+  right: 0;
+  height: 4px;
+  z-index: 1000;
+  pointer-events: none;
+  background: rgba(148, 163, 184, 0.18);
+}
+
+#pg i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(
+    90deg,
+    var(--brand, #0284c7),
+    var(--brand-light, #38bdf8),
+    var(--emerald, #10b981)
+  );
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
   transition: width 0.1s ease-out;
 }
 
@@ -135,8 +153,13 @@
   z-index: 40;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  background: rgba(11, 17, 32, 0.85);
+  background: var(--panel);
   border-bottom: 1px solid var(--line);
+}
+
+/* Evita que los anchors (#features, #roles, ...) queden tapados por el nav fijo. */
+.landing-page section[id] {
+  scroll-margin-top: 84px;
 }
 
 .landing-page nav .wrap {
@@ -150,6 +173,11 @@
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+/* El logo comparte estilos con el shell; aquí sigue el tema de la landing. */
+.landing-page .nav-brand .text-white {
+  color: var(--text) !important;
 }
 
 .landing-page .logo-badge {
@@ -200,6 +228,43 @@
   gap: 12px;
 }
 
+/* Hamburguesa: solo se muestra en móvil (ver media query). */
+.landing-page .nav-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 4px;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--line-strong);
+  border-radius: 9px;
+  background: var(--panel-soft);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.landing-page .nav-toggle span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.landing-page nav.nav--open .nav-toggle span:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.landing-page nav.nav--open .nav-toggle span:nth-child(2) {
+  opacity: 0;
+}
+
+.landing-page nav.nav--open .nav-toggle span:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
 /* Buttons */
 .landing-page .btn {
   position: relative;
@@ -212,7 +277,7 @@
   font-size: 0.92rem;
   font-weight: 600;
   background: var(--brand);
-  color: #ffffff;
+  color: var(--on-brand, #ffffff);
   border: 1px solid transparent;
   cursor: pointer;
   box-shadow: 0 4px 16px rgba(2, 132, 199, 0.3);
@@ -224,7 +289,7 @@
   background: var(--brand-dark);
   transform: translateY(-1px);
   box-shadow: 0 6px 20px rgba(2, 132, 199, 0.45);
-  color: #ffffff;
+  color: var(--on-brand, #ffffff);
 }
 
 .landing-page .btn:active {
@@ -241,7 +306,7 @@
 .landing-page .btn.ghost:hover {
   background: var(--bg-card-hover);
   border-color: var(--brand-light);
-  color: #ffffff;
+  color: var(--text);
 }
 
 .landing-page .btn.sm {
@@ -251,6 +316,7 @@
 
 .landing-page .btn.emerald {
   background: var(--emerald);
+  color: var(--on-accent, #ffffff);
   box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
 }
 
@@ -410,7 +476,7 @@
   border-radius: 6px;
   border: 1px solid var(--line);
   color: var(--text-muted);
-  background: rgba(15, 23, 42, 0.6);
+  background: var(--panel);
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -422,7 +488,7 @@
 
 .landing-page .st.on {
   background: var(--brand);
-  color: #ffffff;
+  color: var(--on-brand, #ffffff);
   border-color: var(--brand);
   box-shadow: 0 0 12px rgba(2, 132, 199, 0.45);
   font-weight: 600;
@@ -449,7 +515,7 @@
   overflow: hidden;
   border-block: 1px solid var(--line);
   padding: 12px 0;
-  background: rgba(15, 23, 42, 0.4);
+  background: var(--panel-soft);
   mask: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
   -webkit-mask: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
   position: relative;
@@ -484,7 +550,8 @@
 
 @keyframes marquee-anim {
   to {
-    transform: translateX(-50%);
+    /* -50% incluye medio gap; se compensan los 9px para que no haya salto. */
+    transform: translateX(calc(-50% - 9px));
   }
 }
 
@@ -576,6 +643,29 @@
   gap: 20px;
 }
 
+/* Banners y noticias: antes había 80px + 80px entre ambos bloques. */
+.landing-page #novedades,
+.landing-page #noticias {
+  padding: 48px 0;
+}
+
+.landing-page #novedades {
+  padding-bottom: 20px;
+}
+
+.landing-page #noticias {
+  padding-top: 0;
+}
+
+.landing-page #novedades .sec-head {
+  margin-bottom: 28px;
+}
+
+.landing-page #novedades .grid,
+.landing-page #noticias .grid {
+  gap: 14px;
+}
+
 .landing-page .feat {
   padding: 26px 22px;
   border-radius: 18px;
@@ -646,7 +736,7 @@
   padding: 7px 14px;
   border-radius: 8px;
   border: 1px solid var(--line-strong);
-  background: rgba(15, 23, 42, 0.6);
+  background: var(--panel);
   color: var(--text-muted);
   font-size: 0.84rem;
   font-weight: 500;
@@ -656,7 +746,7 @@
 
 .landing-page .type-btn.active, .landing-page .type-btn:hover {
   background: rgba(2, 132, 199, 0.18);
-  color: #ffffff;
+  color: var(--text);
   border-color: var(--brand);
 }
 
@@ -672,7 +762,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px 14px;
-  background: rgba(11, 17, 32, 0.5);
+  background: var(--panel-soft);
   border: 1px solid var(--line);
   border-radius: 12px;
   transition: background 0.2s ease;
@@ -727,7 +817,7 @@
 .landing-page .qty-btn:hover {
   background: var(--brand);
   border-color: var(--brand);
-  color: #ffffff;
+  color: var(--on-brand, #ffffff);
 }
 
 .landing-page .qty-val {
@@ -838,7 +928,7 @@
   flex-wrap: wrap;
   margin-bottom: 28px;
   padding: 4px;
-  background: rgba(15, 23, 42, 0.75);
+  background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 10px;
   width: fit-content;
@@ -868,7 +958,7 @@
 
 .landing-page .role-tab-btn.active {
   background: var(--brand);
-  color: #ffffff;
+  color: var(--on-brand, #ffffff);
   border-color: var(--brand);
   box-shadow: 0 2px 10px rgba(2, 132, 199, 0.4);
   font-weight: 600;
@@ -878,12 +968,33 @@
   display: none;
 }
 
+/* El atributo hidden manda sobre la clase .active por si el CMS cambia claves. */
+.landing-page .role-panel[hidden] {
+  display: none !important;
+}
+
 .landing-page .role-panel.active {
   display: grid;
   grid-template-columns: 1fr 1.05fr;
   gap: 32px;
   align-items: center;
   animation: landing-fadeUp 0.3s ease-out forwards;
+}
+
+/* La "acción" del mockup es ilustrativa: se ve como botón pero no es cliqueable. */
+.landing-page .mockup-action-box {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px;
+  text-align: center;
+}
+
+.landing-page .mockup-action {
+  width: 100%;
+  cursor: default;
+  pointer-events: none;
+  opacity: 0.85;
 }
 
 @keyframes landing-fadeUp {
@@ -976,7 +1087,7 @@
 }
 
 .landing-page .m-metric {
-  background: rgba(15, 23, 42, 0.8);
+  background: var(--panel);
   padding: 10px;
   border-radius: 10px;
   border: 1px solid var(--line);
@@ -1103,7 +1214,7 @@
 .landing-page .cta-box {
   text-align: center;
   padding: 64px 24px;
-  background: linear-gradient(180deg, rgba(2, 132, 199, 0.15) 0%, rgba(15, 23, 42, 0.9) 100%);
+  background: linear-gradient(180deg, rgba(2, 132, 199, 0.15) 0%, var(--panel) 100%);
   border: 1px solid var(--line-strong);
   border-radius: 24px;
 }
@@ -1130,45 +1241,127 @@
 /* Footer */
 .landing-page footer {
   border-top: 1px solid var(--line);
-  padding: 36px 0;
+  padding: 22px 0;
   position: relative;
   z-index: 2;
-  background: rgba(11, 17, 32, 0.9);
+  background: var(--panel);
 }
 
 .landing-page .footer-content {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 16px;
+  text-align: center;
+  gap: 14px;
 }
 
-.landing-page .footer-left p {
-  color: var(--text-muted);
-  font-size: 0.88rem;
-}
-
-.landing-page .footer-left span {
-  display: block;
-  color: var(--text-dim);
-  font-size: 0.78rem;
-  margin-top: 3px;
-}
-
+/* Menú primero, centrado y en una sola fila cuando cabe.
+   Solo anclas de sección: acceso/login ya está en la barra superior. */
 .landing-page .footer-right {
   display: flex;
-  gap: 18px;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+  width: 100%;
 }
 
 .landing-page .footer-right a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel-soft);
   color: var(--text-muted);
-  font-size: 0.84rem;
-  transition: color 0.2s ease;
+  font-size: 0.76rem;
+  font-weight: 500;
+  line-height: 1.3;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
 }
 
 .landing-page .footer-right a:hover {
   color: var(--brand-light);
+  border-color: var(--brand);
+  background: var(--panel);
+}
+
+.landing-page .footer-right a:focus-visible {
+  outline: 2px solid var(--brand-light);
+  outline-offset: 2px;
+}
+
+/* Copyright corto + iconos de contacto. */
+.landing-page .footer-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.landing-page .footer-copyright {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+/* Créditos como insignia, no como texto corrido. */
+.landing-page .footer-credits {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel-soft);
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  line-height: 1.3;
+}
+
+.landing-page .footer-credits svg {
+  color: var(--brand-light);
+  flex: 0 0 auto;
+}
+
+.landing-page .footer-credits strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.landing-page .footer-contact {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.landing-page .footer-icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--line-strong);
+  background: var(--panel-soft);
+  color: var(--text-muted);
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.landing-page .footer-icon-link:hover {
+  color: var(--brand-light);
+  border-color: var(--brand);
+  background: var(--panel);
+  transform: translateY(-2px);
+}
+
+.landing-page .footer-icon-link:focus-visible {
+  outline: 2px solid var(--brand-light);
+  outline-offset: 2px;
 }
 
 /* Responsive */
@@ -1190,14 +1383,71 @@
     grid-template-columns: 1fr;
     gap: 24px;
   }
+  /* En móvil: barra compacta + menú hamburguesa desplegable. */
+  .landing-page nav .wrap {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 68px;
+    padding-top: 10px;
+  }
+
+  .landing-page .nav-brand {
+    order: 1;
+    flex: 1 1 auto;
+  }
+
+  .landing-page .nav-actions {
+    order: 2;
+    flex: 0 0 auto;
+  }
+
+  .landing-page .nav-toggle {
+    order: 3;
+    display: flex;
+    margin-left: 4px;
+  }
+
   .landing-page .nav-links {
+    order: 4;
     display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    width: 100%;
+    padding: 6px 0 10px;
+    margin-top: 8px;
+    border-top: 1px solid var(--line);
+  }
+
+  .landing-page nav.nav--open .nav-links {
+    display: flex;
+  }
+
+  .landing-page .nav-links a {
+    padding: 9px 0;
+    font-size: 0.9rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .landing-page .nav-links a:last-child {
+    border-bottom: 0;
+  }
+
+  .landing-page section[id] {
+    scroll-margin-top: 84px;
   }
 }
 
 @media (max-width: 640px) {
   .landing-page .wrap {
     padding: 0 16px;
+  }
+  .landing-page .nav-actions {
+    gap: 6px;
+  }
+  .landing-page .nav-actions .btn {
+    padding: 0.4rem 0.7rem;
+    font-size: 0.78rem;
   }
   .landing-page .stats {
     grid-template-columns: 1fr;
@@ -1263,5 +1513,22 @@
   }
   .landing-page .cta-buttons .btn {
     width: 100% !important;
+  }
+}
+
+/* Movimiento reducido: aurora, marquee, transiciones y tilt se detienen.
+   Las animaciones SMIL del mapa se omiten en LandingHero. */
+@media (prefers-reduced-motion: reduce) {
+  .landing-page *,
+  .landing-page *::before,
+  .landing-page *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .landing-page .mq div {
+    animation: none !important;
   }
 }

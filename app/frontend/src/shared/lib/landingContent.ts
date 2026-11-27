@@ -530,6 +530,12 @@ function deepMerge<T>(defaults: T, published: Record<string, unknown>): T {
   for (const [key, value] of Object.entries(published)) {
     if (key === '__proto__' || key === 'constructor' || value === undefined || value === null) continue;
     const current = result[key];
+    // Un valor publicado con forma distinta a la del default rompería los
+    // `.map()`/`reduce()` de la landing; lo ignoramos y conservamos el default.
+    if (current !== undefined) {
+      if (Array.isArray(current) !== Array.isArray(value)) continue;
+      if (['string', 'number', 'boolean'].includes(typeof current) && typeof current !== typeof value) continue;
+    }
     result[key] = isPlainObject(value) && isPlainObject(current)
       ? deepMerge(current, value)
       : value;

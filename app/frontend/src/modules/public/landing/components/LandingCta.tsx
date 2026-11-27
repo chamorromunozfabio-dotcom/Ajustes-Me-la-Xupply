@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import type { LandingContent } from '../../../../shared/lib/landingContent';
+import { getApkDownloadUrl } from '../../../../shared/api/client';
 
 export function LandingCta({ content }: { content: LandingContent }) {
   const { cta } = content;
@@ -20,7 +21,7 @@ export function LandingCta({ content }: { content: LandingContent }) {
               </svg>
             </Link>
 
-            <a className="btn ghost sm" href="/Xupply.apk" download>
+            <a className="btn ghost sm" href={getApkDownloadUrl()} download>
               <span>{cta.download}</span>
             </a>
           </div>

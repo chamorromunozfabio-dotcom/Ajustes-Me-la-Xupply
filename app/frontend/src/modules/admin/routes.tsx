@@ -11,6 +11,7 @@ const ComerciosAdmin = lazy(() => import('./pages/ComerciosAdmin'));
 const AuditoriaAdmin = lazy(() => import('./pages/AuditoriaAdmin'));
 const VerificacionesAdmin = lazy(() => import('./pages/VerificacionesAdmin'));
 const ContenidoAdmin = lazy(() => import('./pages/ContenidoAdmin'));
+const AjustesAdmin = lazy(() => import('../../shared/ui/AjustesPage'));
 
 /** /admin para el verificador (sin permiso de configuración) va al back office. */
 export function AdminIndex() {
@@ -49,5 +50,6 @@ export const adminRoutes: React.ReactElement[] = [
     <Route path="comercios" element={<ConfigAllowed><ComerciosAdmin /></ConfigAllowed>} />
     <Route path="verificaciones" element={<VerificationAllowed><VerificacionesAdmin /></VerificationAllowed>} />
     <Route path="contenido" element={<ContentAllowed><ContenidoAdmin /></ContentAllowed>} />
+    <Route path="ajustes" element={<AjustesAdmin />} />
   </Route>,
 ];

@@ -11,11 +11,14 @@ export function isExternalHttpUrl(value: unknown): boolean {
   }
 }
 
-/** Acepta rutas internas (`/...`) y URLs http(s), nada de `javascript:` ni `data:`. */
+/** Acepta rutas internas (`/...`) y URLs http(s), nada de `javascript:`, `data:` ni `//host`. */
 export function isSafeLink(value: unknown): boolean {
-  if (typeof value !== 'string' || !value.trim()) return false;
+  if (typeof value !== 'string') return false;
   const text = value.trim();
-  return text.startsWith('/') || isExternalHttpUrl(text);
+  if (!text || /[\u0000-\u001f\u007f]/.test(text)) return false;
+  if (text.startsWith('//') || text.startsWith('\\')) return false;
+  if (text.startsWith('/')) return !text.startsWith('/\\');
+  return isExternalHttpUrl(text);
 }
 
 /** Normaliza hexadecimal a `#rrggbb`. Cualquier valor inválido usa el fallback. */

@@ -18,7 +18,6 @@ import {
   IconSuppliers,
   IconPlans,
   IconAi,
-  IconKey,
   IconInvoice,
   IconAccounting,
   IconSettings,
@@ -296,72 +295,8 @@ export default function HamburgerDrawer({ isOpen, onClose }: HamburgerDrawerProp
           </div>
           )}
 
-          {/* Administración (Solo Super Admin) */}
-          {isAdmin && (
-            <div>
-              <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">
-                {t('nav.admin_control')}
-              </p>
-              <div className="space-y-1" onClick={onClose}>
-                <Link to="/admin" className={linkItemClass}>
-                  <span className="flex items-center gap-3">
-                    <IconDashboard className="w-4 h-4 text-sky-600 dark:text-sky-400" />
-                    <span>Panel Principal (Actividades)</span>
-                  </span>
-                  <span className="text-[10px] text-brand font-bold bg-brand/10 px-2 py-0.5 rounded-md">
-                    KPIs
-                  </span>
-                </Link>
-                <Link to="/admin/usuarios" className={linkItemClass}>
-                  <span className="flex items-center gap-3">
-                    <IconTeam className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                    <span>Gestión de Usuarios</span>
-                  </span>
-                </Link>
-                <Link to="/admin/roles" className={linkItemClass}>
-                  <span className="flex items-center gap-3">
-                    <IconKey className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                    <span>Roles del Sistema</span>
-                  </span>
-                </Link>
-                <Link to="/admin/permisos" className={linkItemClass}>
-                  <span className="flex items-center gap-3">
-                    <IconSettings className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                    <span>Gestión de Permisos</span>
-                  </span>
-                  <span className="text-[10px] text-emerald-700 bg-emerald-100 dark:bg-emerald-900/50 dark:text-emerald-300 font-bold px-2 py-0.5 rounded-md">
-                    RBAC
-                  </span>
-                </Link>
-                <Link to="/admin/comercios" className={linkItemClass}>
-                  <span className="flex items-center gap-3">
-                    <IconSuppliers className="w-4 h-4 text-teal-600 dark:text-teal-400" />
-                    <span>Directorio de Comercios</span>
-                  </span>
-                </Link>
-              </div>
-            </div>
-          )}
-
-          {/* Back office de verificación (rol verificador) */}
-          {isVerifier && (
-            <div>
-              <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-2">
-                Back office
-              </p>
-              <div className="space-y-1" onClick={onClose}>
-                <Link to="/admin/verificaciones" className={linkItemClass}>
-                  <span className="flex items-center gap-3">
-                    <IconSettings className="w-4 h-4 text-sky-600 dark:text-sky-400" />
-                    <span>Verificación de cuentas</span>
-                  </span>
-                  <span className="text-[10px] text-brand font-bold bg-brand/10 px-2 py-0.5 rounded-md">
-                    KYC
-                  </span>
-                </Link>
-              </div>
-            </div>
-          )}
+          {/* El back office ya no se duplica aquí: se gestiona únicamente
+              desde el rail lateral del AdminLayout. */}
 
           {/* Configuración y Preferencias */}
           <div>
