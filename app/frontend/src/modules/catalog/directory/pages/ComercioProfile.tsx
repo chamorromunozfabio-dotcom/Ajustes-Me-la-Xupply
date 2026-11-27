@@ -1,6 +1,7 @@
 import { toast } from '../../../../shared/utils/feedback';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { api } from '../../../../shared/api/client';
 import { Review } from '../../../../shared/types';
 import { useNotifications } from '../../../../shared/context/NotificationContext';
@@ -11,6 +12,7 @@ import { formatDate } from '../../../../shared/utils/constants';
 export default function ComercioProfile() {
   const { type, id } = useParams();
   const { push } = useNotifications();
+  const { t, i18n } = useTranslation('directory');
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   
@@ -60,7 +62,7 @@ export default function ComercioProfile() {
         method: 'POST',
         body: JSON.stringify({ supplier_id: Number(id), rating, comment }),
       });
-      push({ message: 'Reseña publicada con éxito', at: new Date().toISOString() });
+      push({ message: t('review_published'), at: new Date().toISOString() });
       setRating(5);
       setComment('');
       fetchReviews();
@@ -69,8 +71,8 @@ export default function ComercioProfile() {
     }
   };
 
-  if (loading) return <div className="p-8 text-center text-slate-500 font-medium">Cargando perfil del comercio...</div>;
-  if (!data || !data.profile) return <div className="p-8 text-center text-rose-500 font-bold">Comercio no encontrado</div>;
+  if (loading) return <div className="p-8 text-center text-slate-500 font-medium">{t('loading_profile', { ns: 'common', defaultValue: 'Cargando perfil...' })}</div>;
+  if (!data || !data.profile) return <div className="p-8 text-center text-rose-500 font-bold">{t('profile_not_found')}</div>;
 
   const { profile, catalog } = data;
   const isSupplier = type === 'supplier';
@@ -95,7 +97,7 @@ export default function ComercioProfile() {
         
         {/* Back Button */}
         <button onClick={() => window.history.back()} className="absolute top-6 left-6 bg-white/20 backdrop-blur-md hover:bg-white/40 text-white px-4 py-2 rounded-xl text-sm font-bold transition flex items-center gap-2">
-          <ArrowLeft className="w-4 h-4" /> Volver
+          <ArrowLeft className="w-4 h-4" /> {t('back_directory')}
         </button>
       </div>
 
@@ -109,7 +111,7 @@ export default function ComercioProfile() {
           <div className="flex-1 text-center sm:text-left z-10 pb-2 sm:pb-4">
             <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white drop-shadow-sm">{profile.name}</h1>
             <p className="text-sm font-bold text-slate-600 dark:text-slate-300 mt-1">
-              {isSupplier ? 'Proveedor Mayorista' : 'Restaurante'} • {profile.city || 'Ubicación Desconocida'}
+              {isSupplier ? t('supplier_wholesale', { ns: 'common', defaultValue: 'Proveedor Mayorista' }) : t('restaurant', { ns: 'common', defaultValue: 'Restaurante' })} • {profile.city || t('unknown_location', { ns: 'common', defaultValue: 'Ubicación Desconocida' })}
             </p>
             {isSupplier && profile.rating && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-xs font-bold text-amber-700 dark:text-amber-400 mt-3">
@@ -121,7 +123,7 @@ export default function ComercioProfile() {
           
           <div className="flex gap-2 z-10 pb-4">
             <div className={`px-4 py-2.5 rounded-xl text-sm font-bold shadow-sm flex items-center ${profile.is_active ? 'bg-slate-100 text-emerald-600 dark:bg-slate-800' : 'bg-rose-50 text-rose-600 dark:bg-rose-900/20'}`}>
-              {profile.is_active ? 'Activo' : 'Inactivo'}
+              {profile.is_active ? t('active', { ns: 'common', defaultValue: 'Activo' }) : t('inactive', { ns: 'common', defaultValue: 'Inactivo' })}
             </div>
           </div>
         </div>
@@ -133,31 +135,31 @@ export default function ComercioProfile() {
         {/* Left Column: About & Reviews */}
         <div className="xl:col-span-1 space-y-6">
           <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 p-6">
-            <h2 className="text-lg font-black text-slate-800 dark:text-white mb-4">Información del Negocio</h2>
+            <h2 className="text-lg font-black text-slate-800 dark:text-white mb-4">{t('business_info', { ns: 'common', defaultValue: 'Información del Negocio' })}</h2>
             <div className="space-y-4 text-sm text-slate-600 dark:text-slate-300">
               {profile.description && (
                 <p className="pb-4 border-b border-slate-100 dark:border-slate-800 leading-relaxed">{profile.description}</p>
               )}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs font-bold text-slate-400 uppercase mb-1">NIT</p>
+                  <p className="text-xs font-bold text-slate-400 uppercase mb-1">{t('nit', { ns: 'common', defaultValue: 'NIT' })}</p>
                   <p className="font-medium text-slate-700 dark:text-slate-200">{profile.nit || '—'}</p>
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-slate-400 uppercase mb-1">Teléfono</p>
+                  <p className="text-xs font-bold text-slate-400 uppercase mb-1">{t('phone', { ns: 'common', defaultValue: 'Teléfono' })}</p>
                   <p className="font-medium text-slate-700 dark:text-slate-200">{profile.phone || '—'}</p>
                 </div>
                 <div className="col-span-2">
-                  <p className="text-xs font-bold text-slate-400 uppercase mb-1">Email</p>
+                  <p className="text-xs font-bold text-slate-400 uppercase mb-1">{t('email', { ns: 'common', defaultValue: 'Email' })}</p>
                   <p className="font-medium text-slate-700 dark:text-slate-200">{profile.email || '—'}</p>
                 </div>
                 <div className="col-span-2">
-                  <p className="text-xs font-bold text-slate-400 uppercase mb-1">Dirección</p>
+                  <p className="text-xs font-bold text-slate-400 uppercase mb-1">{t('address', { ns: 'common', defaultValue: 'Dirección' })}</p>
                   <p className="font-medium text-slate-700 dark:text-slate-200">{profile.address || '—'}</p>
                 </div>
                 {isSupplier && profile.category && (
                   <div className="col-span-2">
-                    <p className="text-xs font-bold text-slate-400 uppercase mb-1">Categoría</p>
+                    <p className="text-xs font-bold text-slate-400 uppercase mb-1">{t('category', { ns: 'common', defaultValue: 'Categoría' })}</p>
                     <span className="inline-block bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-lg font-bold text-slate-700 dark:text-slate-300">
                       {profile.category}
                     </span>
@@ -170,12 +172,12 @@ export default function ComercioProfile() {
           {isSupplier && (
             <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
               <div className="p-6">
-                <h2 className="text-lg font-black text-slate-800 dark:text-white mb-4">Reseñas ({reviews.length})</h2>
+                <h2 className="text-lg font-black text-slate-800 dark:text-white mb-4">{t('reviews')} ({reviews.length})</h2>
                 
                 <div className="space-y-4 max-h-80 overflow-y-auto pr-2 custom-scrollbar">
                   {reviews.length === 0 && (
                     <div className="text-center py-6 text-slate-400 italic text-sm">
-                      Aún no hay reseñas.
+                      {t('no_reviews')}
                     </div>
                   )}
                   {reviews.map((r) => (
@@ -195,27 +197,27 @@ export default function ComercioProfile() {
               </div>
               
               <div className="p-6 bg-slate-50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800">
-                <h4 className="font-bold text-sm text-slate-800 dark:text-slate-200 mb-4">Dejar una reseña</h4>
+                <h4 className="font-bold text-sm text-slate-800 dark:text-slate-200 mb-4">{t('leave_review')}</h4>
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <span className="text-sm font-bold text-slate-500 dark:text-slate-400">Calificación:</span>
+                    <span className="text-sm font-bold text-slate-500 dark:text-slate-400">{t('rating')}</span>
                     <select value={rating} onChange={(e) => setRating(Number(e.target.value))} className="flex-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm font-bold outline-none focus:border-brand">
-                      <option value="5">5 - Excelente</option>
-                      <option value="4">4 - Muy bueno</option>
-                      <option value="3">3 - Regular</option>
-                      <option value="2">2 - Malo</option>
-                      <option value="1">1 - Pésimo</option>
+                      <option value="5">{t('rating_5')}</option>
+                      <option value="4">{t('rating_4')}</option>
+                      <option value="3">{t('rating_3')}</option>
+                      <option value="2">{t('rating_2')}</option>
+                      <option value="1">{t('rating_1')}</option>
                     </select>
                   </div>
                   <textarea
-                    placeholder="Comparte tu experiencia con este proveedor..."
+                    placeholder={t('comment_placeholder')}
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
                     className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 text-sm outline-none focus:border-brand focus:ring-1 focus:ring-brand resize-none"
                     rows={3}
                   />
                   <button onClick={submitReview} className="w-full rounded-xl bg-brand py-3 text-sm font-bold text-white hover:bg-sky-600 transition shadow-lg shadow-brand/20">
-                    Publicar Reseña
+                    {t('publish_review')}
                   </button>
                 </div>
               </div>
@@ -227,7 +229,7 @@ export default function ComercioProfile() {
         <div className="xl:col-span-2 space-y-6">
           <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 sm:p-8">
             <h2 className="text-xl font-black text-slate-800 dark:text-white mb-6 flex items-center gap-2">
-              {isSupplier ? 'Catálogo de Productos' : 'Menú de Platos'}
+              {isSupplier ? t('catalog_title') : t('menu_title')}
               <span className="bg-slate-100 dark:bg-slate-800 text-slate-500 text-sm px-3 py-1 rounded-full">{catalog.length}</span>
             </h2>
             
@@ -236,8 +238,8 @@ export default function ComercioProfile() {
                 <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
                   <span className="text-2xl opacity-50">📦</span>
                 </div>
-                <h3 className="font-bold text-slate-700 dark:text-slate-300 mb-1">Sin productos publicados</h3>
-                <p className="text-sm text-slate-500 max-w-sm">Este comercio aún no ha agregado productos a su catálogo público.</p>
+                <h3 className="font-bold text-slate-700 dark:text-slate-300 mb-1">{t('no_products')}</h3>
+                <p className="text-sm text-slate-500 max-w-sm">{t('no_products_text')}</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -246,7 +248,7 @@ export default function ComercioProfile() {
                     <div className="absolute top-0 right-0 w-24 h-24 bg-brand/5 rounded-bl-full -z-10 group-hover:scale-110 transition-transform"></div>
                     <div>
                       <span className="inline-block text-xs font-bold text-brand bg-brand/10 dark:bg-brand/20 px-2 py-1 rounded-md mb-2">
-                        {item.category_name || item.category || 'Sin Categoría'}
+                        {item.category_name || item.category || t('no_category')}
                       </span>
                       <h3 className="font-black text-lg text-slate-900 dark:text-white leading-tight">{item.name}</h3>
                       {item.description && <p className="text-sm text-slate-500 mt-2 line-clamp-2">{item.description}</p>}
@@ -254,14 +256,14 @@ export default function ComercioProfile() {
                     
                     <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
                       <div className="flex flex-col">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Precio por {item.unit}</span>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t('price_per', { unit: item.unit })}</span>
                         <span className="font-black text-xl text-slate-800 dark:text-slate-100">
-                          ${Number(isSupplier ? item.price_per_unit : item.price).toLocaleString()}
+                          ${Number(isSupplier ? item.price_per_unit : item.price).toLocaleString(i18n.language === 'en' ? 'en-US' : 'es-CO')}
                         </span>
                       </div>
                       {isSupplier && (
                         <div className="text-right flex flex-col">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Min.</span>
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{t('min')}</span>
                           <span className="font-bold text-slate-600 dark:text-slate-300">{item.min_order_qty}</span>
                         </div>
                       )}

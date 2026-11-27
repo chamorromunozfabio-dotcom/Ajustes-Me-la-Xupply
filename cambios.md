@@ -175,8 +175,12 @@ Contraseña para **todos** los usuarios: `demo1234` (restablecida el 2026-11-27;
   - Inicio: `Dashboard` textos visibles principales con `dashboard.*`.
   - Mercado (parcial, en curso): `Catalog.tsx` migrado a `useTranslation(['catalog','common'])` (header, búsqueda/filtros/orden, contadores, tarjetas, acciones, modal personalización, modal crear/editar, toasts/aria, formato de precio por locale); `CartPage.tsx`, `Orders.tsx`, `OrderDetail.tsx`, `OrderCard.tsx`, `Suppliers.tsx`.
   - Presentación pedidos: `orders/presentation.ts` `orderStatusLabel(status,t?)` permite traducir estados.
-- **Pendiente i18n**: completar cobertura ES/EN en `ComercioProfile`, componentes compartidos de catálogo, módulos Gestión (`Inventory`, `Radar`, `Facturación`, `Contabilidad`, `Planes`), Auth/Admin/compartidos restantes y textos de feedback/validación.
+- **ComercioProfile / recomendador (cierre de sesión)**:
+  - `catalog/directory/pages/ComercioProfile.tsx`: migrado a `useTranslation('directory')` + claves `common`; cubre carga/error, volver, tipo/ubicación, estado activo/inactivo, info negocio, reseñas/formulario/publicación, catálogo vacío, categoría, precio por unidad y mínimo; formato de precio por locale `es-CO/en-US`.
+  - `shared/ui/RecommendedSuppliersGallery.tsx`: migrado a namespace `directory` (eyebrow/título, anterior/siguiente con `aria-label`, CTAs, footer recomendación/despachos).
+  - Locales actualizados: `es/en/directory.json` y `es/en/common.json` con claves de perfil/reseñas/recomendador/negocio.
+- **Pendiente i18n**: completar cobertura ES/EN en componentes compartidos restantes de catálogo (revisar `SideCart` si se reutiliza), módulos Gestión (`Inventory`, `Radar`, `Facturación`, `Contabilidad`, `Planes`), Auth/Admin/compartidos restantes y textos de feedback/validación.
 
 ### Verificación
-- `npm run build --prefix app/frontend` → OK tras Paso 3.1 y tras migraciones parciales de Mercado (`✓ built in 8.00s` en la última corrida).
-- Cambios **sin commit/push**; `package.json` y lockfile modificados por instalación i18n confirmada.
+- `npm run build --prefix app/frontend` → OK tras migraciones parciales de Mercado y cierre con ComercioProfile/RecommendedSuppliersGallery (`✓ built in 10.62s` en la última corrida).
+- Cambios subidos a GitHub en `main` cuando el usuario lo solicitó.

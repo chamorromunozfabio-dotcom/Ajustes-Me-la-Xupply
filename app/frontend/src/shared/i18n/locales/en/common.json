@@ -124,5 +124,16 @@
   "subtotal": "Subtotal",
   "description": "Description",
   "cancel": "Cancel",
-  "select": "Select"
+  "select": "Select",
+  "loading_profile": "Loading profile...",
+  "supplier_wholesale": "Wholesale Supplier",
+  "restaurant": "Restaurant",
+  "unknown_location": "Unknown location",
+  "active": "Active",
+  "inactive": "Inactive",
+  "business_info": "Business Information",
+  "nit": "Tax ID",
+  "phone": "Phone",
+  "email": "Email",
+  "address": "Address"
 }

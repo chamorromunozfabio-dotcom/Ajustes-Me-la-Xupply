@@ -124,5 +124,16 @@
   "subtotal": "Subtotal",
   "description": "Descripción",
   "cancel": "Cancelar",
-  "select": "Selecciona"
+  "select": "Selecciona",
+  "loading_profile": "Cargando perfil...",
+  "supplier_wholesale": "Proveedor Mayorista",
+  "restaurant": "Restaurante",
+  "unknown_location": "Ubicación Desconocida",
+  "active": "Activo",
+  "inactive": "Inactivo",
+  "business_info": "Información del Negocio",
+  "nit": "NIT",
+  "phone": "Teléfono",
+  "email": "Email",
+  "address": "Dirección"
 }

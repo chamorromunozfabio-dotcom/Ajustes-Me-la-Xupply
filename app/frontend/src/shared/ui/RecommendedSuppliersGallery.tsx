@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { IconAi, IconStar } from './Icons';
 
@@ -72,6 +73,7 @@ export default function RecommendedSuppliersGallery({
   suppliers,
 }: GalleryProps) {
   const { tenant } = useAuth();
+  const { t } = useTranslation('directory');
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const list = (suppliers && suppliers.length > 0) ? suppliers : DEFAULT_RECOMMENDED;
@@ -107,10 +109,10 @@ export default function RecommendedSuppliersGallery({
             </span>
             <div>
               <p className="text-[10px] uppercase font-black tracking-widest text-emerald-400">
-                Recomendador de Proveedores Xupply
+                {t('recommender_eyebrow')}
               </p>
               <h2 className="text-sm sm:text-base font-bold text-white">
-                Proveedores Ideales para tu Restaurante: <span className="text-emerald-300 capitalize">{categoryName}</span>
+                {t('recommender_title')} <span className="text-emerald-300 capitalize">{categoryName}</span>
               </h2>
             </div>
           </div>
@@ -121,7 +123,8 @@ export default function RecommendedSuppliersGallery({
               type="button"
               onClick={prev}
               className="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center text-white transition cursor-pointer"
-              title="Anterior"
+              title={t('previous')}
+              aria-label={t('previous')}
             >
               ←
             </button>
@@ -132,7 +135,8 @@ export default function RecommendedSuppliersGallery({
               type="button"
               onClick={next}
               className="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 flex items-center justify-center text-white transition cursor-pointer"
-              title="Siguiente"
+              title={t('next')}
+              aria-label={t('next')}
             >
               →
             </button>
@@ -164,14 +168,14 @@ export default function RecommendedSuppliersGallery({
                 to={`/catalogo?categoria=${encodeURIComponent(activeSupplier.category)}`}
                 className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2.5 text-xs transition shadow-lg active:scale-95 cursor-pointer"
               >
-                <span>Ver Catálogo de Insumos</span>
+                <span>{t('view_supplies')}</span>
                 <span>→</span>
               </Link>
               <Link
                 to="/mercado/proveedores"
                 className="inline-flex items-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold px-4 py-2.5 text-xs transition border border-white/15 cursor-pointer"
               >
-                <span>Explorar Directorio</span>
+                <span>{t('explore_directory')}</span>
               </Link>
             </div>
           </div>
@@ -205,8 +209,8 @@ export default function RecommendedSuppliersGallery({
 
         {/* Footer indicators */}
         <div className="flex items-center justify-between pt-2 border-t border-white/10 text-[11px] text-white/50">
-          <span>Recomendación basada en categoría de cocina: {restaurantCategory}</span>
-          <span>Despachos en Bucaramanga y Santander</span>
+          <span>{t('recommendation_based', { category: restaurantCategory || categoryName })}</span>
+          <span>{t('dispatch_area')}</span>
         </div>
       </div>
     </div>
